@@ -3,12 +3,18 @@
 use Bramus\Router\Router;
 use app\controllers\rol;
 use app\controllers\usuario;
+use app\controllers\login;
 
 
 $rol = new rol();
 $usuario = new usuario();
+$login =new login();
+
 $router = new Router();
 
+/******************** Login ********************/
+$router->post('login', [$login, 'login']);
+$router->get('logout', [$login, 'logout']);
 /******************** Roles ********************/
 $router->get('getRoles', [$rol, 'getRoles']);
 $router->post('createRol', [$rol, 'createRol']);
