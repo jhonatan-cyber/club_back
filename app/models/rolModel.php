@@ -43,13 +43,9 @@ class rolModel extends query
             return "existe";
         } else {
             try {
-                $sql = "INSERT INTO rol (nombre) VALUES (:nombre)";
+                $sql = "INSERT INTO roles (nombre) VALUES (:nombre)";
                 $data = $this->save($sql, $params);
-                if ($data == 1) {
-                    return "ok";
-                } else {
-                    return "error";
-                }
+                return $data == 1 ? "ok" : "error";
             } catch (Exception $e) {
                 error_log('RolModel::createRol() -> ' . $e);
                 return response::estado500($e);
@@ -69,11 +65,7 @@ class rolModel extends query
             $params = [':nombre' => $rol['nombre'], ':id_rol' => $rol['id_rol']];
             try {
                 $data = $this->save($sql, $params);
-                if ($data == 1) {
-                    return "ok";
-                } else {
-                    return "error";
-                }
+                return $data == 1 ? "ok" : "error";
             } catch (Exception $e) {
                 error_log("RolModel::updateRol() -> " . $e);
                 return Response::estado500($e);
@@ -86,11 +78,7 @@ class rolModel extends query
         $params = [':id_rol' => $id];
         try {
             $data = $this->save($sql, $params);
-            if ($data == 1) {
-                return "ok";
-            } else {
-                return "error";
-            }
+            return $data == 1 ? "ok" : "error";
         } catch (Exception $e) {
             error_log("RolModel::deleteRol() -> " . $e);
             return Response::estado500($e);
