@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\config\query;
 use app\config\response;
+use app\config\guard;
 use Exception;
 
 class usuarioModel extends query
@@ -41,7 +42,6 @@ class usuarioModel extends query
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
-
         $sql = "SELECT * FROM usuarios WHERE run = :run AND correo = :correo AND estado = 1";
         $params = [':run' => $usuario['run'], ':correo' => $usuario['correo']];
         $existe = $this->select($sql, $params);
@@ -49,7 +49,7 @@ class usuarioModel extends query
             return "existe";
         }
 
-        $sql = "INSERT INTO usuarios (run,nombre,apellido,direccion,telefono,correo,password,rol_id,foto) VALUES (:run,:nombre,:apellido,:direccion,:telefono,:correo,:password,rol_id,foto)";
+        $sql = "INSERT INTO usuarios (run, nombre, apellido, direccion, telefono, correo, password, rol_id, foto) VALUES (:run, :nombre, :apellido, :direccion, :telefono, :correo, :password, :rol_id, :foto)";
         $params = [
             ':run' => $usuario['run'],
             ':nombre' => $usuario['nombre'],
@@ -57,7 +57,7 @@ class usuarioModel extends query
             ':direccion' => $usuario['direccion'],
             ':telefono' => $usuario['telefono'],
             ':correo' => $usuario['correo'],
-            ':password' => $usuario['password'],
+            ':password' => guard::createPassword($usuario['password']),
             ':rol_id' => $usuario['rol_id'],
             ':foto' => $usuario['foto']
         ];

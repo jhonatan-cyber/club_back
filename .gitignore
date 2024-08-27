@@ -5,26 +5,12 @@
 # Dependencias de Composer
 /vendor/
 
-# Configuraciones del IDE y entornos de desarrollo
-.idea/
 .vscode/
-
-# Archivos de logs
-*.log
-*.cache
-*.tmp
-
-# Archivos de sesiones
-sessions/
 
 # Configuración de PHPUnit
 .phpunit.result.cache
 
-# Archivos de configuración específicos del sistema
-*.local.php
-*.local.yml
-*.local.json
-*.local.env
+
 
 # Archivos generados por Composer
 composer.lock
@@ -37,10 +23,7 @@ tmp/
 # Archivos de autoload generados
 composer.phar
 
-# Archivos de respaldo
-*.bak
-*.swp
-*.swo
+
 
 # Archivos temporales de depuración
 debug.log

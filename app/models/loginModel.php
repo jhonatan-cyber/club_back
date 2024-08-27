@@ -21,11 +21,12 @@ class loginModel extends query
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
+        
         $sql = "CALL login(:correo)";
         $params = [
-            ':correo' => $usuario['correo']
+            ':correo' => $usuario['correo'],
         ];
-        $password = $usuario['usuario'];
+        $password = $usuario['password'];
 
         try {
             $res = $this->select($sql, $params);
@@ -41,7 +42,7 @@ class loginModel extends query
                         'foto' => $res['foto'],
                         'estado' => $res['estado']
                     ];
-                    return response::estado200($data);
+                    return $data;
                 }
                 return response::estado400('Usuario o contraseña incorrecta');
             }

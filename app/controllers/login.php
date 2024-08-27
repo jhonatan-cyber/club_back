@@ -28,20 +28,21 @@ class login extends controller
             return $this->response(response::estado400('Error al decodificar JSON: ' . json_last_error_msg()));
         }
         $datos = ['correo', 'password'];
+        $data= $this->data;
         foreach ($datos as $field) {
-            if (!isset($this->data[$field])) {
+            if (!isset($data[$field])) {
                 http_response_code(400);
                 return $this->response(response::estado400('Falta el campo ' . $field));
             }
         }
-        if (!filter_var($this->data['correo'], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
             http_response_code(400);
             return $this->response(response::estado400('El correo no es valido'));
         }
         try {
-            $res = $this->model->login($this->data);
+            $res = $this->model->login($data);
             if ($res['estado'] === "ok") {
-                $_SESSION['id_usuario'] = $res['data']['is_usuario'];
+                $_SESSION['id_usuario'] = $res['data']['id_usuario'];
                 $_SESSION['token'] = $res['data']['token'];
                 $_SESSION['foto'] = $res['data']['foto'];
                 if ($res['data']['estado'] === 0) {
@@ -63,7 +64,7 @@ class login extends controller
             http_response_code(405);
             return $this->response(response::estado405());
         }
-        /*   guard::validateToken($this->header, guard::secretKey()); */
+          guard::validateToken($this->header, guard::secretKey()); 
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
             http_response_code(200);
