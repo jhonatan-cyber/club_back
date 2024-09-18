@@ -36,19 +36,21 @@ class usuarioModel extends query
 
     public function createUsuario(array $usuario)
     {
-        $required = ['run', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
-        foreach ($required as $field) {
+        $requiredFields = ['run', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
+        foreach ($requiredFields as $field) {
             if (!array_key_exists($field, $usuario)) {
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
         $sql = "SELECT * FROM usuarios WHERE run = :run AND correo = :correo AND estado = 1";
-        $params = [':run' => $usuario['run'], ':correo' => $usuario['correo']];
+        $params = [
+            ':run' => $usuario['run'],
+            ':correo' => $usuario['correo']
+        ];
         $existe = $this->select($sql, $params);
         if (!empty($existe)) {
             return "existe";
         }
-
         $sql = "INSERT INTO usuarios (run, nombre, apellido, direccion, telefono, correo, password, rol_id, foto) VALUES (:run, :nombre, :apellido, :direccion, :telefono, :correo, :password, :rol_id, :foto)";
         $params = [
             ':run' => $usuario['run'],
@@ -62,56 +64,57 @@ class usuarioModel extends query
             ':foto' => $usuario['foto']
         ];
         try {
-            $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            $result = $this->save($sql, $params);
+            return $result == 1 ? "ok" : "error";
         } catch (Exception $e) {
-            error_log('UsuarioModel::createUsuario() -> ' . $e);
-            return response::estado500($e);
+            error_log("usuarioModel::createUsuario() -> " . $e);
+            return response::estado500();
         }
     }
     public function updateUsuario(array $usuario)
     {
-        $required = ['id_usuario', 'run', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
-        foreach ($required as $field) {
+        $requiredFields = ['run', 'nombre', 'apellido', 'direccion', 'telefono', 'rol_id', 'id_usuario'];
+        foreach ($requiredFields as $field) {
             if (!array_key_exists($field, $usuario)) {
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
+        if ($usuario['foto'] == null || $usuario['foto'] == '') {
+            $usuario['foto'] = 'default.jpg';
+        }
+
 
         $sql = "SELECT * FROM usuarios WHERE run = :run AND nombre = :nombre AND apellido = :apellido AND direccion = :direccion AND telefono = :telefono AND rol_id = :rol_id AND foto = :foto";
         $params = [
-            ':run' => $usuario['run'],
-            ':nombre' => $usuario['nombre'],
-            ':apellido' => $usuario['apellido'],
-            ':direccion' => $usuario['direccion'],
-            ':telefono' => $usuario['telefono'],
-            ':rol_id' => $usuario['rol_id'],
-            ':foto' => $usuario['foto']
+            'run' => $usuario['run'],
+            'nombre' => $usuario['nombre'],
+            'apellido' => $usuario['apellido'],
+            'direccion' => $usuario['direccion'],
+            'telefono' => $usuario['telefono'],
+            'rol_id' => $usuario['rol_id'],
+            'foto' => $usuario['foto']
         ];
         $existe = $this->select($sql, $params);
         if (!empty($existe)) {
             return "existe";
         }
-
-        $sql = "UPDATE usuarios SET run = :run, nombre = :nombre, apellido = :apellido, direccion = :direccion, telefono = :telefono, correo = :correo, password = :password, rol_id = :rol_id, foto = :foto WHERE id_usuario = :id_usuario";
+        $sql = "UPDATE usuarios SET run = :run, nombre = :nombre, apellido = :apellido, direccion = :direccion, telefono = :telefono, rol_id = :rol_id, foto = :foto, fecha_mod = now() WHERE id_usuario = :id_usuario";
         $params = [
-            ':id_usuario' => $usuario['id_usuario'],
             ':run' => $usuario['run'],
             ':nombre' => $usuario['nombre'],
             ':apellido' => $usuario['apellido'],
             ':direccion' => $usuario['direccion'],
             ':telefono' => $usuario['telefono'],
-            ':correo' => $usuario['correo'],
-            ':password' => $usuario['password'],
             ':rol_id' => $usuario['rol_id'],
-            ':foto' => $usuario['foto']
+            ':foto' => $usuario['foto'],
+            ':id_usuario' => $usuario['id_usuario']
         ];
         try {
-            $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            $result = $this->save($sql, $params);
+            return $result == 1 ? "ok" : "error";
         } catch (Exception $e) {
-            error_log('UsuarioModel::updateUsuario() -> ' . $e);
-            return response::estado500($e);
+            error_log("usuarioModel::updateUsuario() -> " . $e);
+            return response::estado500();
         }
     }
 

@@ -55,7 +55,7 @@ class rolModel extends query
 
     public function updateRol(array $rol)
     {
-        $sql = "SELECT nombre FROM roles WHERE nombre = :nombre";
+        $sql = "SELECT nombre FROM roles WHERE nombre = :nombre AND estado = 1";
         $params = [':nombre' => $rol['nombre']];
         $existe = $this->select($sql, $params);
         if ($existe) {

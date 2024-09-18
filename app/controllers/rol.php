@@ -2,11 +2,12 @@
 
 namespace app\controllers;
 
-use app\config\controller;
-use app\models\rolModel;
-use app\config\response;
-use app\config\guard;
 use Exception;
+use app\config\view;
+use app\config\guard;
+use app\config\response;
+use app\models\rolModel;
+use app\config\controller;
 
 class rol extends controller
 {
@@ -17,10 +18,29 @@ class rol extends controller
         parent::__construct();
         $this->model = new rolModel();
     }
+    public function index()
+    {
+        if ($this->method !== 'GET') {
+            $this->response(Response::estado405());
+        }
 
+        try {
+            $view = new view();
+            session_regenerate_id(true);
+            if (!empty($_SESSION['activo'])) {
+                echo $view->render('rol', 'index');
+            } else {
+                echo $view->render('auth', 'index');
+            }
+        } catch (Exception $e) {
+            http_response_code(404);
+            $this->response(Response::estado404($e));
+        }
+    }
     public function getRoles()
     {
         if ($this->method !== 'GET') {
+            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -40,6 +60,7 @@ class rol extends controller
     public function getRol($id)
     {
         if ($this->method !== 'GET') {
+            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -60,14 +81,17 @@ class rol extends controller
     public function createRol()
     {
         if ($this->method !== 'POST') {
+            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         if ($this->data === null) {
+            http_response_code(400);
             return $this->response(Response::estado400('Datos JSON no válidos.'));
         }
 
         if (empty($this->data['nombre'])) {
+            http_response_code(400);
             return $this->response(Response::estado400('El nombre es requerido.'));
         }
         $this->data['nombre'] = ucwords($this->data['nombre']);
@@ -76,7 +100,7 @@ class rol extends controller
             if (empty($this->data['id_rol'])) {
                 $rol = $this->model->createRol($this->data['nombre']);
             } else {
-                $rol = $this->model->updateRol($this->data[]);
+                $rol = $this->model->updateRol($this->data);
             }
             switch ($rol) {
                 case "ok":
@@ -97,6 +121,7 @@ class rol extends controller
     public function deleteRol($id)
     {
         if ($this->method !== 'GET') {
+            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());

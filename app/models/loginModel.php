@@ -5,6 +5,7 @@ namespace app\models;
 use app\config\query;
 use app\config\response;
 use app\config\guard;
+use app\controllers\usuario;
 use Exception;
 
 class loginModel extends query
@@ -21,7 +22,7 @@ class loginModel extends query
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
-        
+
         $sql = "CALL login(:correo)";
         $params = [
             ':correo' => $usuario['correo'],
@@ -34,15 +35,15 @@ class loginModel extends query
                 return response::estado400('Usuario o contraseña incorrecta');
             } else {
                 if (guard::validatePassword($password, $res['password'])) {
-                    $payload = ['token' => ["Run: {$res['run']}", "Nombre: {$res['nombre']}", "Apellido: {$res['apellido']}", "Rol: {$res['rol']}", "Correo: {$res['correo']}"]];
+                    $payload = ['token' => ["{$res['id_usuario']}", "{$res['run']}", "{$res['nombre']}", "{$res['apellido']}", "{$res['rol']}", "{$res['correo']}"]];
                     $token = guard::createToken(guard::secretKey(), $payload);
                     $data = [
                         'id_usuario' => $res['id_usuario'],
                         'token' => $token,
-                        'foto' => $res['foto'],
                         'estado' => $res['estado']
                     ];
-                    return $data;
+                    
+                    return response::estado200($data);
                 }
                 return response::estado400('Usuario o contraseña incorrecta');
             }
@@ -50,5 +51,62 @@ class loginModel extends query
             error_log("LoginModel::login() -> " . $e);
             return response::estado500();
         }
+    }
+    public function createCodigo(string $codigo)
+    {
+        try {
+            $sql = "INSERT INTO codigos (codigo) VALUES (:codigo)";
+            $params = [
+                ':codigo' => $codigo,
+            ];
+            $data = $this->save($sql, $params);
+            return $data == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+
+    }
+    public function updateCodigo()
+    {
+        try {
+            $sql = "UPDATE codigos SET estado = 0 WHERE estado=:estado LIMIT 1";
+            $params = [
+                ':estado' => 1,
+            ];
+
+            $data = $this->save($sql, $params);
+            return $data == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+
+    }
+    public function createAsistencia(int $usuario_id)
+    {
+        try {
+            $sql = "INSERT INTO asistencia (usuario_id) VALUES (:usuario_id)";
+            $params = [
+                ':usuario_id' => $usuario_id,
+            ];
+            $data = $this->save($sql, $params);
+            return $data == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+
+    }
+    public function validarCodigo(string $codigo)
+    {
+        try {
+            $sql = "SELECT * FROM codigos WHERE codigo = :codigo";
+            $params = [
+                ':codigo' => $codigo,
+            ];
+            $data = $this->select($sql, $params);
+            return $data;
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+
     }
 }

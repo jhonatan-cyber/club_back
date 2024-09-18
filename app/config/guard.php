@@ -32,14 +32,15 @@ class guard
     public static function createToken(string $key, array $data)
     {
         $payload = [
-            'iat' => time(),
-            'exp' => time() + (60 * 60 * 60),
+            'iat' => time(),  
+            'exp' => time() + (60 * 60 * 8),
             'data' => $data
         ];
-
+    
         $jwt = JWT::encode($payload, $key, 'HS256');
         return $jwt;
     }
+    
     public static function validateToken(array $token, string $key)
     {
         if (!isset($token['Authorization'])) {
