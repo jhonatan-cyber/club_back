@@ -37,12 +37,12 @@ class loginModel extends query
             if (guard::validatePassword($password, $res['password'])) {
                 $payload = [
                     'token' => [
-                        "{$res['id_usuario']}",
-                        "{$res['run']}",
-                        "{$res['nombre']}",
-                        "{$res['apellido']}",
-                        "{$res['rol']}",
-                        "{$res['correo']}"
+                        'id_usuario' => $res['id_usuario'],
+                        'run' => $res['run'],
+                        'nombre' => $res['nombre'],
+                        'apellido' => $res['apellido'],
+                        'rol' => $res['rol'],
+                        'correo' => $res['correo']
                     ]
                 ];
                 $token = guard::createToken(guard::secretKey(), $payload);

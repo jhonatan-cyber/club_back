@@ -107,23 +107,17 @@ async function login(e) {
         });
 
         const result = await response.json();
-        console.log(result);
+        
 
         if (result.estado === "ok" && result.codigo === 200) {
             const token = desencriptarToken(result.data.token);
-            const datos = {
-                id: token.data.token[0],
-                rut: token.data.token[1],
-                nombre: token.data.token[2],
-                apellido: token.data.token[3],
-                rol: token.data.token[4],
-                correo: token.data.token[5],
-            };
+            const { id_usuario, nombre, apellido, rol, correo } = token.data.token;
+ 
             localStorage.setItem("token", result.data.token);
-            localStorage.setItem("id_usuario", datos.id);
-            localStorage.setItem("nombre", datos.nombre);
-            localStorage.setItem("apellido", datos.apellido);
-            if (datos.rol === "Administrador") {
+            localStorage.setItem("id_usuario", id_usuario);
+            localStorage.setItem("nombre", nombre);
+            localStorage.setItem("apellido", apellido);
+            if (rol === "Administrador") {
                 const uptdate = `${BASE_URL}updateCodigo`;
                 const resp = await axios.post(uptdate);
                 const response = resp.data;
@@ -133,7 +127,7 @@ async function login(e) {
                     const respon = res.data;
 
                     if (respon.estado === 'ok' && respon.codigo === 201) {
-                        toast("Bienvenido " + datos.nombre + " " + datos.apellido, "success");
+                        toast("Bienvenido " + nombre + " " + apellido, "success");
                         setTimeout(() => {
                             window.location.href = `${BASE_URL}home`;
                         }, 2000)
