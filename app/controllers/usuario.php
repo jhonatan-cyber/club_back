@@ -172,12 +172,12 @@ class usuario extends controller
 
     private function convertToWebP($sourcePath, $destinationPath, $extension)
     {
-     
+
         if (!extension_loaded('gd')) {
             $this->response(response::estado500("La extensión GD no está habilitada en el servidor."));
             return;
         }
-    
+
         switch (strtolower($extension)) {
             case 'jpeg':
             case 'jpg':
@@ -208,21 +208,21 @@ class usuario extends controller
                 $this->response(response::estado400("Formato de imagen no soportado para conversión a WebP."));
                 return;
         }
-    
-     
+
+
         if ($image === false) {
             $this->response(response::estado500("Error al cargar la imagen. Verifica el archivo de origen."));
             return;
         }
-    
+
         if (imagewebp($image, $destinationPath)) {
-            imagedestroy($image); 
+            imagedestroy($image);
         } else {
             $this->response(Response::estado500("Error al convertir la imagen a WebP."));
             imagedestroy($image);
         }
     }
-    
+
 
     public function deleteUsuario(int $id)
     {
@@ -239,6 +239,27 @@ class usuario extends controller
             }
             http_response_code(500);
             return $this->response(response::estado500());
+        } catch (Exception $e) {
+            http_response_code(500);
+            return $this->response(response::estado500($e));
+        }
+    }
+
+    public function getChicas()
+    {
+        if ($this->method !== 'GET') {
+            http_response_code(405);
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $res = $this->model->getChicas();
+            if (empty($res)) {
+                http_response_code(204);
+                return $this->response(response::estado204());
+            }
+            http_response_code(200);
+            return $this->response(response::estado200($res));
         } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));

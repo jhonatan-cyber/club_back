@@ -304,7 +304,6 @@ async function createUsuario(e) {
       });
   
       const data = resp.data;
-      console.log(data);
       if (data.estado === "ok" && data.codigo === 201) {
         toast("Usuario registrado correctamente", "success");
         $("#ModalUsuario").modal("hide");

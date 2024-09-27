@@ -1,5 +1,5 @@
 <div class="d-flex align-items-center ms-2 ms-lg-3">
-    <a href="#" class="btn btn-icon btn-active-light-primaryw-35px h-35px w-md-40px h-md-40px"
+    <a href="#" class="btn btn-icon btn-active-light-primary w-35px h-35px w-md-40px h-md-40px"
         data-kt-menu-trigger="{default:'click', lg: 'hover'}" data-kt-menu-attach="parent"
         data-kt-menu-placement="bottom-end">
         <span class="svg-icon theme-light-show svg-icon-2 fs-1 fs-2"><svg width="24" height="24" viewBox="0 0 24 24"

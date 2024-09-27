@@ -59,18 +59,24 @@ class categoriaModel extends query
     }
     public function updateCategoria(array $categoria)
     {
-        $sql = "SELECT nombre FROM categorias WHERE nombre = :nombre";
+      
+        $sql = "SELECT nombre FROM categorias WHERE nombre = :nombre AND descripcion = :descripcion";
         $params = [
-            ':id_categoria' => $categoria['id_categoria'],
             ':nombre' => $categoria['nombre'],
             ':descripcion' => $categoria['descripcion'],
         ];
         $existe = $this->select($sql, $params);
+    
         if ($existe) {
-            return "existe";
+            return "existe"; 
         } else {
-            $sql = "UPDATE categorias SET nombre = :nombre, descripcion,  fecha_mod = now() WHERE id_categoria = :id_categoria";
+            $sql = "UPDATE categorias SET nombre = :nombre, descripcion = :descripcion, fecha_mod = NOW() WHERE id_categoria = :id_categoria";
             try {
+                $params = [
+                    ':id_categoria' => $categoria['id_categoria'],
+                    ':nombre' => $categoria['nombre'],
+                    ':descripcion' => $categoria['descripcion'],
+                ];
                 $data = $this->save($sql, $params);
                 return $data == 1 ? "ok" : "error";
             } catch (Exception $e) {
@@ -79,6 +85,7 @@ class categoriaModel extends query
             }
         }
     }
+    
     public function deleteCategoria(int $id)
     {
         $sql = "UPDATE categorias SET estado = 0, fecha_baja = now() WHERE id_categoria = :id_categoria";

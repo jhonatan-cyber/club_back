@@ -30,7 +30,6 @@ class login extends controller
         $view = new view();
 
         try {
-            $view = new view();
             session_regenerate_id(true);
             if (!empty($_SESSION['activo'])) {
                 echo $view->render('home', 'index');
@@ -70,9 +69,13 @@ class login extends controller
                 } else {
                     $_SESSION['activo'] = true;
                 }
+
+                $this->model->createLogin($_SESSION['usuario_id']);
+                return $this->response($res);
             }
-            http_response_code(200);
-            echo json_encode($res);
+            return $this->response($res);
+
+
         } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));
@@ -132,10 +135,13 @@ class login extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
         if (session_status() === PHP_SESSION_ACTIVE) {
+            $this->model->updateLogin($_SESSION['usuario_id']);
             session_destroy();
-            http_response_code(200);
-            return $this->response(response::estado200('ok'));
+
+        } else {
+            $this->model->updateLogin($_SESSION['usuario_id']);
         }
         http_response_code(200);
         return $this->response(response::estado200('ok'));
@@ -162,7 +168,6 @@ class login extends controller
         }
 
     }
-
     public function updateCodigo()
     {
         if ($this->method !== 'POST') {
@@ -184,8 +189,4 @@ class login extends controller
         }
 
     }
-    
-
-   
-
 }

@@ -219,13 +219,13 @@ async function verificarCodigo(e) {
         });
         const response = resp.data;
         if (response.estado === "ok" && response.codigo === 200) {
-            if (response.data.estado === 0) {
+            if (response.data.estado === 0) {                
                 toast("Bienvenido " + datos.nombre + " " + datos.apellido, "success");
                 setTimeout(() => {
                     window.location.href = `${BASE_URL}home`;
                 }, 2000);
             } else {
-
+         
                 const url2 = `${BASE_URL}createAsistencia`;
                 const respu = await axios.post(url2);
                 const respuesta = respu.data;

@@ -115,7 +115,6 @@ function mostrarPassword(idInput, idIcono) {
     icono.classList.add("fa-eye");
   }
 }
-
 function preview(event) {
   const input = event.target;
   if (!input.files || !input.files[0]) {
@@ -151,8 +150,10 @@ async function usuarioAvatar() {
     const resp = await axios.get(url, config);
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
-      document.getElementById('avatar').innerHTML = `<img id="foto_perfil" alt="Pic" src="${BASE_URL}public/assets/img/usuarios/${data.data.foto}" />`;
-      document.getElementById('correoo').innerHTML = data.data.correo;
+      document.getElementById(
+        "avatar"
+      ).innerHTML = `<img id="foto_perfil" alt="Pic" src="${BASE_URL}public/assets/img/usuarios/${data.data.foto}" />`;
+      document.getElementById("correoo").innerHTML = data.data.correo;
     }
     return null;
   } catch (error) {
@@ -180,3 +181,45 @@ async function logaout(e) {
 function primeraLetraMayuscula(cadena) {
   return cadena.charAt(0).toUpperCase() + cadena.slice(1);
 }
+async function getPedidosTotal() {
+  const url = `${BASE_URL}getPedidos`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    if (data.codigo == 200 && data.estado == "ok") {
+      const pedidoCount = data.data.length;
+      const pedidoCountElement = document.getElementById("pedido-count");
+      if (pedidoCount > 0) {
+        pedidoCountElement.textContent = pedidoCount;
+        pedidoCountElement.classList.remove("d-none");
+      } else {
+        pedidoCountElement.classList.add("d-none");
+      }
+      const pedidoLista = document.getElementById("pedido_");
+      pedidoLista.innerHTML = "";
+      for (let i = 0; i < data.data.length; i++) {
+        const pedido = data.data[i];
+        pedidoLista.innerHTML += `<div class="d-flex align-items-center bg-hover-lighten py-3 px-9">
+                        <div class="symbol symbol-40px symbol-circle me-5">
+                            <span class="symbol-label bg-light-success">
+                                <span class="svg-icon svg-icon-success svg-icon-1">
+                                    <i class="fa-solid fa-champagne-glasses"></i>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="mb-1 pe-3 flex-grow-1" >
+                            <a href="${BASE_URL}pedidos" class="fs-6 text-dark text-hover-primary fw-bold">
+                            <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${pedido.nombre_c} ${pedido.apellido_c}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Acompañante: ${pedido.nombre_u} ${pedido.apellido_u}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Subtotal: $${pedido.subtotal}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Total: $${pedido.total}</div>
+                            </a>                       
+                        </div>
+                    </div>`;
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+setInterval(getPedidosTotal, 1000);

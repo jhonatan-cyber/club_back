@@ -81,6 +81,16 @@
                                 <span class="menu-title">Productos</span>
                             </a>
                         </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>pedidos" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-champagne-glasses"></i>
+                                </span>
+                                <span class="menu-title">Pedidos</span>
+                            </a>
+                        </div>
                         <div class="menu-item">
                             <div class="menu-content">
                                 <div class="separator mx-1 my-1"></div>

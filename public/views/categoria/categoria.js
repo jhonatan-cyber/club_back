@@ -138,6 +138,7 @@ async function createCategoria(e) {
     const url = `${BASE_URL}createCategoria`;
     const resp = await axios.post(url, data, config);
     const result = resp.data;
+    console.log(result);
     if (result.estado === "ok" && result.codigo === 201) {
       toast("Categoria registrado correctamente", "success");
       $("#ModalCategoria").modal("hide");

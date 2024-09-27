@@ -83,7 +83,7 @@ class categoria extends controller
             return $this->response(response::estado400(['Datos JSON no válidos.']));
         }
         if ($this->data['descripcion'] == "") {
-            $this->data['descripcion'] = "Categoria sin descripcion";
+            $this->data['descripcion'] = "Categoria sin descripción";
         }
 
         $this->data['nombre'] = ucwords($this->data['nombre']);

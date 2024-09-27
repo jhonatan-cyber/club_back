@@ -16,40 +16,48 @@ class loginModel extends query
     }
     public function login(array $usuario)
     {
-        $data = ['correo', 'password'];
-        foreach ($data as $field) {
+        $requiredFields = ['correo', 'password'];
+
+        // Verificar que todos los campos requeridos estén presentes
+        foreach ($requiredFields as $field) {
             if (!array_key_exists($field, $usuario)) {
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
 
         $sql = "CALL login(:correo)";
-        $params = [
-            ':correo' => $usuario['correo'],
-        ];
+        $params = [':correo' => $usuario['correo']];
         $password = $usuario['password'];
 
         try {
             $res = $this->select($sql, $params);
-            if ($res == null) {
-                return response::estado400('Usuario o contraseña incorrecta');
-            } else {
-                if (guard::validatePassword($password, $res['password'])) {
-                    $payload = ['token' => ["{$res['id_usuario']}", "{$res['run']}", "{$res['nombre']}", "{$res['apellido']}", "{$res['rol']}", "{$res['correo']}"]];
-                    $token = guard::createToken(guard::secretKey(), $payload);
-                    $data = [
-                        'id_usuario' => $res['id_usuario'],
-                        'token' => $token,
-                        'estado' => $res['estado']
-                    ];
-                    
-                    return response::estado200($data);
-                }
-                return response::estado400('Usuario o contraseña incorrecta');
+            if (empty($res)) {
+                return response::estado400('Usuario no encontrado');
             }
+            if (guard::validatePassword($password, $res['password'])) {
+                $payload = [
+                    'token' => [
+                        "{$res['id_usuario']}",
+                        "{$res['run']}",
+                        "{$res['nombre']}",
+                        "{$res['apellido']}",
+                        "{$res['rol']}",
+                        "{$res['correo']}"
+                    ]
+                ];
+                $token = guard::createToken(guard::secretKey(), $payload);
+                $data = [
+                    'id_usuario' => $res['id_usuario'],
+                    'token' => $token,
+                    'estado' => $res['estado']
+                ];
+
+                return response::estado200($data);
+            }
+
+            return response::estado400('Contraseña incorrecta');
         } catch (Exception $e) {
-            error_log("LoginModel::login() -> " . $e);
-            return response::estado500();
+            return response::estado500('Error en el servidor: ' . $e->getMessage());
         }
     }
     public function createCodigo(string $codigo)
@@ -109,4 +117,51 @@ class loginModel extends query
         }
 
     }
+    public function createLogin($usuario_id)
+    {
+        $sql = "SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 1";
+        $params = [
+            ":usuario_id" => $usuario_id,
+        ];
+
+        $data = $this->select($sql, $params);
+        if ($data) {
+            return "ya activo";
+        }
+        $sql = "SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 0";
+        $data = $this->select($sql, $params);
+
+        if ($data) {
+            $sql = "UPDATE logins SET estado = 1 WHERE usuario_id = :usuario_id AND estado = 0";
+            try {
+                $data = $this->save($sql, $params);
+                return $data == 1 ? "ok" : "error";
+            } catch (Exception $e) {
+                return response::estado500($e);
+            }
+        } else {
+            $sql = "INSERT INTO logins (usuario_id) VALUES (:usuario_id)";
+            try {
+                $data = $this->save($sql, $params);
+                return $data == 1 ? "ok" : "error";
+            } catch (Exception $e) {
+                return response::estado500($e);
+            }
+        }
+    }
+    public function updateLogin($usuario_id)
+    {
+        $sql = "UPDATE logins SET estado = 0 WHERE usuario_id = :usuario_id AND estado = 1";
+        $params = [
+            ":usuario_id" => $usuario_id,
+        ];
+        try {
+            $data = $this->save($sql, $params);
+            return $data == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+   
+
 }
