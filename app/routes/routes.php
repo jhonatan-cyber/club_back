@@ -9,6 +9,7 @@ use app\controllers\login;
 use app\controllers\cliente;
 use app\controllers\usuario;
 use app\controllers\pedido;
+use app\controllers\venta;
 
 
 $rol = new rol();
@@ -19,6 +20,7 @@ $home = new home();
 $categoria = new categoria();
 $producto = new producto();
 $pedido = new pedido();
+$venta = new venta();
 $router = new Router();
 
 /******************** Login ********************/
@@ -72,7 +74,7 @@ $router->get('getProductoCategoria/(\d+)', [$producto, 'getProductoCategoria']);
 $router->post('createProducto', [$producto, 'createProducto']);
 $router->get('getProducto/(\d+)', [$producto, 'getProducto']);
 $router->get('deleteProducto/(\d+)', [$producto, 'deleteProducto']);
-$router->get('getProductosprecio', [$producto, 'getProductosprecio']);
+$router->get('getProductosPrecio', [$producto, 'getProductosPrecio']);
 $router->get('getBebidasPrecio/(\d+)', [$producto, 'getBebidasPrecio']);
 
 /******************** Pedidos ********************/
@@ -80,7 +82,11 @@ $router->get('pedidos', [$pedido, 'index']);
 $router->get('getChicasActivas', [$pedido, 'getChicasActivas']);
 $router->post('createPedido', [$pedido, 'createPedido']);
 $router->get('getPedidos', [$pedido, 'getPedidos']);
+$router->get('getDetallePedido/(\d+)', [$pedido, 'getDetallePedido']);
 
+/******************** Ventas ********************/
+$router->get('ventas', [$venta, 'index']);
+$router->post('createVenta', [$venta, 'createVenta']);
 
 
 

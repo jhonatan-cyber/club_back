@@ -81,7 +81,7 @@ class pedidoModel extends query
             return $resp == 1 ? "ok" : "error";
         } catch (Exception $e) {
             error_log("PedidoModel::createDetallePedido() -> " . $e);
-            return response::estado500("asdasd");
+            return response::estado500($e);
         }
 
     }
@@ -110,6 +110,28 @@ class pedidoModel extends query
             return response::estado500($e);
         }
     }
+    public function getDetallePedido(int $pedido_id)
+    {
+        $sql = "SELECT P.codigo, P.id_pedido, C.nombre AS categoria,PR.id_producto, PR.nombre, 
+        D.precio, D.comision, D.cantidad, D.subtotal, P.usuario_id, P.cliente_id, 
+        P.subtotal AS total_subtotal, P.total, P.total_comision, U.nombre AS nombre_usu, 
+        U.apellido AS apellido_usu, CL.nombre AS nombre_cli, CL.apellido AS apellido_cli 
+        FROM detalle_pedidos AS D INNER JOIN pedidos AS P ON D.pedido_id = P.id_pedido 
+        INNER JOIN productos AS PR ON D.producto_id = PR.id_producto 
+        INNER JOIN categorias AS C ON PR.categoria_id = C.id_categoria 
+        INNER JOIN usuarios AS U ON P.usuario_id=U.id_usuario 
+        INNER JOIN clientes AS CL ON P.cliente_id = CL.id_cliente WHERE D.pedido_id = :pedido_id AND P.estado = 1";
+        $params = [
+            ":pedido_id" => $pedido_id
+        ];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            error_log("PedidoModel::getDetallePedido() -> " . $e);
+            return response::estado500($e);
+        }
 
+    }
+   
 
 }

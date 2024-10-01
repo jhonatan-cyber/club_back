@@ -38,7 +38,6 @@ async function getCategorias() {
                             </div>
                         </div>
                     </a>`;
-
         categoriaElements.innerHTML += categoriaElement;
       }
     }

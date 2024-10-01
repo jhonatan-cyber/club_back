@@ -47,7 +47,7 @@ async function getPedidos() {
           {
             data: null,
             render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="aceptarPedido('${row.id_pedido}')">
+              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="verPedido('${row.id_pedido}')">
                   <i class="fa-solid fa-eye"></i>
                 </button> `,
           },
@@ -60,11 +60,7 @@ async function getPedidos() {
     console.error(error);
   }
 }
-function aceptarPedido(id) {
-  localStorage.setItem("id_pedido", id);
-  console.log(id);
-  /*   window.location.href = `${BASE_URL}ventas`; */
-}
+
 function nuevoPedido(e) {
   e.preventDefault();
   document.getElementById("nuevo_pedido").hidden = false;
@@ -75,9 +71,8 @@ function atras(e) {
   document.getElementById("nuevo_pedido").hidden = true;
   document.getElementById("lista_pedido").hidden = false;
 }
-
 async function getProductosPrecio() {
-  const url = `${BASE_URL}getProductosprecio`;
+  const url = `${BASE_URL}getProductosPrecio`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
@@ -112,7 +107,6 @@ async function getProductosPrecio() {
     console.error(error);
   }
 }
-
 async function getBebidasPrecio(precio) {
   const url = `${BASE_URL}getBebidasPrecio/${precio}`;
   try {
@@ -140,7 +134,6 @@ async function getBebidasPrecio(precio) {
     console.error("Error en la petición:", error);
   }
 }
-
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoPedido tbody");
   tbody.innerHTML = "";
@@ -165,7 +158,6 @@ function actualizarTablaCarrito(carrito) {
 
   document.getElementById("total").innerText = total.toFixed(2);
 }
-
 function eliminarProducto(id_producto) {
   let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
@@ -174,7 +166,6 @@ function eliminarProducto(id_producto) {
 
   actualizarTablaCarrito(carrito);
 }
-
 async function getClientes() {
   const url = `${BASE_URL}getClientes`;
   try {
@@ -199,7 +190,6 @@ async function getClientes() {
     console.log(error);
   }
 }
-
 async function getChicas() {
   const url = `${BASE_URL}getChicas`;
   try {
@@ -297,7 +287,6 @@ async function createPedido(e) {
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
-    console.log(data);
     if (data.codigo == 201 && data.estado == "ok") {
       toast("Pedido creado exitosamente", "success");
       localStorage.removeItem("carrito");
@@ -306,9 +295,119 @@ async function createPedido(e) {
       localStorage.removeItem("total_comision");
       let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
       actualizarTablaCarrito(carrito);
-      getPedidosTotal()
-      getPedidos()
+      getPedidosTotal();
+      getPedidos();
       atras(e);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+async function verPedido(id) {
+  const url = `${BASE_URL}getDetallePedido/${id}`;
+  const obtenerFechaHora = () => {
+    const fechaHora = new Date();
+    const hour = String(fechaHora.getHours()).padStart(2, "0");
+    const minute = String(fechaHora.getMinutes()).padStart(2, "0");
+    const second = String(fechaHora.getSeconds()).padStart(2, "0");
+    const year = fechaHora.getFullYear();
+    const month = String(fechaHora.getMonth() + 1).padStart(2, "0");
+    const day = String(fechaHora.getDate()).padStart(2, "0");
+    return { hour, minute, second, year, month, day };
+  };
+
+  const { hour, minute, second, year, month, day } = obtenerFechaHora();
+
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    if (data.codigo == 200 && data.estado == "ok") {
+      const productos = data.data;
+      const primerProducto = productos[0];
+      document.getElementById(
+        "hora"
+      ).innerHTML = `<i class="fa-solid fa-clock m-2"></i><b>Hora: ${hour}:${minute}:${second}</b>`;
+      document.getElementById(
+        "fecha"
+      ).innerHTML = `<i class="fa-solid fa-calendar-days m-2"></i><b>Fecha: ${year}-${month}-${day}</b>`;
+      document.getElementById(
+        "codigo"
+      ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo: ${primerProducto.codigo}</b>`;
+      document.getElementById(
+        "usuario"
+      ).innerHTML = `<i class="fa-solid fa-user m-2"></i><b>Dama acompañante: ${primerProducto.nombre_usu} ${primerProducto.apellido_usu}</b>`;
+      document.getElementById(
+        "cliente"
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente: ${primerProducto.nombre_cli} ${primerProducto.apellido_cli}</b>`;
+      document.getElementById(
+        "total_"
+      ).innerHTML = `<b>Total: $${primerProducto.total}</b>`;
+      /* document.getElementById("total_pagar").value = primerProducto.total; */
+      document.getElementById("total_comision").value =
+        primerProducto.total_comision;
+
+      const detalleProductos = document.getElementById("detalle_productos");
+      detalleProductos.innerHTML = "";
+      const productosArray = [];
+
+      productos.forEach((item) => {
+        const producto = {
+          producto_id: item.id_producto,
+          precio: item.precio,
+          cantidad: item.cantidad,
+          comision: item.comision,
+          subtotal: item.subtotal,
+        };
+        productosArray.push(producto);
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.categoria} ${item.nombre}</td>
+          <td>${item.cantidad}</td>
+          <td>${parseFloat(item.precio || 0).toFixed(2)}</td>
+          <td>${parseFloat(item.comision || 0).toFixed(2)}</td>
+          <td>${parseFloat(item.subtotal || 0).toFixed(2)}</td>
+        `;
+        detalleProductos.appendChild(row);
+      });
+
+      const datos = {
+        id_pedido: id,
+        codigo: primerProducto.codigo,
+        usuario_id: primerProducto.usuario_id,
+        cliente_id: primerProducto.cliente_id,
+        metodo_pago: document.getElementById("metodo_pago").value,
+        total: primerProducto.total,
+        total_comision: primerProducto.total_comision,
+        productos: JSON.stringify(productosArray),
+      };
+
+      localStorage.setItem("datos_venta", JSON.stringify(datos));
+
+      $("#ModalVenta").modal("show");
+    }
+  } catch (error) {
+    console.error("Error en la petición:", error);
+  }
+}
+async function createVenta(e) {
+  e.preventDefault();
+  const nuevoMetodoPago = document.getElementById("metodo_pago").value;
+  if (nuevoMetodoPago === "0") {
+    return toast("Seleccione un metodo de pago", "info");
+  }
+  let datos = JSON.parse(localStorage.getItem("datos_venta"));
+  datos.metodo_pago = nuevoMetodoPago;
+  localStorage.setItem("datos_venta", JSON.stringify(datos));
+  const url = `${BASE_URL}createVenta`;
+  try {
+    const resp = await axios.post(url, datos, config);
+    const data = resp.data;
+    if (data.codigo == 201 && data.estado == "ok") {
+      toast("Venta realizada correctamente", "success");
+      localStorage.removeItem("datos_venta");
+      getPedidos();
+      $("#ModalVenta").modal("hide");
     }
   } catch (error) {
     console.error(error);

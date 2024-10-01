@@ -42,6 +42,7 @@ class loginModel extends query
                         'nombre' => $res['nombre'],
                         'apellido' => $res['apellido'],
                         'rol' => $res['rol'],
+                        'foto'=> $res['foto'],
                         'correo' => $res['correo']
                     ]
                 ];

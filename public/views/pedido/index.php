@@ -66,3 +66,4 @@
 </html>
 
 <?php include_once 'public/components/pedido/modalBebida.php' ?>
+<?php include_once 'public/components/pedido/modalVenta.php' ?>

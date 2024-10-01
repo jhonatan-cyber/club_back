@@ -82,7 +82,7 @@ class pedido extends controller
         }
 
         guard::validateToken($this->header, guard::secretKey());
-       if (isset($this->data['productos']) && is_string($this->data['productos'])) {
+        if (isset($this->data['productos']) && is_string($this->data['productos'])) {
             $productos = json_decode($this->data['productos'], true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -90,12 +90,12 @@ class pedido extends controller
             }
         } else {
             return $this->response(response::estado400(['El campo productos debe ser una cadena JSON.']));
-        } 
+        }
         try {
             $this->data['codigo'] = generarCodigoAleatorio(8);
             $pedido = $this->model->createPedido($this->data);
 
-         if ($pedido == 'ok') {
+            if ($pedido == 'ok') {
                 $id_pedido = $this->model->getLastPedido();
                 foreach ($productos as $value) {
                     $detalle = [
@@ -103,43 +103,66 @@ class pedido extends controller
                         'producto_id' => $value['id_producto'],
                         'precio' => $value['precio'],
                         'cantidad' => $value['cantidad'],
-                        'subtotal' => $value['subtotal'] ,
-                        'comision' => $value['comision'] 
+                        'subtotal' => $value['subtotal'],
+                        'comision' => $value['comision']
                     ];
                     $this->model->createDetallePedido($detalle);
                 }
+                http_response_code(201);
                 return $this->response(response::estado201());
             }
             http_response_code(500);
-            return $this->response(response::estado500()); 
+            return $this->response(response::estado500());
 
         } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
-  
-    public function getPedidos(){
-        if($this->method !== 'GET'){
+
+    public function getPedidos()
+    {
+        if ($this->method !== 'GET') {
             http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
-        
-        try{
+
+        try {
             $pedido = $this->model->getPedidos();
-            if(!empty($pedido)){
+            if (!empty($pedido)) {
                 http_response_code(200);
                 return $this->response(response::estado200($pedido));
             }
             http_response_code(204);
             return $this->response(response::estado204());
 
-        }catch (Exception $e){
+        } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
+    public function getDetallePedido(int $id)
+    {
+        if ($this->method !== 'GET') {
+            http_response_code(405);
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $pedido = $this->model->getDetallePedido($id);
+            if (!empty($pedido)) {
+                http_response_code(200);
+                return $this->response(response::estado200($pedido));
+            }
+            http_response_code(204);
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            http_response_code(500);
+            return $this->response(response::estado400($e));
+        }
+    }
+
 }
 function generarCodigoAleatorio($length)
 {
