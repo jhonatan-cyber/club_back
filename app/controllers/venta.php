@@ -90,5 +90,25 @@ class venta extends controller
             return $this->response(Response::estado500($e));
         }
     }
+    public function getVentas()
+    {
+        if ($this->method !== 'GET') {
+            $this->response(Response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $venta = $this->model->getVentas();
+            if (!empty($venta)) {
+                http_response_code(200);
+                return $this->response(response::estado200($venta));
+            }
+            http_response_code(204);
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            http_response_code(500);
+            return $this->response(Response::estado500($e));
+        }
+
+    }
 
 }

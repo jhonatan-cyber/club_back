@@ -128,20 +128,15 @@ class usuarioModel extends query
             return response::estado500($e);
         }
     }
-
     public function getChicas()
     {
-        $sql = "SELECT L.last_login, U.id_usuario, U.nombre, U.apellido, R.nombre AS rol
-                FROM logins AS L
-                INNER JOIN usuarios AS U ON L.usuario_id = U.id_usuario
-                INNER JOIN roles AS R ON U.rol_id = R.id_rol
-                WHERE L.usuario_id != 1 AND R.nombre = 'Chicas' AND L.estado = 1";
-        
+        $sql = "SELECT L.usuario_id, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chicas' AND L.estado = 1;";
+
         try {
             return $this->selectAll($sql);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
-    
+
 }

@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\config\query;
 use app\config\response;
-use app\config\guard;
 use Exception;
 
 class clienteModel extends query

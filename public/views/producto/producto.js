@@ -92,6 +92,7 @@ async function getProductoCategoria(id_categoria, nombre) {
           { data: "nombre" },
           { data: "descripcion" },
           { data: "precio" },
+          { data: "comision" },
           {
             data: null,
             render: (data, type, row) =>
@@ -143,6 +144,7 @@ function reset() {
   document.getElementById("nombre").value = "";
   document.getElementById("descripcion").value = "";
   document.getElementById("precio").value = "";
+  document.getElementById("comision").value = "";
   const wrapper = document.getElementById("imagen");
   wrapper.style.backgroundImage = "none";
 }
@@ -190,11 +192,12 @@ async function createProducto(e) {
   const nombre = document.getElementById("nombre").value;
   const descripcion = document.getElementById("descripcion").value;
   const precio = document.getElementById("precio").value;
+  const comision = document.getElementById("comision").value;
   const fotoInput = document.getElementById("foto");
   const foto = fotoInput.files[0];
   const imagen_anterior = document.getElementById("imagen_anterior");
   const categoria_id = localStorage.getItem("id_categoria");
-  validarDatos(codigo, nombre, descripcion, precio, categoria_id);
+  validarDatos(codigo, nombre, descripcion, precio, comision, categoria_id);
 
   const formData = new FormData();
   formData.append("id_producto", id_producto);
@@ -202,6 +205,7 @@ async function createProducto(e) {
   formData.append("nombre", nombre);
   formData.append("descripcion", descripcion);
   formData.append("precio", precio);
+  formData.append("comision", comision);
   if (foto) {
     formData.append("foto", foto);
   }
@@ -236,6 +240,7 @@ async function createProducto(e) {
         nombre.value = "";
         descripcion.value = "";
         precio.value = "";
+        comision.value = "";
         nombre.focus();
         return;
       }
@@ -255,7 +260,7 @@ function validarDatos(
   nombre,
   descripcion,
   precio,
-  marca,
+  comision,
   categoria_id
 ) {
   if (codigo === "") {
@@ -268,8 +273,9 @@ function validarDatos(
     nombre.focus();
     return;
   }
-  if (descripcion === "") {
-    descripcion = "Sin descripcion";
+  let descripcionValue = descripcion; 
+  if (descripcionValue === "") {
+    descripcionValue = "Sin descripcion";
   }
   if (precio === "") {
     toast("El precio es requerido", "info");
@@ -281,7 +287,7 @@ function validarDatos(
     precio.focus();
     return;
   }
-  if (precio == 0) {
+  if (precio === 0) {
     toast("El precio no puede ser 0", "info");
     precio.focus();
     return;
@@ -290,10 +296,20 @@ function validarDatos(
     toast("Seleccione una categoria", "info");
     return;
   }
+  if (comision < 0) {
+    toast("La comisión no puede ser 0", "info");
+    return;
+  }
+
+  if (comision == "") {
+    toast("La comisión es requerida", "info");
+    return;
+  }
 }
 function enterKey() {
   const nombre = document.getElementById("nombre");
   const precio = document.getElementById("precio");
+  const comision = document.getElementById("comision");
   const descripcion = document.getElementById("descripcion");
 
   nombre.focus();
@@ -329,8 +345,27 @@ function enterKey() {
         return;
       }
       precio.setAttribute("placeholder", "");
+      document.getElementById("txt_comision").innerHTML = "<b>Comision</b>";
+      comision.focus();
+    }
+  });
+  comision.addEventListener("keyup", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (comision.value == "") {
+        toast("La comisión es requerida", "info");
+        comision.focus();
+        return;
+      }
+      if (comision.value < 0) {
+        toast("La comisión no puede ser 0", "info");
+        comision.focus();
+        return;
+      }
+
+      comision.setAttribute("placeholder", "");
       document.getElementById("txt_descripcion").innerHTML =
-        "<b>Descripción</b>";
+        "<b>descripcion</b>";
       descripcion.focus();
     }
   });
@@ -343,7 +378,7 @@ function enterKey() {
         return;
       }
       descripcion.setAttribute("placeholder", "");
-      createUsuario(e);
+      createProducto(e);
     }
   });
 }
@@ -352,6 +387,7 @@ async function getProducto(id) {
   document.getElementById("txt_nombre").innerHTML = "<b>Nombre</b>";
   document.getElementById("txt_precio").innerHTML = "<b>Precio</b>";
   document.getElementById("txt_descripcion").innerHTML = "<b>Descripción</b>";
+  document.getElementById("txt_comision").innerHTML = "<b>Comision</b>";
 
   const url = `${BASE_URL}getProducto/${id}`;
   try {
@@ -363,6 +399,7 @@ async function getProducto(id) {
       document.getElementById("nombre").value = data.data.nombre;
       document.getElementById("descripcion").value = data.data.descripcion;
       document.getElementById("precio").value = parseInt(data.data.precio);
+      document.getElementById("comision").value = parseInt(data.data.comision);
       document.getElementById("imagen_anterior").value = data.data.foto;
       const wrapper = document.querySelector("#imagen");
       if (data.data.foto !== "default.png") {

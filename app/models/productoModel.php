@@ -53,7 +53,7 @@ class productoModel extends query
 
     public function createProducto(array $producto)
     {
-        $requiredFields = ['nombre', 'descripcion', 'precio', 'categoria_id'];
+        $requiredFields = ['nombre', 'descripcion', 'precio', 'comision', 'categoria_id'];
         foreach ($requiredFields as $field) {
             if (!isset($producto[$field])) {
                 return response::estado400('El campo ' . $field . ' es requerido');
@@ -70,12 +70,13 @@ class productoModel extends query
         if (!empty($existe)) {
             return "existe";
         }
-        $sql = "INSERT INTO productos (codigo, nombre, categoria_id, precio, descripcion, foto) VALUES (:codigo, :nombre, :categoria_id, :precio,:descripcion, :foto)";
+        $sql = "INSERT INTO productos (codigo, nombre, categoria_id, precio, comision, descripcion, foto) VALUES (:codigo, :nombre, :categoria_id, :precio, :comision, :descripcion, :foto)";
         $params = [
             ':codigo' => $producto['codigo'],
             ':nombre' => $producto['nombre'],
             ':categoria_id' => $producto['categoria_id'],
             ':precio' => $producto['precio'],
+            ':comision' => $producto['comision'],
             ':descripcion' => $producto['descripcion'],
             ':foto' => $producto['foto']
         ];
@@ -91,7 +92,7 @@ class productoModel extends query
 
     public function updateProducto(array $producto)
     {
-        $requiredFields = ['id_producto', 'codigo', 'nombre', 'descripcion', 'precio', 'categoria_id'];
+        $requiredFields = ['id_producto', 'codigo', 'nombre', 'descripcion', 'precio', 'comision', 'categoria_id'];
         foreach ($requiredFields as $field) {
             if (!isset($producto[$field])) {
                 return response::estado400('El campo ' . $field . ' es requerido');
@@ -99,10 +100,11 @@ class productoModel extends query
 
         }
 
-        $sql = 'SELECT * FROM productos WHERE nombre = :nombre AND precio = :precio AND descripcion = :descripcion AND foto = :foto AND estado = 1';
+        $sql = 'SELECT * FROM productos WHERE nombre = :nombre AND precio = :precio AND comision = :comision AND descripcion = :descripcion AND foto = :foto AND estado = 1';
         $params = [
             ':nombre' => $producto['nombre'],
             ':precio' => $producto['precio'],
+            ':comision' => $producto['comision'],
             ':descripcion' => $producto['descripcion'],
             ':foto' => $producto['foto']
 
@@ -111,13 +113,14 @@ class productoModel extends query
         if (!empty($existe)) {
             return "existe";
         } else {
-            $sql = "UPDATE productos SET codigo = :codigo, nombre = :nombre, categoria_id = :categoria_id, precio = :precio, descripcion = :descripcion, foto = :foto, fecha_mod = now() WHERE id_producto = :id_producto";
+            $sql = "UPDATE productos SET codigo = :codigo, nombre = :nombre, categoria_id = :categoria_id, precio = :precio, comision = :comision, descripcion = :descripcion, foto = :foto, fecha_mod = now() WHERE id_producto = :id_producto";
             $params = [
                 ':id_producto' => $producto['id_producto'],
                 ':codigo' => $producto['codigo'],
                 ':nombre' => $producto['nombre'],
                 ':descripcion' => $producto['descripcion'],
                 ':precio' => $producto['precio'],
+                ':comision' => $producto['comision'],
                 ':categoria_id' => $producto['categoria_id'],
                 ':foto' => $producto['foto']
             ];
@@ -148,7 +151,9 @@ class productoModel extends query
 
     public function getProductosPrecio()
     {
-        $sql = 'SELECT precio FROM `productos` WHERE estado = 1 GROUP BY precio ORDER BY precio DESC';
+        $sql = 'SELECT P.precio ,C.nombre FROM productos AS P 
+                INNER JOIN categorias AS C ON P.categoria_id = C.id_categoria 
+                WHERE P.estado = 1 GROUP BY P.precio ORDER BY P.precio DESC';
         try {
             return $this->selectAll($sql);
         } catch (Exception $e) {
@@ -158,7 +163,7 @@ class productoModel extends query
     }
     public function getBebidasPrecio($precio)
     {
-        $sql = "SELECT P.id_producto,P.nombre,P.precio, C.nombre AS categoria FROM productos AS P JOIN categorias AS C ON P.categoria_id = C.id_categoria WHERE P.precio=:precio AND P.estado = 1";
+        $sql = "SELECT P.id_producto, P.nombre, P.precio, P.comision, C.nombre AS categoria FROM productos AS P JOIN categorias AS C ON P.categoria_id = C.id_categoria WHERE P.precio=:precio AND P.estado = 1";
         $params = [
             ':precio' => $precio
         ];

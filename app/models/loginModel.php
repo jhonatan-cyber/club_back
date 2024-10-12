@@ -17,8 +17,6 @@ class loginModel extends query
     public function login(array $usuario)
     {
         $requiredFields = ['correo', 'password'];
-
-        // Verificar que todos los campos requeridos estén presentes
         foreach ($requiredFields as $field) {
             if (!array_key_exists($field, $usuario)) {
                 return response::estado400('El campo ' . $field . ' es requerido');
@@ -42,7 +40,7 @@ class loginModel extends query
                         'nombre' => $res['nombre'],
                         'apellido' => $res['apellido'],
                         'rol' => $res['rol'],
-                        'foto'=> $res['foto'],
+                        'foto' => $res['foto'],
                         'correo' => $res['correo']
                     ]
                 ];
@@ -50,7 +48,8 @@ class loginModel extends query
                 $data = [
                     'id_usuario' => $res['id_usuario'],
                     'token' => $token,
-                    'estado' => $res['estado']
+                    'estado' => $res['estado'],
+                    'rol' => $res['rol'],
                 ];
 
                 return response::estado200($data);
@@ -95,6 +94,7 @@ class loginModel extends query
         try {
             $sql = "INSERT INTO asistencia (usuario_id) VALUES (:usuario_id)";
             $params = [
+
                 ':usuario_id' => $usuario_id,
             ];
             $data = $this->save($sql, $params);
@@ -163,6 +163,6 @@ class loginModel extends query
             return response::estado500($e);
         }
     }
-   
+ 
 
 }

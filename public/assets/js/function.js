@@ -144,7 +144,7 @@ function validarCorreo(correo) {
   return regex.test(correo);
 }
 async function usuarioAvatar() {
-  id_usuario = localStorage.getItem("id_usuario");
+  const id_usuario = JSON.parse(localStorage.getItem("usuario")).id_usuario;
   const url = `${BASE_URL}getUsuario/${id_usuario}`;
   try {
     const resp = await axios.get(url, config);

@@ -13,6 +13,16 @@ class ventaModel extends query
         parent::__construct();
     }
 
+    public function getVentas()
+    {
+        $sql = "SELECT V.id_venta,V.codigo,V.metodo_pago,V.total_comision,V.total, V.fecha_crea, C.nombre AS nombre_c,C.apellido AS apellido_c FROM ventas AS V 
+        JOIN clientes AS C ON V.cliente_id = C.id_cliente  WHERE V.estado=1 ORDER BY V.fecha_crea DESC";
+        try {
+            return $this->selectAll($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
     public function createVenta(array $venta)
     {
         $requiredFields = ['codigo', 'cliente_id', 'usuario_id', 'metodo_pago', 'total', 'total_comision'];
@@ -75,7 +85,6 @@ class ventaModel extends query
             return response::estado500($e);
         }
     }
-
     public function updatePedido(int $id_pedido)
     {
         $sql = "UPDATE pedidos SET estado = 0 WHERE id_pedido = :id_pedido";

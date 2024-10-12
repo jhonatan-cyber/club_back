@@ -10,7 +10,7 @@ use app\controllers\cliente;
 use app\controllers\usuario;
 use app\controllers\pedido;
 use app\controllers\venta;
-
+use app\controllers\contrato;
 
 $rol = new rol();
 $usuario = new usuario();
@@ -21,6 +21,7 @@ $categoria = new categoria();
 $producto = new producto();
 $pedido = new pedido();
 $venta = new venta();
+$contrato = new contrato();
 $router = new Router();
 
 /******************** Login ********************/
@@ -87,6 +88,15 @@ $router->get('getDetallePedido/(\d+)', [$pedido, 'getDetallePedido']);
 /******************** Ventas ********************/
 $router->get('ventas', [$venta, 'index']);
 $router->post('createVenta', [$venta, 'createVenta']);
+$router->get('getVentas', [$venta, 'getVentas']);
+
+
+/******************** Contratos ********************/
+$router->get('contratos', [$contrato, 'index']);
+$router->get('getContratos', [$contrato, 'getContratos']);
+$router->post('createContrato', [$contrato, 'createContrato']);
+$router->get('getContrato/(\d+)', [$contrato, 'getContrato']);
+$router->get('deleteContrato/(\d+)', [$contrato, 'deleteContrato']);
 
 
 

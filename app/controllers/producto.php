@@ -169,11 +169,12 @@ class producto extends controller
                 'nombre' => $data['nombre'],
                 'descripcion' => $data['descripcion'],
                 'precio' => $data['precio'],
+                'comision' => $data['comision'],
                 'categoria_id' => $data['categoria_id'],
                 'foto' => $img['name'] ?? $img_anterior,
             ];
 
-            $required = ['codigo', 'nombre', 'descripcion', 'precio', 'categoria_id'];
+            $required = ['codigo', 'nombre', 'descripcion', 'precio', 'comision', 'categoria_id'];
             foreach ($required as $field) {
                 if (empty($this->data[$field])) {
                     http_response_code(400);
@@ -186,6 +187,9 @@ class producto extends controller
             }
             if (!preg_match(self::$valdiate_number, $this->data['precio'])) {
                 return $this->response(response::estado400('El campo precio solo puede contener números'));
+            }
+            if (!preg_match(self::$valdiate_number, subject: $this->data['comision'])) {
+                return $this->response(response::estado400('El campo comision solo puede contener números'));
             }
 
             if (!empty($img['name'])) {

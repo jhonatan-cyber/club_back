@@ -64,13 +64,17 @@ class login extends controller
             if ($res['estado'] === 'ok') {
                 $_SESSION['token'] = $res['data']['token'];
                 $_SESSION['usuario_id'] = $res['data']['id_usuario'];
+                $_SESSION['rol'] = $res['data']['rol'];
                 if ($res['data']['estado'] === 0) {
                     $_SESSION['activo'] = false;
                 } else {
                     $_SESSION['activo'] = true;
                 }
 
-                $this->model->createLogin($_SESSION['usuario_id']);
+                if($res['data']['rol'] !== 'Administrador'){
+                    $this->model->createLogin($_SESSION['usuario_id']);
+                }
+         
                 return $this->response($res);
             }
             return $this->response($res);
@@ -189,4 +193,5 @@ class login extends controller
         }
 
     }
+
 }

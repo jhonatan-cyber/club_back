@@ -44,6 +44,14 @@
                                         class="form-control form-control-sm form-control-solid" id="precio"
                                         placeholder="Precio" />
                                 </div>
+                                <small class="text-gray-700 d-block m-1" id="txt_comision"></small>
+                                <div class="input-group input-group-solid mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fa-solid fa-coins"></i></span>
+                                    <input type="number" step="0.01" min="0"
+                                        class="form-control form-control-sm form-control-solid" id="comision"
+                                        placeholder="Comisión" />
+                                </div>
                             </div>
                             <div class="col-5 mt-6">
                                 <small class="text-gray-700 d-block text-center m-1"><b>Foto</b></small>
@@ -83,7 +91,8 @@
                             <small class="text-gray-700 d-block m-1" id="txt_descripcion"></small>
                             <div class="input-group input-group-solid mb-3">
                                 <span class="input-group-text"> <i class="fa-solid fa-audio-description"></i> </span>
-                                <textarea class="form-control" id="descripcion" name="glosa" placeholder="Descripción" type="text"></textarea>
+                                <textarea class="form-control" id="descripcion" name="glosa" placeholder="Descripción"
+                                    type="text"></textarea>
                             </div>
                         </div>
                     </div>
