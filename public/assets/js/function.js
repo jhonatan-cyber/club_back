@@ -170,6 +170,7 @@ async function logaout(e) {
     const response = resp;
     if (response.status === 200) {
       toast("Cerrando sesión", "success");
+      localStorage.clear();
       setTimeout(() => {
         window.location.href = `${BASE_URL}`;
       }, 2000);

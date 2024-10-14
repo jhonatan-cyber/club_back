@@ -106,6 +106,21 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>comisiones" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                                </span>
+                                <span class="menu-title">Comisiones</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-content">
+                                <div class="separator mx-1 my-1"></div>
+                            </div>
+                        </div>
                         <div data-kt-menu-trigger="click" class="menu-item  menu-accordion mb-1">
                             <span
                                 class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm mb-3"><span

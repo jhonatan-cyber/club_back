@@ -25,18 +25,17 @@ class ventaModel extends query
     }
     public function createVenta(array $venta)
     {
-        $requiredFields = ['codigo', 'cliente_id', 'usuario_id', 'metodo_pago', 'total', 'total_comision'];
+        $requiredFields = ['codigo', 'cliente_id', 'metodo_pago', 'total', 'total_comision'];
         foreach ($requiredFields as $field) {
             if (!isset($venta[$field])) {
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
         try {
-            $sql = "INSERT INTO ventas (codigo, cliente_id, usuario_id, metodo_pago, total, total_comision) VALUES (:codigo, :cliente_id, :usuario_id, :metodo_pago, :total, :total_comision)";
+            $sql = "INSERT INTO ventas (codigo, cliente_id,  metodo_pago, total, total_comision) VALUES (:codigo, :cliente_id, :metodo_pago, :total, :total_comision)";
             $params = [
                 ':codigo' => $venta['codigo'],
                 ':cliente_id' => $venta['cliente_id'],
-                ':usuario_id' => $venta['usuario_id'],
                 ':metodo_pago' => $venta['metodo_pago'],
                 ':total' => $venta['total'],
                 ':total_comision' => $venta['total_comision']
@@ -97,6 +96,73 @@ class ventaModel extends query
         } catch (Exception $e) {
             error_log("PedidoModel::updatePedido() -> " . $e);
             return response::estado500($e);
+        }
+    }
+    public function getVenta(int $id_venta)
+    {
+        $sql = "SELECT D.id_detalle_venta, D.precio, D.comision, D.cantidad, D.sub_total,
+                V.codigo, V.metodo_pago, V.total, V.total_comision, V.fecha_crea, 
+                P.nombre AS producto, C.nombre AS categoria, 
+                CL.nombre AS nombre_c, CL.apellido AS apellido_a, 
+                U.nombre AS nombre_u, U.apellido AS apellido_u 
+                FROM detalle_ventas AS D 
+                JOIN ventas AS V ON D.venta_id = V.id_venta 
+                JOIN productos AS P ON D.producto_id = P.id_producto 
+                JOIN categorias AS C ON P.categoria_id = C.id_categoria 
+                JOIN clientes AS CL ON V.cliente_id = CL.id_cliente 
+                LEFT JOIN usuario_venta AS UV ON V.id_venta = UV.venta_id 
+                LEFT JOIN usuarios AS U ON UV.usuario_id = U.id_usuario 
+                WHERE V.id_venta = :id_venta";
+        $params = [
+            ":id_venta" => $id_venta
+        ];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            error_log("DetalleVentaModel::getVenta() -> " . $e);
+            return response::estado500($e);
+        }
+
+
+    }
+    public function createUsuarioVenta(array $datos)
+    {
+        $sql = "INSERT INTO usuario_venta (usuario_id,venta_id) VALUES (:usuario_id,:venta_id)";
+        $params = [
+            ":usuario_id" => $datos['usuario_id'],
+            ":venta_id" => $datos['venta_id']
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            error_log("UsuarioVentaModel::createUsuarioVenta() -> " . $e);
+            return response::estado500($e);
+        }
+    }
+    public function createComision(array $data)
+    {
+        $resquiredFields = ['usuario_id', 'venta_id', 'monto'];
+        foreach ($resquiredFields as $field) {
+            if (!array_key_exists($field, $data)) {
+                error_log("El campo $field es requerido");
+                return response::estado400('El campo ' . $field . ' es requerido');
+            }
+        }
+
+        $sql = "INSERT INTO comisiones (usuario_id, venta_id, monto) VALUES (:usuario_id, :venta_id, :monto)";
+        $params = [
+            ':usuario_id' => $data['usuario_id'],
+            ':venta_id' => $data['venta_id'],
+            ':monto' => $data['monto']
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            error_log("ComisionModel::createComision() -> " . $e);
+            return response::estado500($e->getMessage());
+
         }
     }
 }

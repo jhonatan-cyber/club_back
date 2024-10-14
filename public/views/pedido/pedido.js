@@ -143,12 +143,13 @@ async function getBebidasPrecio(precio) {
 }
 function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   const parsedCantidad = Number.parseInt(cantidad);
-  if (Number.isNaN(cantidad) || cantidad <= 0) {
+  if (Number.isNaN(parsedCantidad) || parsedCantidad <= 0) {
     document.getElementById(`cantidad-${id_producto}`).focus();
     return toast("La cantidad debe ser mayor a cero", "info");
   }
   const parsedPrecio = Number.parseInt(precio) || 0;
-  const subtotal = cantidad * precio;
+  const subtotal = parsedCantidad * parsedPrecio; // Usa parsedCantidad
+
   const producto = {
     id_producto,
     nombre,
@@ -162,7 +163,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
 
   const index = carrito.findIndex((item) => item.id_producto === id_producto);
   if (index > -1) {
-    carrito[index].cantidad += cantidad;
+    carrito[index].cantidad += parsedCantidad;
     carrito[index].subtotal = carrito[index].cantidad * carrito[index].precio;
   } else {
     carrito.push(producto);
@@ -171,11 +172,13 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   const total = carrito.reduce((acc, item) => {
     return acc + (item.subtotal || 0);
   }, 0);
+
   const subtotal_ = carrito.reduce((acc, item) => {
     return acc + (item.subtotal || 0);
   }, 0);
+
   const total_comision = carrito.reduce((acc, item) => {
-    return acc + (item.comision || 0);
+    return acc + (item.comision * item.cantidad || 0);
   }, 0);
 
   localStorage.setItem("carrito", JSON.stringify(carrito));
@@ -185,6 +188,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   actualizarTablaCarrito(carrito);
   document.getElementById("total").innerText = total;
 }
+
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoPedido tbody");
   tbody.innerHTML = "";
@@ -194,8 +198,8 @@ function actualizarTablaCarrito(carrito) {
     row.innerHTML = `
             <td>${item.nombre}</td>
             <td>${item.cantidad}</td>
-            <td>${(item.precio || 0)}</td>
-            <td>${(item.subtotal || 0)}</td>
+            <td>${item.precio || 0}</td>
+            <td>${item.subtotal || 0}</td>
             <td><button onclick="eliminarProducto(${
               item.id_producto
             })" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
@@ -248,7 +252,7 @@ async function getChicas() {
   try {
     const response = await axios.get(url, config);
     const datos = response.data;
-   
+
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("usuario_id");
       const defaultOption = document.createElement("option");
@@ -352,16 +356,16 @@ async function verPedido(id) {
 
       const detalleProductos = document.getElementById("detalle_productos");
       detalleProductos.innerHTML = "";
-  
+
       const productosArray = productos.map((item) => {
         const producto = {
-          producto_id: item.id_producto,
+          id_producto: item.id_producto,
           precio: item.precio,
           cantidad: item.cantidad,
           comision: item.comision,
           subtotal: item.subtotal,
         };
-      
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${item.categoria} ${item.nombre}</td>
@@ -371,10 +375,10 @@ async function verPedido(id) {
           <td>${Number.parseInt(item.subtotal || 0)}</td>
         `;
         detalleProductos.appendChild(row);
-      
-        return producto; 
+
+        return producto;
       });
-      
+
       const datos = {
         id_pedido: id,
         codigo: primerProducto.codigo,
@@ -383,7 +387,7 @@ async function verPedido(id) {
         metodo_pago: document.getElementById("metodo_pago").value,
         total: primerProducto.total,
         total_comision: primerProducto.total_comision,
-        productos: JSON.stringify(productosArray),
+        productos: productosArray,
       };
 
       localStorage.setItem("datos_venta", JSON.stringify(datos));
@@ -394,16 +398,21 @@ async function verPedido(id) {
     console.error("Error en la petición:", error);
   }
 }
+
 async function createVenta(e) {
   e.preventDefault();
   const nuevoMetodoPago = document.getElementById("metodo_pago").value;
   if (nuevoMetodoPago === "0") {
     return toast("Seleccione un metodo de pago", "info");
   }
-  const datos = JSON.parse(localStorage.getItem("datos_venta"));
+
+  const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
   datos.metodo_pago = nuevoMetodoPago;
+
   localStorage.setItem("datos_venta", JSON.stringify(datos));
+
   const url = `${BASE_URL}createVenta`;
+
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
@@ -411,6 +420,7 @@ async function createVenta(e) {
       toast("Venta realizada correctamente", "success");
       localStorage.removeItem("datos_venta");
       getPedidos();
+      window.location.reload();
       $("#ModalVenta").modal("hide");
     }
   } catch (error) {

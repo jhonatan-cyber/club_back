@@ -11,6 +11,7 @@ use app\controllers\usuario;
 use app\controllers\pedido;
 use app\controllers\venta;
 use app\controllers\contrato;
+use app\controllers\comision;
 
 $rol = new rol();
 $usuario = new usuario();
@@ -22,6 +23,7 @@ $producto = new producto();
 $pedido = new pedido();
 $venta = new venta();
 $contrato = new contrato();
+$comision = new comision();
 $router = new Router();
 
 /******************** Login ********************/
@@ -89,6 +91,7 @@ $router->get('getDetallePedido/(\d+)', [$pedido, 'getDetallePedido']);
 $router->get('ventas', [$venta, 'index']);
 $router->post('createVenta', [$venta, 'createVenta']);
 $router->get('getVentas', [$venta, 'getVentas']);
+$router->get('getVenta/(\d+)', [$venta, 'getVenta']);
 
 
 /******************** Contratos ********************/
@@ -97,6 +100,11 @@ $router->get('getContratos', [$contrato, 'getContratos']);
 $router->post('createContrato', [$contrato, 'createContrato']);
 $router->get('getContrato/(\d+)', [$contrato, 'getContrato']);
 $router->get('deleteContrato/(\d+)', [$contrato, 'deleteContrato']);
+
+/******************** Comisiones ********************/
+$router->get('comisiones', [$comision, 'index']);
+$router->get('getComisionUsuario', [$comision, 'getComisionUsuario']);
+$router->get('getComisiones', [$comision, 'getComisiones']);
 
 
 

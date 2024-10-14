@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-10-2024 a las 19:10:09
+-- Tiempo de generación: 14-10-2024 a las 14:47:49
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -57,7 +57,27 @@ CREATE TABLE `asistencia` (
 INSERT INTO `asistencia` (`id_asistencia`, `hora_asistencia`, `fercha_asistencia`, `usuario_id`) VALUES
 (1, '09:11:50', '2024-10-12', '3'),
 (2, '09:18:45', '2024-10-12', '3'),
-(3, '09:54:02', '2024-10-12', '3');
+(3, '09:54:02', '2024-10-12', '3'),
+(4, '02:20:54', '2024-10-13', '8'),
+(5, '08:22:27', '2024-10-14', '3');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cajas`
+--
+
+CREATE TABLE `cajas` (
+  `id_caja` int(11) NOT NULL,
+  `fecha_apertura` datetime NOT NULL DEFAULT current_timestamp(),
+  `usuario_id_apertura` int(11) NOT NULL,
+  `monto_apertura` int(10) NOT NULL,
+  `monto_caja` int(10) NOT NULL,
+  `monto_trasferencia` int(10) DEFAULT NULL,
+  `usuario_id_cierre` int(11) DEFAULT NULL,
+  `fecha_cierre` datetime DEFAULT NULL,
+  `estado` int(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -169,7 +189,38 @@ INSERT INTO `codigos` (`id_codigo`, `codigo`, `estado`, `fecha_crea`) VALUES
 (31, '3267', b'0', '2024-10-11 16:23:08'),
 (32, '1293', b'0', '2024-10-12 08:37:54'),
 (33, '5696', b'0', '2024-10-12 09:09:07'),
-(34, '6852', b'1', '2024-10-12 09:10:24');
+(34, '6852', b'0', '2024-10-12 09:10:24'),
+(35, '5328', b'0', '2024-10-12 19:00:03'),
+(36, '1864', b'0', '2024-10-13 02:42:56'),
+(37, '4733', b'0', '2024-10-13 02:47:31'),
+(38, '8806', b'0', '2024-10-13 22:31:32'),
+(39, '8007', b'0', '2024-10-14 06:43:48'),
+(40, '2127', b'1', '2024-10-14 06:46:38');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `comisiones`
+--
+
+CREATE TABLE `comisiones` (
+  `id_comision` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `venta_id` int(11) NOT NULL,
+  `monto` int(11) NOT NULL,
+  `estado` int(11) NOT NULL DEFAULT 1,
+  `fecha_crea` datetime NOT NULL DEFAULT current_timestamp(),
+  `fecha_mod` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `comisiones`
+--
+
+INSERT INTO `comisiones` (`id_comision`, `usuario_id`, `venta_id`, `monto`, `estado`, `fecha_crea`, `fecha_mod`) VALUES
+(1, 3, 2, 20000, 1, '2024-10-14 06:47:10', NULL),
+(2, 8, 2, 20000, 1, '2024-10-14 06:47:10', NULL),
+(3, 8, 3, 8000, 1, '2024-10-14 06:48:57', NULL);
 
 -- --------------------------------------------------------
 
@@ -210,7 +261,8 @@ CREATE TABLE `detalle_pedidos` (
 --
 
 INSERT INTO `detalle_pedidos` (`id_detalle_pedido`, `pedido_id`, `producto_id`, `precio`, `comision`, `cantidad`, `subtotal`, `fecha_crea`) VALUES
-(1, 1, 2, 20000, 8000, 1, 20000, '2024-10-12 10:23:07');
+(1, 1, 2, 20000, 8000, 2, 40000, '2024-10-14 03:23:05'),
+(2, 2, 2, 20000, 8000, 2, 40000, '2024-10-14 03:29:59');
 
 -- --------------------------------------------------------
 
@@ -222,10 +274,10 @@ CREATE TABLE `detalle_ventas` (
   `id_detalle_venta` int(11) NOT NULL,
   `venta_id` int(11) NOT NULL,
   `producto_id` int(11) NOT NULL,
-  `precio` decimal(10,2) NOT NULL,
-  `comision` decimal(10,2) NOT NULL,
+  `precio` int(10) NOT NULL,
+  `comision` int(10) NOT NULL,
   `cantidad` int(11) NOT NULL,
-  `sub_total` decimal(10,2) NOT NULL,
+  `sub_total` int(10) NOT NULL,
   `fecha_crea` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -234,17 +286,9 @@ CREATE TABLE `detalle_ventas` (
 --
 
 INSERT INTO `detalle_ventas` (`id_detalle_venta`, `venta_id`, `producto_id`, `precio`, `comision`, `cantidad`, `sub_total`, `fecha_crea`) VALUES
-(1, 18, 1, 30000.00, 10000.00, 1, 30000.00, '2024-09-28 02:45:47'),
-(2, 19, 1, 30000.00, 10000.00, 1, 30000.00, '2024-09-28 02:56:47'),
-(3, 20, 1, 30000.00, 10000.00, 1, 30000.00, '2024-09-28 03:00:04'),
-(4, 21, 6, 20000.00, 8000.00, 1, 20000.00, '2024-09-28 03:02:22'),
-(5, 22, 4, 20000.00, 8000.00, 2, 40000.00, '2024-09-28 03:05:52'),
-(6, 22, 1, 30000.00, 10000.00, 1, 30000.00, '2024-09-28 03:05:52'),
-(7, 22, 2, 30000.00, 10000.00, 1, 30000.00, '2024-09-28 03:05:52'),
-(8, 23, 4, 20000.00, 8000.00, 1, 20000.00, '2024-09-29 23:19:44'),
-(9, 24, 2, 30000.00, 10000.00, 1, 30000.00, '2024-09-29 23:19:54'),
-(10, 24, 1, 30000.00, 10000.00, 2, 60000.00, '2024-09-29 23:19:54'),
-(11, 24, 3, 30000.00, 10000.00, 2, 60000.00, '2024-09-29 23:19:54');
+(1, 1, 2, 20000, 8000, 2, 40000, '2024-10-14 03:53:27'),
+(2, 2, 1, 120000, 40000, 1, 120000, '2024-10-14 06:47:10'),
+(3, 3, 2, 20000, 8000, 1, 20000, '2024-10-14 06:48:57');
 
 -- --------------------------------------------------------
 
@@ -264,7 +308,8 @@ CREATE TABLE `logins` (
 --
 
 INSERT INTO `logins` (`id_login`, `usuario_id`, `last_login`, `estado`) VALUES
-(1, 3, '2024-10-12 09:11:40', 1);
+(1, 3, '2024-10-12 09:11:40', 1),
+(2, 8, '2024-10-13 02:20:39', 1);
 
 -- --------------------------------------------------------
 
@@ -289,7 +334,8 @@ CREATE TABLE `pedidos` (
 --
 
 INSERT INTO `pedidos` (`id_pedido`, `codigo`, `usuario_id`, `cliente_id`, `subtotal`, `total`, `total_comision`, `fecha_crea`, `estado`) VALUES
-(1, '76LNH3JD', 3, 1, 20000, 20000, 8000, '2024-10-12 10:23:07', 1);
+(1, 'NXZNHZVN', 8, 3, 40000, 40000, 16000, '2024-10-14 03:23:05', 0),
+(2, 'Y7Y7PSZV', 8, 1, 40000, 40000, 16000, '2024-10-14 03:29:59', 0);
 
 -- --------------------------------------------------------
 
@@ -374,12 +420,31 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id_usuario`, `run`, `nombre`, `apellido`, `direccion`, `telefono`, `correo`, `password`, `rol_id`, `foto`, `estado`, `fecha_crea`, `fecha_mod`, `fecha_baja`) VALUES
 (1, '10571705', 'Jhonatan', 'Ancasi Flores', 'Av/ colon', '72419112', 'admin@gmail.com', '$2y$10$6KuhGZzt7rIU2A3DEZvP3.DW3liysraITQfSDOOLp4hPkoBJNuTSC', 1, 'default.png', 1, '2024-09-14 02:13:35', NULL, NULL),
-(2, '10575425', 'Carlos', 'Flores', 'Av/ Potosi', '74526332', 'carlos@gmail.com', '$2y$10$/Y6zk6C8gegGHiAYJ2oNe.vdTsFIfJO6pqncHD5wmQ3ZqUPhZQEmS', 2, '66e52c09ea03c.webp', 0, '2024-09-14 02:24:10', NULL, '2024-09-14 02:51:34'),
 (3, '152565565', 'Pepe', 'Castro', 'Av/ Colon', '75412563', 'pepe@gmail.com', '$2y$10$/R3qJnU.mHMiZC0tWLBPCuty6OC.0xL1ceNp7X/4VpLu.Cpqz/fba', 4, '66f4e4d9cbb42.webp', 1, '2024-09-14 02:50:47', '2024-09-26 00:36:41', NULL),
-(4, '1552633', 'Asdasd', 'Asdasd', 'Asdasd', '32234234', 'algo@gmail.com', '$2y$10$aWAzBRVVJ6yXRzz398X2JuIlR9ywEM9X2029qnq2p0it2rKMoT/1a', 3, '66e533bd7aed2.webp', 1, '2024-09-14 02:52:17', '2024-09-14 02:57:01', NULL),
-(5, '321321321', 'Asdasdasd', 'Asdadfasd', 'Asdfasdfasdf', '32534534', 'chica@gmail.com', '$2y$10$iFqtojCPDXMsliHLOSlTAulQ/rXNNvyZaq6arAu/IybHLJuX2HZ.K', 4, '66e6434b8dd15.webp', 1, '2024-09-14 22:15:39', NULL, NULL),
-(6, '6546546', 'Maria', 'Perez', 'Asdasd', '324234', 'maria@gmail.com', '$2y$10$rrDitdVMJJ6BUF/OMS5LKO/yngwVGPAb9sRjEU15gKPdUUTK36S0S', 4, '66f6907398cca.webp', 1, '2024-09-27 07:01:07', NULL, NULL),
-(7, '1234234', 'asdfasdf', 'asdfasdf', 'sadfasdf', '3454356', 'pp@gmail.com', '$2y$10$M8x6pdcZQOQvXwfsTej4MePhMXeHq0yyABdWRBRhDpWaVNV2QF3XW', 4, '66fddde83ec24.webp', 1, '2024-10-02 19:57:28', NULL, NULL);
+(8, '52525252', 'Maria', 'Perez', 'Av/colon', '75415252', 'maria@gmail.com', '$2y$10$hiCFhdi1ofDkGAZQDI76ZenytawuGjDk4xJ2X3zOD4wgKkEAJb3a2', 4, 'default.png', 1, '2024-10-13 02:20:19', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuario_venta`
+--
+
+CREATE TABLE `usuario_venta` (
+  `id_usuario_venta` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `venta_id` int(11) NOT NULL,
+  `fecha_crea` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuario_venta`
+--
+
+INSERT INTO `usuario_venta` (`id_usuario_venta`, `usuario_id`, `venta_id`, `fecha_crea`) VALUES
+(1, 8, 1, '2024-10-14 03:59:56'),
+(2, 3, 2, '2024-10-14 06:47:10'),
+(3, 8, 2, '2024-10-14 06:47:10'),
+(4, 8, 3, '2024-10-14 06:48:57');
 
 -- --------------------------------------------------------
 
@@ -391,7 +456,6 @@ CREATE TABLE `ventas` (
   `id_venta` int(11) NOT NULL,
   `codigo` varchar(20) NOT NULL,
   `cliente_id` int(11) DEFAULT NULL,
-  `usuario_id` int(11) DEFAULT NULL,
   `metodo_pago` varchar(50) NOT NULL,
   `total` int(10) NOT NULL DEFAULT current_timestamp(),
   `total_comision` int(10) NOT NULL,
@@ -403,31 +467,10 @@ CREATE TABLE `ventas` (
 -- Volcado de datos para la tabla `ventas`
 --
 
-INSERT INTO `ventas` (`id_venta`, `codigo`, `cliente_id`, `usuario_id`, `metodo_pago`, `total`, `total_comision`, `fecha_crea`, `estado`) VALUES
-(1, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:06:03', 1),
-(2, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:13:48', 1),
-(3, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:16:45', 1),
-(4, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:18:24', 1),
-(5, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:19:09', 1),
-(6, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:21:07', 1),
-(7, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:23:19', 1),
-(8, '3CFRRG00', 4, 6, 'Tarjeta', 30000, 10000, '2024-09-28 02:25:18', 1),
-(9, '3CFRRG00', 4, 6, 'Tarjeta', 30000, 10000, '2024-09-28 02:26:23', 1),
-(10, '3CFRRG00', 4, 6, 'Tarjeta', 30000, 10000, '2024-09-28 02:26:55', 1),
-(11, '3CFRRG00', 4, 6, 'Tarjeta', 30000, 10000, '2024-09-28 02:28:35', 1),
-(12, '3CFRRG00', 4, 6, 'Tarjeta', 30000, 10000, '2024-09-28 02:29:36', 1),
-(13, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:32:55', 1),
-(14, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:36:57', 1),
-(15, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:37:46', 1),
-(16, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:38:02', 1),
-(17, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:42:32', 1),
-(18, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:45:47', 1),
-(19, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 02:56:47', 1),
-(20, '3CFRRG00', 4, 6, 'Efectivo', 30000, 10000, '2024-09-28 03:00:04', 1),
-(21, 'C51M2IQM', 7, 3, 'Tarjeta', 20000, 8000, '2024-09-28 03:02:22', 1),
-(22, 'LBRG848S', 1, 6, 'Efectivo', 100000, 28000, '2024-09-28 03:05:52', 1),
-(23, 'LSRJNEUE', 2, 6, 'Efectivo', 20000, 8000, '2024-09-29 23:19:43', 1),
-(24, 'EJVJ18WM', 3, 6, 'Efectivo', 150000, 30000, '2024-09-29 23:19:54', 1);
+INSERT INTO `ventas` (`id_venta`, `codigo`, `cliente_id`, `metodo_pago`, `total`, `total_comision`, `fecha_crea`, `estado`) VALUES
+(1, 'Y7Y7PSZV', 1, 'Efectivo', 40000, 16000, '2024-10-14 03:53:27', 1),
+(2, 'PZRCFY36', 1, 'Efectivo', 120000, 40000, '2024-10-14 06:47:10', 1),
+(3, 'COEVX4OO', 1, 'Efectivo', 20000, 8000, '2024-10-14 06:48:57', 1);
 
 --
 -- Índices para tablas volcadas
@@ -438,6 +481,12 @@ INSERT INTO `ventas` (`id_venta`, `codigo`, `cliente_id`, `usuario_id`, `metodo_
 --
 ALTER TABLE `asistencia`
   ADD PRIMARY KEY (`id_asistencia`);
+
+--
+-- Indices de la tabla `cajas`
+--
+ALTER TABLE `cajas`
+  ADD PRIMARY KEY (`id_caja`);
 
 --
 -- Indices de la tabla `categorias`
@@ -456,6 +505,12 @@ ALTER TABLE `clientes`
 --
 ALTER TABLE `codigos`
   ADD PRIMARY KEY (`id_codigo`);
+
+--
+-- Indices de la tabla `comisiones`
+--
+ALTER TABLE `comisiones`
+  ADD PRIMARY KEY (`id_comision`);
 
 --
 -- Indices de la tabla `contratos`
@@ -507,6 +562,12 @@ ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id_usuario`);
 
 --
+-- Indices de la tabla `usuario_venta`
+--
+ALTER TABLE `usuario_venta`
+  ADD PRIMARY KEY (`id_usuario_venta`);
+
+--
 -- Indices de la tabla `ventas`
 --
 ALTER TABLE `ventas`
@@ -520,7 +581,13 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `asistencia`
 --
 ALTER TABLE `asistencia`
-  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_asistencia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de la tabla `cajas`
+--
+ALTER TABLE `cajas`
+  MODIFY `id_caja` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias`
@@ -538,7 +605,13 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `codigos`
 --
 ALTER TABLE `codigos`
-  MODIFY `id_codigo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_codigo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+--
+-- AUTO_INCREMENT de la tabla `comisiones`
+--
+ALTER TABLE `comisiones`
+  MODIFY `id_comision` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `contratos`
@@ -550,25 +623,25 @@ ALTER TABLE `contratos`
 -- AUTO_INCREMENT de la tabla `detalle_pedidos`
 --
 ALTER TABLE `detalle_pedidos`
-  MODIFY `id_detalle_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_detalle_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ventas`
 --
 ALTER TABLE `detalle_ventas`
-  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `logins`
 --
 ALTER TABLE `logins`
-  MODIFY `id_login` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_login` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -586,13 +659,19 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT de la tabla `usuario_venta`
+--
+ALTER TABLE `usuario_venta`
+  MODIFY `id_usuario_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
