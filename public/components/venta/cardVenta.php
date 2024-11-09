@@ -68,6 +68,7 @@
                                 <option value="0" selected>Seleccione un metodo de pago</option>
                                 <option value="Efectivo">Efectivo</option>
                                 <option value="Tarjeta">Tarjeta</option>
+                                <option value="Transferencia">Transferencia</option>
                             </select>
                         </div>
                     </div>

@@ -1,25 +1,18 @@
-<div class="modal fade" tabindex="-1" id="ModalVenta">
+<div class="modal fade" tabindex="-1" id="ModalDetalleCuenta">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header" style="background-color: #b2b1b4 !important;">
-                <h3 class="modal-title">Registrar Venta</h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
-                    aria-label="Close">
-                    <span class="svg-icon svg-icon-1"><i class="fa-solid fa-xmark"></i></span>
-                </div>
-            </div>
             <form method="post">
                 <div class="modal-body">
                     <div class="card-body">
                         <p
                             class="text-center justify-content-end align-items-center text-gray-600 text-hover-primary me-5 mb-2">
 
-                            <b>Informacion</b>
+                            <b>Informacion de la Cuenta</b>
                         </p>
                         <div class="row">
 
                             <div class="col-6">
-                            <hr>
+                                <hr>
                                 <small id="hora"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
@@ -34,9 +27,9 @@
                                 </small>
                                 <small id="cliente"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
-                                </small>                   
+                                </small>
                             </div>
-                            <div class="col-6">             
+                            <div class="col-6">
                                 <hr>
                                 <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Metodo
                                         de pago</b></small>
@@ -52,17 +45,8 @@
                                         <option value="Transferencia">Transferencia</option>
                                     </select>
                                 </div>
-
-
-                                <small
-                                    class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Total Comision</b></small>
-                                <div class="d-flex input-group input-group-solid mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="fa-solid fa-money-bill"></i></span>
-                                    <input type="number" min="0" step="0.01"
-                                        class="form-control form-control-sm form-control-solid" id="total_comision" disabled />
-                                </div>
-                                <input type="hidden" class="form-control" id="total_a pagar" />
+                                <small id="comision"
+                                    class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2"></small>
 
                             </div>
                         </div>
@@ -88,18 +72,18 @@
                             <div class="separator mx-1 my-4"></div>
                             <div class="col-12">
                                 <div class="d-flex justify-content-end">
-                                    <small id="sub_total"
-                                        class="text-gray-600 text-uppercase text-hover-primary me-5 mb-3"></small>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <h4 id="total_"
-                                        class="text-gray-600 text-uppercase text-hover-primary me-5 mb-3"></h4>
+                                    <h4 id="total" class="text-gray-600 text-uppercase text-hover-primary me-5 mb-3">
+                                    </h4>
                                 </div>
                             </div>
                         </div>
                         <div class="text-center mt-5">
-                            <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up btn-block"
-                                onclick="createVenta(event)"><i class="fa fa-save"></i> Registrar venta</button>
+                            <button id="btn_cobrar" type="button" class="btn btn-light-dark btn-sm hover-elevate-up"><i
+                                    class="fa fa-save"></i> Cobrar Cuenta</button>
+                            <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
+                                data-bs-dismiss="modal">
+                                <i class="fa fa-times"></i> Cancelar
+                            </button>
                         </div>
                     </div>
                 </div>

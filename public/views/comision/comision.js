@@ -1,6 +1,5 @@
 let tbComision;
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(localStorage.getItem("usuario"));
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   if (usuario.rol === "Administrador") {
     getComisiones();
@@ -52,7 +51,6 @@ async function getComisiones() {
     } else {
       return toast("No se encontraron comisiones", "info");
     }
-    console.log(data);
   } catch (error) {
     console.log(error);
   }

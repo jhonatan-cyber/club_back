@@ -73,10 +73,8 @@ async function getProductosPrecio() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-
     if (data.estado === "ok" && data.codigo === 200) {
       const precios = data.data;
-
       const preciosHTML = precios
         .filter((precio) => precio.nombre !== "Champañas")
         .map(
@@ -188,7 +186,6 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   actualizarTablaCarrito(carrito);
   document.getElementById("total").innerText = total;
 }
-
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoPedido tbody");
   tbody.innerHTML = "";

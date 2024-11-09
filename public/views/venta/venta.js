@@ -235,7 +235,7 @@ async function getBebidasPrecio(precio) {
           (item) => `
           <input type="hidden" class="form-control" value="${item.id_producto}">
           <div class="input-group input-group-solid mb-3">
-            <small style="font-size: 1rem; width: auto; min-width: 120px;">${item.categoria} ${item.nombre}</small>
+            <small class="m-5" >${item.categoria} ${item.nombre}</small>
             <input id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Ingrese una cantidad" style="width: 100px;" min="1" />
             <button onclick="cargarCarrito(${item.id_producto}, '${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-block btn-sm hover-elevate-up" type="button">
               <i class="fas fa-plus"></i> Agregar

@@ -86,9 +86,19 @@
                                 href="<?php echo BASE_URL ?>pedidos" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                <i class="fa-solid fa-champagne-glasses"></i>
+                                    <i class="fa-solid fa-champagne-glasses"></i>
                                 </span>
                                 <span class="menu-title">Pedidos</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>servicios" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-venus-mars"></i>
+                                </span>
+                                <span class="menu-title">Servicios</span>
                             </a>
                         </div>
                         <div class="menu-item mb-3">
@@ -96,9 +106,19 @@
                                 href="<?php echo BASE_URL ?>ventas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                <i class="fa-solid fa-cash-register"></i>
+                                    <i class="fa-solid fa-cash-register"></i>
                                 </span>
                                 <span class="menu-title">Ventas</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>cuentas" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-coins"></i>
+                                </span>
+                                <span class="menu-title">Cuentas</span>
                             </a>
                         </div>
                         <div class="menu-item">
@@ -111,7 +131,7 @@
                                 href="<?php echo BASE_URL ?>comisiones" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
                                 </span>
                                 <span class="menu-title">Comisiones</span>
                             </a>
@@ -121,6 +141,8 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
+
+
                         <div data-kt-menu-trigger="click" class="menu-item  menu-accordion mb-1">
                             <span
                                 class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm mb-3"><span
@@ -141,9 +163,20 @@
                                 </div>
                                 <div class="menu-item mb-3">
                                     <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                        href="<?php echo BASE_URL ?>habitaciones">
+                                        <span class="menu-bullet">
+                                        <i class="fa-solid fa-house-user"></i>
+                                            
+                                        </span>
+                                        <span class="menu-title">Habitaciones</span>
+                                    </a>
+                                </div>
+                     
+                                <div class="menu-item mb-3">
+                                    <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                         href="<?php echo BASE_URL ?>contratos">
                                         <span class="menu-bullet">
-                                        <i class="fa-solid fa-briefcase"></i>
+                                            <i class="fa-solid fa-briefcase"></i>
                                         </span>
                                         <span class="menu-title">Contratos</span>
                                     </a>

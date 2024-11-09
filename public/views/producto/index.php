@@ -43,19 +43,6 @@
                                         </div>
                                     </div>
                                     <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-12 align-items-center text-center">
-                                                <a href="<?php echo BASE_URL ?>Usuario/pdf" target="_blank"
-                                                    class="btn btn-light-danger btn-sm hover-elevate-up"><i
-                                                        class="fa-solid fa-file-pdf"> </i><b> PDF</b></a>
-                                                <button onclick="imprimir()"
-                                                    class="btn btn-light-primary btn-sm hover-elevate-up"><i
-                                                        class="fa-solid fa-print"></i><b> Print</b></button>
-                                                <button onclick="excel()"
-                                                    class="btn btn-light-success btn-sm hover-elevate-up"><i
-                                                        class="fa-solid fa-file-excel"></i><b> Excel</b></button>
-                                            </div>
-                                        </div>
                                         <button class="btn btn-light-dark btn-sm text-center hover-scale"
                                             onclick="Atras(event);"><i class="fa-solid fa-arrow-left"></i>
                                             Atras</button>

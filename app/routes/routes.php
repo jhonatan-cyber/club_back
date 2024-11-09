@@ -12,6 +12,10 @@ use app\controllers\pedido;
 use app\controllers\venta;
 use app\controllers\contrato;
 use app\controllers\comision;
+use app\controllers\pieza;
+use app\controllers\servicio;
+use app\controllers\cuenta;
+
 
 $rol = new rol();
 $usuario = new usuario();
@@ -24,7 +28,11 @@ $pedido = new pedido();
 $venta = new venta();
 $contrato = new contrato();
 $comision = new comision();
+$pieza = new pieza();
+$servicio = new servicio();
+$cuenta = new cuenta();
 $router = new Router();
+
 
 /******************** Login ********************/
 $router->get('/', [$login, 'index']);
@@ -106,6 +114,32 @@ $router->get('comisiones', [$comision, 'index']);
 $router->get('getComisionUsuario', [$comision, 'getComisionUsuario']);
 $router->get('getComisiones', [$comision, 'getComisiones']);
 
+/******************** Piezas ********************/
+$router->get('habitaciones', [$pieza, 'index']);
+$router->get('getPiezas', [$pieza, 'getPiezas']);
+$router->post('createPieza', [$pieza, 'createPieza']);
+$router->get('getPieza/(\d+)', [$pieza, 'getPieza']);
+$router->get('deletePieza/(\d+)', [$pieza, 'deletePieza']);
+$router->get('getPiezasLibres', [$pieza, 'getPiezasLibres']);
+
+/******************** Servicios ********************/
+$router->get('servicios', [$servicio, 'index']);
+$router->post('createServicio', [$servicio, 'createServicio']);
+$router->get('getServicio/(\d+)', [$servicio, 'getServicio']);
+$router->get('getServicios', [$servicio, 'getServicios']);
+$router->get('getCuenta/(\w+)', [$servicio, 'getCuenta']);
+$router->get('updateServicio/(\d+)', [$servicio, 'updateServicio']);
+$router->get('updatePieza/(\d+)', [$servicio, 'updatePieza']);
+$router->get('getDetalleCuenta/(\d+)', [$servicio, 'getDetalleCuenta']);
+$router->get('getServicio/(\w+)', [$servicio, 'getServicio']);
+$router->post('updateCuenta', [$servicio, 'updateCuenta']);
+
+/******************** Cuentas ********************/
+$router->get('cuentas', [$cuenta, 'index']);
+$router->get('getCuentas', [$cuenta, 'getCuentas']);
+$router->get('getDetalleCuentas/(\d+)', [$cuenta, 'getDetalleCuentas']);
+$router->post('cobrarCuenta', [$cuenta, 'cobrarCuenta']);
+$router->post('createDetalleCuenta', [$cuenta, 'createDetalleCuenta']);
 
 
 $router->run();
