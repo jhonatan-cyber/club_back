@@ -8,6 +8,7 @@ use app\config\guard;
 use app\config\response;
 use app\config\controller;
 use app\models\usuarioModel;
+use app\config\cache;
 
 class usuario extends controller
 {
@@ -35,7 +36,7 @@ class usuario extends controller
                 echo $view->render('auth', 'index');
             }
         } catch (Exception $e) {
-            http_response_code(404);
+       
             $this->response(Response::estado404($e));
         }
     }
@@ -43,20 +44,25 @@ class usuario extends controller
     {
 
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $usuarios = $this->model->getUsuarios();
-            if (empty($usuarios)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+            $cacheKey = 'usuarios_list';
+            $usuarios = cache::get($cacheKey);
+
+            if (!$usuarios) {
+                $usuarios = $this->model->getUsuarios();
+                cache::set($cacheKey, $usuarios, 600);
             }
-            http_response_code(200);
+
+            if (empty($usuarios)) {
+                return $this->response(response::estado204('No se encontraron usuarios'));
+            }
+
             return $this->response(response::estado200($usuarios));
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
@@ -64,20 +70,16 @@ class usuario extends controller
     public function getUsuario(int $id)
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
             $usuario = $this->model->getUsuario($id);
             if (empty($usuario)) {
-                http_response_code(204);
                 return $this->response(response::estado204());
             }
-            http_response_code(200);
             return $this->response(response::estado200($usuario));
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
@@ -85,7 +87,7 @@ class usuario extends controller
     public function createUsuario()
     {
         if ($this->method !== 'POST') {
-            http_response_code(405);
+      
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -97,36 +99,41 @@ class usuario extends controller
             $this->data = [
                 'id_usuario' => $data['id_usuario'] ?? null,
                 'run' => $data['run'],
+                'nick' => $data['nick'],
                 'nombre' => $data['nombre'],
                 'apellido' => $data['apellido'],
                 'direccion' => $data['direccion'],
                 'telefono' => $data['telefono'],
+                'estado_civil' => $data['estado_civil'],
+                'afp' => $data['afp'],
+                'aporte' => $data['aporte'],
+                'sueldo' => $data['sueldo'],
                 'correo' => $data['correo'],
                 'password' => $data['password'],
                 'rol_id' => $data['rol_id'],
                 'foto' => $img['name'] ?? $img_anterior,
             ];
 
-            $required = ['run', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
+            $required = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'estado_civil', 'afp', 'aporte', 'sueldo', 'correo', 'password', 'rol_id'];
             foreach ($required as $field) {
                 if (empty($this->data[$field])) {
-                    error_log("Campo obligatorio vacío: $field");
                     return $this->response(response::estado400("El campo $field es obligatorio"));
                 }
             }
 
             if (!preg_match(self::$validar_numero, $this->data['run'])) {
-                error_log("CI inválido: " . $this->data['run']);
                 return $this->response(Response::estado400('El campo run solo puede contener números'));
             }
-
+            if (!preg_match(self::$validar_numero, $this->data['aporte'])) {
+                return $this->response(Response::estado400('El campo aporte solo puede contener números'));
+            }
+            if (!preg_match(self::$validar_numero, $this->data['sueldo'])) {
+                return $this->response(Response::estado400('El campo sueldo solo puede contener números'));
+            }
             if (!preg_match(self::$validar_numero, $this->data['telefono'])) {
-                error_log("Teléfono inválido: " . $this->data['telefono']);
                 return $this->response(Response::estado400('El campo telefono solo puede contener números'));
             }
-
             if (!filter_var($this->data['correo'], FILTER_VALIDATE_EMAIL)) {
-                error_log("Correo inválido: " . $this->data['correo']);
                 return $this->response(Response::estado400('El campo correo no es válido'));
             }
 
@@ -137,13 +144,17 @@ class usuario extends controller
             } else {
                 $foto_final = $img_anterior;
             }
+
+            $this->data['nombre'] = ucwords($this->data['nombre']);
+            $this->data['apellido'] = ucwords($this->data['apellido']);
+            $this->data['nick'] = ucwords($this->data['nick']);
+    
             if (empty($this->data['id_usuario']) || $this->data['id_usuario'] == null) {
                 $usuario = $this->model->createUsuario($this->data);
             } else {
                 $usuario = $this->model->updateUsuario($this->data);
             }
-
-            if ($usuario == 'ok') {
+            if ($usuario === 'ok') {
                 if (!empty($img['tmp_name'])) {
                     $destino = 'public/assets/img/usuarios/' . $foto_final;
                     $this->convertToWebP($img['tmp_name'], $destino, $extension);
@@ -152,24 +163,17 @@ class usuario extends controller
                         unlink('public/assets/img/usuarios/' . $img_anterior);
                     }
                 }
-                http_response_code(201);
                 return $this->response(Response::estado201());
             }
-
-            if ($usuario == 'existe') {
-                http_response_code(409);
+            if ($usuario === 'existe') {
                 return $this->response(Response::estado409('El usuario ya existe'));
             }
 
-            http_response_code(500);
             return $this->response(Response::estado500());
         } catch (Exception $e) {
-            error_log("Error al crear usuario: " . $e->getMessage());
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
-
     private function convertToWebP($sourcePath, $destinationPath, $extension)
     {
 
@@ -222,25 +226,19 @@ class usuario extends controller
             imagedestroy($image);
         }
     }
-
-
     public function deleteUsuario(int $id)
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
             $res = $this->model->deleteUsuario($id);
             if ($res == 'ok') {
-                http_response_code(200);
-                return $this->response(response::estado200('ok'));
+                return $this->response(response::estado201());
             }
-            http_response_code(500);
             return $this->response(response::estado500());
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
@@ -248,20 +246,16 @@ class usuario extends controller
     public function getChicas()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
-            $res = $this->model->getChicas();
+            $res = $this->model->getChicas(); 
             if (empty($res)) {
-                http_response_code(204);
                 return $this->response(response::estado204());
             }
-            http_response_code(200);
             return $this->response(response::estado200($res));
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }

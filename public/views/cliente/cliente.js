@@ -2,8 +2,8 @@ let tbCliente;
 document.addEventListener("DOMContentLoaded", () => {
     getClientes();
     enterKey();
-
 });
+
 async function getClientes() {
     const url = `${BASE_URL}getClientes`;
     try {
@@ -27,7 +27,6 @@ async function getClientes() {
                             `<span class="badge badge-sm badge-primary">${meta.row + 1
                             }</span>`,
                     },
-
                     { data: "run" },
                     { data: "nombre" },
                     { data: "apellido" },
@@ -51,6 +50,7 @@ async function getClientes() {
         console.log(error);
     }
 }
+
 function Mcliente(e) {
     e.preventDefault();
     document.getElementById("id_cliente").value = "";
@@ -62,6 +62,7 @@ function Mcliente(e) {
         document.getElementById("run").focus();
     });
 }
+
 async function createCliente(e) {
     e.preventDefault();
     const id_cliente = document.getElementById("id_cliente").value;
@@ -94,13 +95,13 @@ async function createCliente(e) {
         const url = `${BASE_URL}createCliente`;
         const resp = await axios.post(url, data, config);
         const result = resp.data;
+        console.log(result);
         if (result.estado === "ok" && result.codigo === 201) {
             $("#Modalcliente").modal("hide");
             getClientes();
             return toast("Cliente registrado correctamente", "success");
         }
     } catch (error) {
-
         if (error.response) {
             const resultado = error.response.data;
 
@@ -120,6 +121,7 @@ async function createCliente(e) {
         }
     }
 }
+
 function enterKey() {
     const run = document.getElementById("run");
     const nombre = document.getElementById("nombre_cl");
@@ -151,6 +153,7 @@ function enterKey() {
             apellido.focus();
         }
     });
+
     apellido.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -163,6 +166,7 @@ function enterKey() {
             telefono.focus();
         }
     });
+
     telefono.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -175,6 +179,7 @@ function enterKey() {
         }
     });
 }
+
 async function getCliente(id) {
     const url = `${BASE_URL}getCliente/${id}`;
     try {
@@ -193,20 +198,26 @@ async function getCliente(id) {
         console.log(error);
     }
 }
+
 async function deleteCliente(id) {
     const result = await Swal.fire({
-        title: "NuweSoft",
+        title: "Las Muñecas de Ramón",
         text: "¿Está seguro de eliminar el cliente ?",
-        icon: "warning",
+        icon: "info",
         showCancelButton: true,
         confirmButtonText: "Si, eliminar",
         cancelButtonText: "No, cancelar",
         customClass: {
-            confirmButton: "btn btn-danger btn-sm rounded-pill",
-            cancelButton: "btn btn-secondary btn-sm rounded-pill",
-        },
-        buttonsStyling: false,
-        confirmButtonColor: "#dc3545",
+            confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+            cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+            popup: "swal2-dark",
+            title: "swal2-title",
+            htmlContainer: "swal2-html-container"
+          },
+          buttonsStyling: false,
+          confirmButtonColor: "#dc3545",
+          background: "var(--bs-body-bg)",
+          color: "var(--bs-body-color)",
     });
     if (result.isConfirmed) {
         const url = `${BASE_URL}deleteCliente/${id}`;

@@ -1,7 +1,7 @@
 <div class="modal fade" tabindex="-1" id="ModalDetalleVenta">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header" style="background-color: #b2b1b4 !important;">
+            <div class="modal-header">
                 <h3 class="modal-title">Detalle de Venta</h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
                     aria-label="Close">

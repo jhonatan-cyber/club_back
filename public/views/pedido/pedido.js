@@ -34,7 +34,11 @@ async function getPedidos() {
           { data: "codigo" },
           {
             data: null,
-            render: (data, type, row) => `${row.nombre_u} ${row.apellido_u}`,
+            render: (data, type, row) => `${row.nombre_m} ${row.apellido_m}`,
+          },
+          {
+            data: null,
+            render: (data, type, row) => `${row.nombre_ch} ${row.apellido_ch}`,
           },
           {
             data: null,
@@ -236,7 +240,7 @@ async function getClientes() {
         const cliente = datos.data[i];
         const option = document.createElement("option");
         option.value = cliente.id_cliente;
-        option.text = `${cliente.nombre} ${cliente.apellido};`;
+        option.text = `${cliente.nombre} ${cliente.apellido}`;
         select.appendChild(option);
       }
     }
@@ -249,9 +253,8 @@ async function getChicas() {
   try {
     const response = await axios.get(url, config);
     const datos = response.data;
-
     if (datos.estado === "ok" && datos.codigo === 200) {
-      const select = document.getElementById("usuario_id");
+      const select = document.getElementById("chica_id");
       const defaultOption = document.createElement("option");
       defaultOption.value = "0";
       defaultOption.text = "Seleccione una acompañante";
@@ -272,8 +275,8 @@ async function getChicas() {
 async function createPedido(e) {
   e.preventDefault();
   let cliente_id = document.getElementById("cliente_id").value;
-  const usuario_id = document.getElementById("usuario_id").value;
-  if (usuario_id === "0") {
+  const chica_id = document.getElementById("chica_id").value;
+  if (chica_id === "0") {
     return toast("Seleccione una compañera", "info");
   }
   if (cliente_id === "0") {
@@ -283,7 +286,7 @@ async function createPedido(e) {
   const productos = JSON.parse(localStorage.getItem("carrito")) || [];
   const datos = {
     cliente_id,
-    usuario_id,
+    chica_id,
     productos: JSON.stringify(productos),
     total: localStorage.getItem("total_carrito") || 0,
     total_comision: localStorage.getItem("total_comision") || 0,
@@ -309,6 +312,7 @@ async function createPedido(e) {
     console.error(error);
   }
 }
+
 async function verPedido(id) {
   const url = `${BASE_URL}getDetallePedido/${id}`;
   const obtenerFechaHora = () => {
@@ -321,30 +325,32 @@ async function verPedido(id) {
     const day = String(fechaHora.getDate()).padStart(2, "0");
     return { hour, minute, second, year, month, day };
   };
-
   const { hour, minute, second, year, month, day } = obtenerFechaHora();
-
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.codigo === 200 && data.estado === "ok") {
       const productos = data.data;
       const primerProducto = productos[0];
       document.getElementById(
         "hora"
-      ).innerHTML = `<i class="fa-solid fa-clock m-2"></i><b>Hora: ${hour}:${minute}:${second}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-clock m-2"></i><b>Hora : ${hour}:${minute}:${second}</b>`;
       document.getElementById(
         "fecha"
-      ).innerHTML = `<i class="fa-solid fa-calendar-days m-2"></i><b>Fecha: ${year}-${month}-${day}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-calendar-days m-2"></i><b>Fecha : ${year}-${month}-${day}</b>`;
       document.getElementById(
         "codigo"
-      ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo: ${primerProducto.codigo}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo : ${primerProducto.codigo}</b>`;
       document.getElementById(
         "usuario"
-      ).innerHTML = `<i class="fa-solid fa-user m-2"></i><b>Dama acompañante: ${primerProducto.nombre_usu} ${primerProducto.apellido_usu}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-user m-2"></i><b>Dama acompañante : ${primerProducto.nombre_ch} ${primerProducto.apellido_ch}</b>`;
       document.getElementById(
         "cliente"
-      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente: ${primerProducto.nombre_cli} ${primerProducto.apellido_cli}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente : ${primerProducto.nombre_cl} ${primerProducto.apellido_cl}</b>`;
+      document.getElementById(
+        "mesero"
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Mesero : ${primerProducto.nombre_m} ${primerProducto.apellido_m}</b>`;
       document.getElementById(
         "total_"
       ).innerHTML = `<b>Total: $${primerProducto.total}</b>`;
@@ -379,7 +385,7 @@ async function verPedido(id) {
       const datos = {
         id_pedido: id,
         codigo: primerProducto.codigo,
-        usuario_id: primerProducto.usuario_id,
+        chica_id: primerProducto.chica_id,
         cliente_id: primerProducto.cliente_id,
         metodo_pago: document.getElementById("metodo_pago").value,
         total: primerProducto.total,
@@ -402,22 +408,41 @@ async function createVenta(e) {
   if (nuevoMetodoPago === "0") {
     return toast("Seleccione un metodo de pago", "info");
   }
-
+const propina = Number.parseInt(document.getElementById("propina").value) ;
   const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
   datos.metodo_pago = nuevoMetodoPago;
-
+  datos.propina = propina;
   localStorage.setItem("datos_venta", JSON.stringify(datos));
+
+
 
   const url = `${BASE_URL}createVenta`;
 
-  try {
+   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
+console.log(data);
     if (data.codigo === 201 && data.estado === "ok") {
       toast("Venta realizada correctamente", "success");
       localStorage.removeItem("datos_venta");
       getPedidos();
-      window.location.reload();
+      $("#ModalVenta").modal("hide");
+    }
+  } catch (error) {
+    console.error(error);
+  } 
+}
+
+async function createCuenta() {
+  const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
+  const url = `${BASE_URL}createCuenta`;
+  try {
+    const resp = await axios.post(url, datos, config);
+    const data = resp.data;
+    if (data.codigo === 201 && data.estado === "ok") {
+      toast("Cuenta creada correctamente", "success");
+      localStorage.removeItem("datos_venta");
+      getPedidos();
       $("#ModalVenta").modal("hide");
     }
   } catch (error) {

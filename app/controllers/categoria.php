@@ -7,6 +7,7 @@ use app\models\categoriaModel;
 use app\config\response;
 use app\config\guard;
 use app\config\view;
+use app\config\cache;
 use Exception;
 
 class categoria extends controller
@@ -45,15 +46,25 @@ class categoria extends controller
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $categorias = $this->model->getCategorias();
-            if (empty($categorias)) {
-                return $this->response(response::estado204());
+            $cacheKey = 'categorias_list';
+            $categorias = cache::get($cacheKey);
+
+            if (!$categorias) {
+                $categorias = $this->model->getCategorias();
+                cache::set($cacheKey, $categorias, 600);
             }
+
+            if (empty($categorias)) {
+                return $this->response(response::estado204('No se encontraron categorías'));
+            }
+
             return $this->response(response::estado200($categorias));
         } catch (Exception $e) {
-            return $this->response(response::estado404($e));
+            return $this->response(response::estado500($e));
         }
     }
 

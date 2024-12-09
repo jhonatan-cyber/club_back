@@ -32,7 +32,7 @@
             <div class="card-body pt-0">
                 <div class="row mt-4 mb-4">
                     <div class="col-xl-3 col-md-3 col-sm-6 mt-3">
-                        <small for="cliente_id" class="form-label ls-1 mb-3"><b>Cliente</b></small>
+                        <small class="form-label ls-1 mb-3"><b>Cliente</b></small>
                         <div class="input-group input-group-solid flex-nowrap">
                             <span class="input-group-text"><i class="fa-solid fa-users"></i></span>
                             <div class="overflow-hidden flex-grow-1">
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <div class="col-xl-3 col-md-3 col-sm-6 mt-3">
-                        <small for="usuario_id" class="form-label ls-1 mb-3"><b>Dama acompañante</b></small>
+                        <small class="form-label ls-1 mb-3"><b>Dama acompañante</b></small>
                         <div class="input-group input-group-solid flex-nowrap">
                             <span class="input-group-text"><i class="fa-solid fa-child-dress"></i></span>
                             <div class="overflow-hidden flex-grow-1">
@@ -58,7 +58,7 @@
                     </div>
 
                     <div class="col-xl-3 col-md-3 col-sm-6 mt-3">
-                        <small class="d-flex align-items-center me-5 mb-3"><b>Metodo
+                        <small class="form-label ls-1 mb-3"><b>Metodo
                                 de pago</b></small>
                         <div class="d-flex input-group input-group-solid mb-3">
                             <span class="input-group-text" id="basic-addon1"><i
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                     <div class="col-xl-3 col-md-3 col-sm-6 mt-3">
-                        <small for="pieza_id" class="form-label ls-1 mb-3"><b>Pieza</b></small>
+                        <small class="form-label ls-1 mb-3"><b>Pieza</b></small>
                         <div class="input-group input-group-solid flex-nowrap">
                             <span class="input-group-text"><i class="fa-solid fa-house-user"></i></span>
                             <div class="overflow-hidden flex-grow-1">
@@ -136,8 +136,8 @@
                         </div>
                     </div>
                 </div>
-                <hr>
-                <div id="producto_servicio" hidden>
+        
+                <div class="mt-4" id="producto_servicio" hidden>
                     <div class="row" id="precio_bebidas">
                     </div>
                     <div class="separator mx-1 my-4"></div>
@@ -145,7 +145,7 @@
                         <small class="text-muted text-center d-block">Detalles Producto</small>
                         <div class="separator mx-1 my-4"></div>
                         <div class="table-responsive">
-                            <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer"
+                            <table class="table table-striped gy-5 gs-7 border rounded w-100  align-middle table-row-dashed fs-6 gy-5 dataTable no-footer"
                                 id="tbCarritoCuenta">
                                 <thead>
                                     <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">

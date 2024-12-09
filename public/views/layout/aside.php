@@ -10,17 +10,13 @@
                         style="width:auto; height: 100px;" />
                 </a>
             </div>
-
-
             <div class="aside-menu flex-column-fluid px-3 px-lg-6">
                 <div class="menu menu-column menu-sub-indention menu-active-bg menu-pill menu-title-gray-600 menu-icon-gray-400 menu-state-primary menu-arrow-gray-500 fw-semibold fs-5 my-5 mt-lg-2 mb-lg-0"
                     id="kt_aside_menu" data-kt-menu="true">
-
                     <div class="hover-scroll-y me-n3 pe-3" id="kt_aside_menu_wrapper" data-kt-scroll="true"
                         data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-height="auto"
                         data-kt-scroll-wrappers="#kt_aside_menu"
                         data-kt-scroll-dependencies="#kt_aside_logo, #kt_aside_footer" data-kt-scroll-offset="20px">
-
                         <div class="menu-item mb-1">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>home">
@@ -58,6 +54,17 @@
                         </div>
                         <div class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>roles" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-address-card"></i>
+                                </span>
+                                <span class="menu-title">Roles</span>
+                            </a>
+                        </div>
+
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>usuarios" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
@@ -66,10 +73,40 @@
                                 <span class="menu-title">Usuarios</span>
                             </a>
                         </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>asistencias" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                </span>
+                                <span class="menu-title">Asistencias</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>horasExtras" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                </span>
+                                <span class="menu-title">Horas Extras</span>
+                            </a>
+                        </div>
                         <div class="menu-item">
                             <div class="menu-content">
                                 <div class="separator mx-1 my-1"></div>
                             </div>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>categorias" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </span>
+                                <span class="menu-title">Categorias</span>
+                            </a>
                         </div>
                         <div class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
@@ -81,6 +118,11 @@
                                 <span class="menu-title">Productos</span>
                             </a>
                         </div>
+                        <div class="menu-item">
+                            <div class="menu-content">
+                                <div class="separator mx-1 my-1"></div>
+                            </div>
+                        </div>
                         <div class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>pedidos" data-bs-toggle="tooltip" data-bs-trigger="hover"
@@ -89,16 +131,6 @@
                                     <i class="fa-solid fa-champagne-glasses"></i>
                                 </span>
                                 <span class="menu-title">Pedidos</span>
-                            </a>
-                        </div>
-                        <div class="menu-item mb-3">
-                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
-                                href="<?php echo BASE_URL ?>servicios" data-bs-toggle="tooltip" data-bs-trigger="hover"
-                                data-bs-dismiss="click" data-bs-placement="right">
-                                <span class="menu-icon">
-                                <i class="fa-solid fa-venus-mars"></i>
-                                </span>
-                                <span class="menu-title">Servicios</span>
                             </a>
                         </div>
                         <div class="menu-item mb-3">
@@ -116,7 +148,7 @@
                                 href="<?php echo BASE_URL ?>cuentas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                <i class="fa-solid fa-coins"></i>
+                                    <i class="fa-solid fa-coins"></i>
                                 </span>
                                 <span class="menu-title">Cuentas</span>
                             </a>
@@ -128,6 +160,42 @@
                         </div>
                         <div class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>habitaciones" data-bs-toggle="tooltip"
+                                data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-house-user"></i>
+                                </span>
+                                <span class="menu-title">Habitaciones</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>servicios" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-venus-mars"></i>
+                                </span>
+                                <span class="menu-title">Servicios</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-content">
+                                <div class="separator mx-1 my-1"></div>
+                            </div>
+                        </div>
+                      
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>propinas" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-coins"></i>
+                                </span>
+                                <span class="menu-title">Propinas</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>comisiones" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
@@ -136,61 +204,35 @@
                                 <span class="menu-title">Comisiones</span>
                             </a>
                         </div>
-                        <div class="menu-item">
-                            <div class="menu-content">
-                                <div class="separator mx-1 my-1"></div>
-                            </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>anticipos" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-money-bill-transfer"></i>
+                                </span>
+                                <span class="menu-title">Anticipos</span>
+                            </a>
                         </div>
-
-
-                        <div data-kt-menu-trigger="click" class="menu-item  menu-accordion mb-1">
-                            <span
-                                class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm mb-3"><span
-                                    class="menu-icon">
-                                    <span class="svg-icon svg-icon-2"><i class="fa-solid fa-screwdriver-wrench"></i>
-                                    </span>
-                                </span><span class="menu-title">Coniguraciones</span><span
-                                    class="menu-arrow"></span></span>
-                            <div class="menu-sub menu-sub-accordion">
-                                <div class="menu-item mb-3">
-                                    <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
-                                        href="<?php echo BASE_URL ?>categorias">
-                                        <span class="menu-bullet">
-                                            <i class="fa-solid fa-layer-group"></i>
-                                        </span>
-                                        <span class="menu-title">Categorias</span>
-                                    </a>
-                                </div>
-                                <div class="menu-item mb-3">
-                                    <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
-                                        href="<?php echo BASE_URL ?>habitaciones">
-                                        <span class="menu-bullet">
-                                        <i class="fa-solid fa-house-user"></i>
-                                            
-                                        </span>
-                                        <span class="menu-title">Habitaciones</span>
-                                    </a>
-                                </div>
-                     
-                                <div class="menu-item mb-3">
-                                    <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
-                                        href="<?php echo BASE_URL ?>contratos">
-                                        <span class="menu-bullet">
-                                            <i class="fa-solid fa-briefcase"></i>
-                                        </span>
-                                        <span class="menu-title">Contratos</span>
-                                    </a>
-                                </div>
-                                <div class="menu-item mb-3">
-                                    <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
-                                        href="<?php echo BASE_URL ?>roles">
-                                        <span class="menu-bullet">
-                                            <i class="fa-solid fa-address-card"></i>
-                                        </span>
-                                        <span class="menu-title">Roles</span>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>devoluciones" data-bs-toggle="tooltip"
+                                data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-money-bill-wheat"></i>
+                                </span>
+                                <span class="menu-title">Devoluciones</span>
+                            </a>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>planillas" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </span>
+                                <span class="menu-title">Planillas</span>
+                            </a>
                         </div>
                     </div>
                 </div>

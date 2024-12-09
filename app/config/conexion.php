@@ -43,7 +43,7 @@ class conexion
             'HOST' => $_ENV['HOST'],
             'DB' => $_ENV['DB'],
             'USER' => $_ENV['DB_USER'],
-            'PASSWORD' => $_ENV['PASSWORD'] ?? '', // La contraseña puede estar vacía
+            'PASSWORD' => $_ENV['PASSWORD'] ?? '', 
             'CHARSET' => $_ENV['CHARSET'],
         ];
     }

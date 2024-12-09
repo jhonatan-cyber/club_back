@@ -7,6 +7,7 @@ use app\models\piezaModel;
 use app\config\response;
 use app\config\guard;
 use app\config\view;
+use app\config\cache;
 use Exception;
 
 class pieza extends controller
@@ -89,20 +90,26 @@ class pieza extends controller
     public function getPiezas()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $piezas = $this->model->getPiezas();
-            if (empty($piezas)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+            $cacheKey = 'piezas_list';
+            $piezas = cache::get($cacheKey);
+
+            if (!$piezas) {
+                $piezas = $this->model->getPiezas();
+                cache::set($cacheKey, $piezas, 600);
             }
-            http_response_code(200);
+
+            if (empty($piezas)) {
+                return $this->response(response::estado204('No se encontraron piezas'));
+            }
+
             return $this->response(response::estado200($piezas));
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }

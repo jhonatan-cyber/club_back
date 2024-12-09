@@ -2,10 +2,9 @@
 
 namespace app\models;
 
+use app\config\guard;
 use app\config\query;
 use app\config\response;
-use app\config\guard;
-use app\controllers\usuario;
 use Exception;
 
 class loginModel extends query
@@ -14,6 +13,7 @@ class loginModel extends query
     {
         parent::__construct();
     }
+
     public function login(array $usuario)
     {
         $requiredFields = ['correo', 'password'];
@@ -23,7 +23,9 @@ class loginModel extends query
             }
         }
 
-        $sql = "CALL login(:correo)";
+        $sql = 'SELECT U.id_usuario, U.run, U.nombre, U.apellido, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
+                FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol 
+                WHERE U.correo = :correo AND U.estado = 1 LIMIT 1';
         $params = [':correo' => $usuario['correo']];
         $password = $usuario['password'];
 
@@ -60,54 +62,54 @@ class loginModel extends query
             return response::estado500('Error en el servidor: ' . $e->getMessage());
         }
     }
+
     public function createCodigo(string $codigo)
     {
         try {
-            $sql = "INSERT INTO codigos (codigo) VALUES (:codigo)";
+            $sql = 'INSERT INTO codigos (codigo) VALUES (:codigo)';
             $params = [
                 ':codigo' => $codigo,
             ];
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
+
     public function updateCodigo()
     {
         try {
-            $sql = "UPDATE codigos SET estado = 0 WHERE estado=:estado LIMIT 1";
+            $sql = 'DELETE FROM codigos WHERE estado = :estado';
             $params = [
                 ':estado' => 1,
             ];
 
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
+
     public function createAsistencia(int $usuario_id)
     {
         try {
-            $sql = "INSERT INTO asistencia (usuario_id) VALUES (:usuario_id)";
+            $sql = 'INSERT INTO asistencia (usuario_id, fercha_asistencia) VALUES (:usuario_id, CURDATE())';
             $params = [
-
-                ':usuario_id' => $usuario_id,
+                ':usuario_id' => $usuario_id
             ];
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
+
     public function validarCodigo(string $codigo)
     {
         try {
-            $sql = "SELECT * FROM codigos WHERE codigo = :codigo";
+            $sql = 'SELECT * FROM codigos WHERE codigo = :codigo';
             $params = [
                 ':codigo' => $codigo,
             ];
@@ -116,53 +118,66 @@ class loginModel extends query
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
+
     public function createLogin($usuario_id)
     {
-        $sql = "SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 1";
+        $sql = 'SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 1';
         $params = [
-            ":usuario_id" => $usuario_id,
+            ':usuario_id' => $usuario_id,
         ];
 
         $data = $this->select($sql, $params);
         if ($data) {
-            return "ya activo";
+            return 'ya activo';
         }
-        $sql = "SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 0";
+        $sql = 'SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 0';
         $data = $this->select($sql, $params);
 
         if ($data) {
-            $sql = "UPDATE logins SET estado = 1 WHERE usuario_id = :usuario_id AND estado = 0";
+            $sql = 'UPDATE logins SET estado = 1 WHERE usuario_id = :usuario_id AND estado = 0';
             try {
                 $data = $this->save($sql, $params);
-                return $data == 1 ? "ok" : "error";
+                return $data == 1 ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
         } else {
-            $sql = "INSERT INTO logins (usuario_id) VALUES (:usuario_id)";
+            $sql = 'INSERT INTO logins (usuario_id) VALUES (:usuario_id)';
             try {
                 $data = $this->save($sql, $params);
-                return $data == 1 ? "ok" : "error";
+                return $data == 1 ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
         }
     }
+
     public function updateLogin($usuario_id)
     {
-        $sql = "UPDATE logins SET estado = 0 WHERE usuario_id = :usuario_id AND estado = 1";
+        $sql = 'UPDATE logins SET estado = 0 WHERE usuario_id = :usuario_id AND estado = 1';
         $params = [
-            ":usuario_id" => $usuario_id,
+            ':usuario_id' => $usuario_id,
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
- 
 
+    public function getAsistenciaUsuario($usuario_id)
+    {
+        try {
+            $sql = 'SELECT id_asistencia FROM asistencia WHERE usuario_id = :usuario_id AND DATE(fercha_asistencia) = CURDATE() LIMIT 1';
+            $params = [
+                ':usuario_id' => $usuario_id
+            ];
+            $result = $this->select($sql, $params);
+            return !empty($result) ? 1 : 0;
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

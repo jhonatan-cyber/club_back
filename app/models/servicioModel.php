@@ -42,7 +42,7 @@ class servicioModel extends query
         } catch (Exception $e) {
             return response::estado500($e);
         }
-    }
+    } 
 
     public function getServicioCodigo(string $codigo)
     {
@@ -107,7 +107,6 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
-
     public function getServicios()
     {
         $sql = "SELECT S.id_servicio,S.codigo,S.tiempo,S.fecha_crea,S.precio_servicio,
@@ -166,29 +165,29 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
-
     public function createCuenta(array $data)
     {
-        $requiredFields = ['codigo', 'servicio_id', 'sub_total', 'total_comision', 'total'];
+        $requiredFields = ['codigo','cliente_id', 'servicio_id',  'total_comision', 'total'];
         foreach ($requiredFields as $requiredField) {
             if (!isset($data[$requiredField])) {
+                error_log('El campo ' . $requiredField . ' es requerido');
                 return response::estado500('El campo ' . $requiredField . ' es requerido');
             }
         }
 
-        $sql = "INSERT INTO cuentas (codigo, servicio_id, sub_total, total_comision , total) VALUES (:codigo, :servicio_id, :sub_total, :total_comision, :total)";
+        $sql = "INSERT INTO cuentas (codigo, cliente_id, servicio_id, total_comision , total) 
+                VALUES (:codigo, :cliente_id, :servicio_id, :total_comision, :total)";
         $params = [
-            ":codigo" => $data['codigo'],
+            ':codigo' => $data['codigo'],
+            ':cliente_id' => $data['cliente_id'],
             ':servicio_id' => $data['servicio_id'],
-            ':sub_total' => $data['sub_total'],
             ':total_comision' => $data['total_comision'],
             ':total' => $data['total']
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
-            error_log("CreateCuenta" . $e->getMessage());
             return response::estado500($e);
         }
     }
@@ -241,7 +240,7 @@ class servicioModel extends query
     }
     public function updateCuenta(array $cuenta)
     {
-      
+
         $sql = "UPDATE cuentas SET metodo_pago = :metodo_pago, fecha_mod = now(), estado = 0 WHERE id_cuenta = :id_cuenta";
         $params = [
             ":id_cuenta" => $cuenta['id_cuenta'],
@@ -256,6 +255,124 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
+    public function createComision(array $data)
+    {
+        $requiredFields = ["monto"];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                error_log("El campo $field es requerido");
+                return response::estado400("El campo $field es requerido");
+            }
+        }
 
+        $sql = "INSERT INTO comisiones (servicio_id, monto) VALUES (:servicio_id, :monto)";
+        $params = [
+            ":servicio_id" => $data['servicio_id'],
+            ":monto" => $data['monto']
+        ];
+
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            error_log("Error en createComision: " . $e->getMessage());
+            return response::estado500("Error al crear la comisión. Por favor, intenta de nuevo.");
+        }
+    }
+    public function cretaeDetalleComision(array $data)
+    {
+        $requiredFields = ["comision_id", "chica_id", "comision"];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                error_log("El campo $field es requerido");
+                return response::estado400("El campo $field es requerido");
+            }
+        }
+
+        $sql = "INSERT INTO detalle_comisiones (comision_id, chica_id, comision) 
+        VALUES (:comision_id, :chica_id, :comision)";
+        $params = [
+            ":comision_id" => $data['comision_id'],
+            ":chica_id" => $data['chica_id'],
+            ":comision" => $data['comision']
+        ];
+
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp == 1 ? "ok" : "error";
+        } catch (Exception $e) {
+            error_log("Error en createDetalleServicio: " . $e->getMessage());
+            return response::estado500("Error al crear el detalle del servicio. Por favor, intenta de nuevo.");
+        }
+    }
+    public function getLastventa()
+    {
+        $sql = "SELECT MAX(id_venta) AS venta_id FROM ventas";
+        try {
+            return $this->select($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+    public function getLastServicio()
+    {
+        $sql = "SELECT MAX(id_servicio) AS servicio_id FROM servicios";
+        try {
+            return $this->select($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+    public function getLastComision()
+    {
+        $sql = "SELECT MAX(id_comision) AS comision_id FROM comisiones";
+        try {
+            return $this->select($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+    public function getCuentaServicio(string $servicio_id)
+    {
+        $sql = "SELECT * FROM cuentas WHERE servicio_id = :servicio_id";
+        $params = [
+            ":servicio_id" => $servicio_id
+        ];
+        try {
+            return $this->select($sql, $params);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return response::estado500($e);
+        }
+    }
+    public function getAnticipoUsuario(int $id_usuario)
+    {
+        $sql = 'SELECT id_anticipo, usuario_id, monto, estado 
+                FROM anticipos 
+                WHERE usuario_id = :id_usuario 
+                AND estado = 1';
+        $params = [
+            ':id_usuario' => $id_usuario
+        ];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function updateAnticipo(int $id_anticipo)
+    {
+        $sql = 'UPDATE anticipos SET estado = 0 WHERE id_anticipo = :id_anticipo';
+        $params = [
+            ':id_anticipo' => $id_anticipo
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 
 }

@@ -1,11 +1,11 @@
 <div class="modal fade" tabindex="-1" id="ModalUsuario">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header" style="background-color:#b2b1b4 !important;">
+            <div class="modal-header">
                 <h3 class="modal-title" id="tituloUsuario"></h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
                     aria-label="Close">
-                    <span class="svg-icon svg-icon-1"><i class="fa-solid fa-xmark"></i></span>
+                    <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
             <div class="row m-3 text-center">
@@ -15,7 +15,6 @@
                         sistema.</small>
                 </div>
             </div>
-            <div class="separator mx-1 my-4"></div>
             <form method="post" id="frmUsuario">
                 <div class="modal-body">
                     <div class="card-body">
@@ -28,9 +27,17 @@
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fa-solid fa-address-card"></i></span>
-                                    <input type="number" class="form-control form-control-sm form-control-solid"
-                                        id="run" name="run" placeholder="run" />
+                                    <input type="number" min="0" class="form-control form-control-sm form-control-solid"
+                                        id="run" placeholder="Run" />
                                 </div>
+                                <small class="text-gray-700 d-block m-1" id="txt_nick"></small>
+                                <div class="input-group input-group-solid mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fa-solid fa-user-secret"></i></span>
+                                    <input type="text" class="form-control form-control-sm form-control-solid" id="nick"
+                                        placeholder="Nombre artistico" />
+                                </div>
+
                                 <small class="text-gray-700 d-block m-1" id="txt_nombre"></small>
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
@@ -44,20 +51,7 @@
                                     <input type="text" class="form-control form-control-sm form-control-solid"
                                         id="apellido" name="apellido" placeholder="Apellidos" />
                                 </div>
-                                <small class="text-gray-700 d-block m-1" id="txt_direccion"></small>
-                                <div class="input-group input-group-solid mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-map-location-dot"></i></span>
-                                    <input type="text" class="form-control form-control-sm form-control-solid"
-                                        id="direccion" name="direccion" placeholder="Direccion" />
-                                </div>
-                                <small class="text-gray-700 d-block m-1" id="txt_telefono"></small>
-                                <div class="input-group input-group-solid mb-3">
-                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-phone"></i></span>
-                                    <input type="number" class="form-control form-control-sm form-control-solid"
-                                        id="telefono" name="telefono" placeholder="Telefono" pattern="[0-9]{7,}"
-                                        required />
-                                </div>
+                               
 
                             </div>
                             <div class="col-5 mt-12">
@@ -95,6 +89,62 @@
                                     </span>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-6">
+                                <small class="text-gray-700 d-block m-1" id="txt_direccion"></small>
+                                <div class="input-group input-group-solid mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="fas fa-map-location-dot"></i></span>
+                                    <input type="text" class="form-control form-control-sm form-control-solid"
+                                        id="direccion" name="direccion" placeholder="Direccion" />
+                                </div>
+                               
+                                    <small class="text-gray-700 d-block m-1" id="txt_estado"></small>
+                                    <div class="input-group input-group-solid mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fa-solid fa-restroom"></i></span>
+                                        <input type="text" class="form-control form-control-sm form-control-solid"
+                                            id="estado_civil" placeholder="Estado civil" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                <small class="text-gray-700 d-block m-1" id="txt_telefono"></small>
+                                <div class="input-group input-group-solid mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-phone"></i></span>
+                                    <input type="number" class="form-control form-control-sm form-control-solid"
+                                        id="telefono" name="telefono" placeholder="Telefono" pattern="[0-9]{7,}"
+                                        required />
+                                </div>
+                                    <small class="text-gray-700 d-block m-1" id="txt_afp"></small>
+                                    <div class="input-group input-group-solid mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fa-solid fa-hotel"></i></span>
+                                        <input type="text" class="form-control form-control-sm form-control-solid"
+                                            id="afp" placeholder="Establecimiento AFP" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-gray-700 d-block m-1" id="txt_sueldo"></small>
+                                    <div class="input-group input-group-solid mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fa-solid fa-money-bill-transfer"></i></span>
+                                        <input type="number" class="form-control form-control-sm form-control-solid"
+                                            id="sueldo" placeholder="Sueldo" required />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-gray-700 d-block m-1" id="txt_aporte"></small>
+                                    <div class="input-group input-group-solid mb-3">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fa-solid fa-hand-holding-dollar"></i></span>
+                                        <input type="number" class="form-control form-control-sm form-control-solid"
+                                            id="aporte" placeholder="Aporte AFP" required />
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row" id="corre">
                                 <small class="text-gray-700 d-block m-1" id="txt_correo"></small>
                                 <div class="input-group input-group-solid mb-3">
@@ -107,8 +157,6 @@
                                         required />
                                 </div>
                             </div>
-
-
                             <div class="row" id="contraseñas">
                                 <div class="col-6">
                                     <small class="text-gray-700 d-block m-1" id="txt_contraseña"></small>
@@ -154,23 +202,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="row text-center">
+                <div class="row text-center ">
+                <div id="registrar" class="col-6 text-center">
+                        <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
+                            onclick="createUsuario(event)">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                    </div>
                     <div class="col-6 text-center">
                         <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
                             data-bs-dismiss="modal">
                             <i class="fa fa-times"></i> Cancelar
                         </button>
                     </div>
-                    <div id="registrar" class="col-6 text-center">
-                        <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
-                            onclick="createUsuario(event)">
-                            <i class="fa fa-save"></i> Guardar
-                        </button>
-                    </div>
+                  
                 </div>
-                <br>
+              
             </form>
-
+            <br>
         </div>
     </div>
 </div>

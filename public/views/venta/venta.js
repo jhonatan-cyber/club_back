@@ -1,13 +1,44 @@
 let tbVenta;
+
 document.addEventListener("DOMContentLoaded", () => {
   getVentas();
-  getClientes();
-  getChicas();
-  getProductosPrecio();
+
   const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   actualizarTablaCarrito(carrito);
+  document.getElementById("propina").addEventListener("input", () => {
+    const propina = parseFloat(document.getElementById("propina").value) || 0;
+    const total = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+    const total_a_pagar = parseFloat(total) + parseFloat(propina);
+    document.getElementById("total").innerText = total_a_pagar;
+  });
 });
+async function getPiezas() {
+  const url = `${BASE_URL}getPiezasLibres`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    if (data.estado === "ok" && data.codigo === 200) {
+      const select = document.getElementById("pieza_id");
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "0";
+      defaultOption.text = "Seleccione una pieza";
+      defaultOption.selected = true;
+      select.appendChild(defaultOption);
 
+      const piezas = data.data;
+      for (let i = 0; i < piezas.length; i++) {
+        const pieza = piezas[i];
+        const option = document.createElement("option");
+        option.value = pieza.id_pieza;
+        option.text = `${pieza.nombre}`;
+        option.setAttribute("data-precio", pieza.precio);
+        select.appendChild(option);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 async function getVentas() {
   const url = `${BASE_URL}getVentas`;
   try {
@@ -15,8 +46,21 @@ async function getVentas() {
     const data = resp.data;
 
     if (data.codigo === 200 && data.estado === "ok") {
+      const piezasPromises = data.data.map(async (venta) => {
+        if (venta.pieza_id) {
+          const nombrePieza = await getNombrePieza(venta.pieza_id);
+          return nombrePieza || "Pieza no encontrada";
+        }
+        return `<span class="badge badge-sm badge-primary">Sin habitacion</span>`;
+      });
+
+      const piezas = await Promise.all(piezasPromises);
+
       tbVenta = $("#tbVenta").DataTable({
-        data: data.data,
+        data: data.data.map((venta, index) => ({
+          ...venta,
+          nombre_pieza: piezas[index],
+        })),
         language: LENGUAJE,
         destroy: true,
         responsive: true,
@@ -38,6 +82,11 @@ async function getVentas() {
             data: null,
             render: (data, type, row) => `${row.nombre_c} ${row.apellido_c}`,
           },
+          {
+            data: "nombre_pieza",
+            render: (data, type, row) => data,
+          },
+
           { data: "metodo_pago" },
           { data: "total" },
           {
@@ -45,7 +94,6 @@ async function getVentas() {
             render: (data, type, row) =>
               moment(data).format("DD/MM/YYYY HH:mm"),
           },
-
           {
             data: null,
             render: (data, type, row) =>
@@ -60,6 +108,22 @@ async function getVentas() {
     }
   } catch (error) {
     console.error(error);
+  }
+}
+
+async function getNombrePieza(id_pieza) {
+  const url = `${BASE_URL}getPieza/${id_pieza}`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+
+    if (data.estado === "ok" && data.codigo === 200) {
+      return data.data.nombre;
+    }
+    return null;
+  } catch (e) {
+    console.log(e);
+    return null;
   }
 }
 
@@ -107,7 +171,9 @@ async function verVenta(id_venta) {
       if (esVentaEnBarra) {
         document.getElementById(
           "usuario"
-        ).innerHTML = `<i class="fa-solid fa-cash-register m-2"></i><b>${usuariosUnicos.join("<br/>")}</b>`;
+        ).innerHTML = `<i class="fa-solid fa-cash-register m-2"></i><b>${usuariosUnicos.join(
+          "<br/>"
+        )}</b>`;
       } else {
         document.getElementById(
           "usuario"
@@ -146,7 +212,7 @@ async function verVenta(id_venta) {
       }
 
       const detalleProductos = document.getElementById("detalle_productos");
-      detalleProductos.innerHTML = "";
+      detalleProductos.innerHTML = ``;
 
       for (const item of productosMap) {
         detalleProductos.innerHTML += `
@@ -168,20 +234,32 @@ async function verVenta(id_venta) {
     console.error(error);
   }
 }
+
 function cerrarModal(e) {
   e.preventDefault();
   $("#ModalDetalleVenta").modal("hide");
 }
+
 function nuevoVenta(e) {
   e.preventDefault();
   document.getElementById("nuevo_venta").hidden = false;
   document.getElementById("lista_venta").hidden = true;
+  document.getElementById("propina").value = "";
+  getClientes();
+  getChicas();
+  getProductosPrecio();
+  getPiezas();
+
+  verificarCategorias();
 }
+
 function atras(e) {
   e.preventDefault();
   document.getElementById("nuevo_venta").hidden = true;
   document.getElementById("lista_venta").hidden = false;
+  getVentas();
 }
+
 async function getProductosPrecio() {
   const url = `${BASE_URL}getProductosPrecio`;
   try {
@@ -221,14 +299,16 @@ async function getProductosPrecio() {
     console.error(error);
   }
 }
+
 async function getBebidasPrecio(precio) {
   const url = `${BASE_URL}getBebidasPrecio/${precio}`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
-      carElement.innerHTML = "";
+      carElement.innerHTML = ``;
 
       const itemsHTML = data.data
         .map(
@@ -236,8 +316,8 @@ async function getBebidasPrecio(precio) {
           <input type="hidden" class="form-control" value="${item.id_producto}">
           <div class="input-group input-group-solid mb-3">
             <small class="m-5" >${item.categoria} ${item.nombre}</small>
-            <input id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Ingrese una cantidad" style="width: 100px;" min="1" />
-            <button onclick="cargarCarrito(${item.id_producto}, '${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-block btn-sm hover-elevate-up" type="button">
+            <input id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Ingrese una cantidad"/>
+            <button onclick="cargarCarrito(${item.id_producto},'${item.categoria}','${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-block btn-sm hover-elevate-up" type="button">
               <i class="fas fa-plus"></i> Agregar
             </button>
           </div>
@@ -253,7 +333,15 @@ async function getBebidasPrecio(precio) {
     console.error("Error en la petición:", error);
   }
 }
-function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
+
+function cargarCarrito(
+  id_producto,
+  categoria,
+  nombre,
+  precio,
+  comision,
+  cantidad
+) {
   const parsedCantidad = Number.parseInt(cantidad);
   if (Number.isNaN(cantidad) || cantidad <= 0) {
     document.getElementById(`cantidad-${id_producto}`).focus();
@@ -263,6 +351,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   const subtotal = cantidad * precio;
   const producto = {
     id_producto,
+    categoria,
     nombre,
     precio: parsedPrecio,
     cantidad: parsedCantidad,
@@ -299,21 +388,21 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
   document.getElementById("total").innerText = total;
+  toast("Producto agregado al carrito", "info");
 }
+
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoVenta tbody");
-  tbody.innerHTML = "";
+  tbody.innerHTML = ``;
 
   const rows = carrito.map((item) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-              <td>${item.nombre}</td>
+              <td>${item.categoria} ${item.nombre}</td>
               <td>${item.cantidad}</td>
               <td>${item.precio || 0}</td>
               <td>${item.subtotal || 0}</td>
-              <td><button onclick="eliminarProducto(${
-                item.id_producto
-              })" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
+              <td><button onclick="eliminarProducto(${item.id_producto})" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
             `;
     return row;
   });
@@ -322,10 +411,12 @@ function actualizarTablaCarrito(carrito) {
     tbody.appendChild(row);
   }
 
-  const total = carrito.reduce((acc, item) => acc + (item.subtotal || 0), 0);
-
-  document.getElementById("total").innerText = total.toFixed(2);
+  const total = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+  const propina = parseFloat(document.getElementById("propina").value) || 0;
+  const total_a_pagar = parseFloat(total) + parseFloat(propina);
+  document.getElementById("total").innerText = total_a_pagar;
 }
+
 function eliminarProducto(id_producto) {
   let carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
 
@@ -333,7 +424,9 @@ function eliminarProducto(id_producto) {
   localStorage.setItem("carrito_venta", JSON.stringify(carrito));
 
   actualizarTablaCarrito(carrito);
+  toast("Producto eliminado del carrito", "info");
 }
+
 async function getClientes() {
   const url = `${BASE_URL}getClientes`;
   try {
@@ -350,7 +443,7 @@ async function getClientes() {
         const cliente = datos.data[i];
         const option = document.createElement("option");
         option.value = cliente.id_cliente;
-        option.text = `${cliente.nombre} ${cliente.apellido};`;
+        option.text = `${cliente.nombre} ${cliente.apellido}`;
         select.appendChild(option);
       }
     }
@@ -358,6 +451,7 @@ async function getClientes() {
     console.log(error);
   }
 }
+
 async function getChicas() {
   const url = `${BASE_URL}getChicas`;
   try {
@@ -378,6 +472,7 @@ async function getChicas() {
     console.log(error);
   }
 }
+
 async function createVenta(e) {
   e.preventDefault();
 
@@ -385,6 +480,12 @@ async function createVenta(e) {
   const productos = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   const totales = JSON.parse(localStorage.getItem("totales")) || {};
   let cliente_id = document.getElementById("cliente_id").value;
+  const pieza_id = document.getElementById("pieza_id").value;
+  const tiempo = document.getElementById("tiempo").value;
+  let propina = parseFloat(document.getElementById("propina").value) || 0;
+  if (propina === "") {
+    propina = 0;
+  }
 
   if (cliente_id === "0") {
     cliente_id = 1;
@@ -426,61 +527,66 @@ async function createVenta(e) {
   }
 
   const codigo = generarCodigoAleatorio(8);
-
   const datos = {
     cliente_id: cliente_id,
     usuario_id: usuario_id,
+    pieza_id: pieza_id,
     productos: productos,
     total: totales.total || 0,
-    total_comision: totales.total_comision ,
+    total_comision: totales.total_comision,
     subtotal: totales.subtotal || 0,
     metodo_pago: metodo_pago,
     codigo: codigo,
+    propina: propina,
   };
 
   const url = `${BASE_URL}createVenta`;
+  const categorias = productos.map((producto) => producto.categoria);
+  if (categorias.includes("Champañas")) {
+    if (pieza_id === "0") {
+      toast("Seleccione una pieza", "info");
+      return;
+    }
+    if (Number.isNaN(tiempo) || tiempo <= 0) {
+      toast("Ingrese un tiempo válido para el uso de la pieza", "info");
+      return;
+    }
+    iniciarTemporizadorLocalStorage(tiempo, pieza_id);
+    updatePiezaVenta(pieza_id);
+    localStorage.removeItem("carrito_venta");
+    localStorage.removeItem("totales");
+  }
 
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
+    console.log(datos);
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 201) {
       localStorage.removeItem("carrito_venta");
       localStorage.removeItem("totales");
-      toast("Venta creada correctamente", "success");
+      toast("Venta creada correctamente", "info");
       atras(e);
-      getVentas();
-      window.location.reload();
-    } 
+    }
   } catch (e) {
     console.error(e);
     toast("Error al crear la venta", "error");
   }
 }
 
-function mostrarLocalStorage() {
-  // Verifica si hay algo en localStorage
-  if (localStorage.length === 0) {
-    console.log("No hay datos en el localStorage");
-    return;
-  }
-
-  // Recorre todas las claves almacenadas
-  for (let i = 0; i < localStorage.length; i++) {
-    const clave = localStorage.key(i);
-    const valor = localStorage.getItem(clave);
-
-    // Muestra la clave y su valor en la consola
-    console.log(`Clave: ${clave}, Valor: ${valor}`);
+function verificarCategorias() {
+  const productos = JSON.parse(localStorage.getItem("carrito_venta")) || [];
+  const categorias = productos.map((producto) => producto.categoria);
+  if (categorias.includes("Champañas")) {
+    document.getElementById("pieza_venta").hidden = false;
+  } else {
+    document.getElementById("pieza_venta").hidden = true;
   }
 }
-/* mostrarLocalStorage(); */
-function eliminarLocalStorage() {
-  localStorage.clear();
-  console.log("Todos los datos del localStorage han sido eliminados");
-}
-function generarCodigoAleatorio(length) {
-  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return Array.from({ length }, () =>
-    chars.charAt(Math.floor(Math.random() * chars.length))
-  ).join("");
-}
+
+const observer = new MutationObserver(verificarCategorias);
+observer.observe(document.body, { childList: true, subtree: true });
+
+document.addEventListener("change", () => {
+  verificarCategorias();
+});

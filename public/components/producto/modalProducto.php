@@ -1,11 +1,11 @@
 <div class="modal fade" tabindex="-1" id="ModalProducto">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header" style="background-color:#b2b1b4 !important;">
+            <div class="modal-header">
                 <h3 class="modal-title" id="tituloProducto"></h3>
                 <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
                     aria-label="Close">
-                    <span class="svg-icon svg-icon-1"><i class="fa-solid fa-xmark"></i></span>
+                    <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
             <div class="row m-3 text-center">
@@ -98,22 +98,23 @@
                     </div>
                 </div>
                 <div class="row text-center">
-                    <div class="col-6 text-center">
-                        <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
-                            data-bs-dismiss="modal">
-                            <i class="fa fa-times"></i> Cancelar
-                        </button>
-                    </div>
                     <div id="registrar" class="col-6 text-center">
                         <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
                             onclick="createProducto(event)">
                             <i class="fa fa-save"></i> Guardar
                         </button>
                     </div>
-                </div>
-                <br>
-            </form>
+                    <div class="col-6 text-center">
+                        <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up"
+                            data-bs-dismiss="modal">
+                            <i class="fa fa-times"></i> Cancelar
+                        </button>
+                    </div>
 
+                </div>
+                
+            </form>
+            <br>
         </div>
     </div>
 </div>

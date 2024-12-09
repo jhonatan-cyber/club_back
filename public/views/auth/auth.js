@@ -95,6 +95,7 @@ function desencriptarToken(token) {
   );
   return JSON.parse(jsonPayload);
 }
+
 function validateEmail(corrreo) {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -146,8 +147,8 @@ async function login(e) {
 
     if (result.estado === "ok" && result.codigo === 200) {
       const token = desencriptarToken(result.data.token);
-
-      const { id_usuario, nombre, apellido, rol, correo } = token.data.token;
+      const { id_usuario, run, nombre, apellido, rol, correo, foto } =
+        token.data.token;
       localStorage.setItem("token", result.data.token);
       const usuario = {
         id_usuario: id_usuario,
@@ -155,35 +156,39 @@ async function login(e) {
         apellido: apellido,
         rol: rol,
         correo: correo,
+        run: run,
+        foto: foto,
       };
       localStorage.setItem("usuario", JSON.stringify(usuario));
 
-     if (rol === "Administrador") {
-        const uptdate = `${BASE_URL}updateCodigo`;
-        const resp = await axios.post(uptdate);
-        const response = resp.data;
-        if (response.estado === "ok" && response.codigo === 201) {
-          const create = `${BASE_URL}createCodigo`;
-          const res = await axios.post(create);
-          const respon = res.data;
-
-          if (respon.estado === "ok" && respon.codigo === 201) {
-            toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
-            setTimeout(() => {
-              window.location.href = `${BASE_URL}home`;
-            }, 2000);
-          }
-        }
+      if (rol === "Administrador") {
+        iniciarActualizacionCodigo();
+        toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
+        setTimeout(() => {
+          window.location.href = `${BASE_URL}home`;
+        }, 2000);
       } else {
         document.getElementById("log").style.display = "none";
         document.getElementById("cod").style.display = "block";
         document.getElementById("cod1").focus();
-      } 
-    } else {
-      toast("Usuario o contraseña incorrecta", "warning");
+      }
+    }
+    if (response.status === 400) {
+      return toast("El correo o la contraseña son incorrectos", "info");
+    }
+
+    if (response.status === 429) {
+      const segundos = result.retry_after;
+      return toast(
+        `Demasiados intentos. Por favor espere ${segundos} segundos antes de intentar nuevamente.`,
+        "info"
+      );
     }
   } catch (e) {
     console.error(e);
+    if (e.response.status === 500) {
+      toast("Error al iniciar sesión. Intenta nuevamente.", "error");
+    }
   }
 }
 
@@ -198,7 +203,6 @@ async function verificarCodigo(e) {
   const url = `${BASE_URL}validarCodigo/${codigo}`;
   const token = localStorage.getItem("token");
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-
   try {
     const resp = await axios.get(url, {
       headers: {
@@ -206,33 +210,85 @@ async function verificarCodigo(e) {
       },
     });
     const response = resp.data;
+    if (response.data === undefined) {
+      document.getElementById("cod1").value = "";
+      document.getElementById("cod2").value = "";
+      document.getElementById("cod3").value = "";
+      document.getElementById("cod4").value = "";
+      document.getElementById("cod1").focus();
+      return toast("El código ingresado es incorrecto.", "info");
+    }
     if (response.estado === "ok" && response.codigo === 200) {
-      if (response.data.estado === 0) {
-        toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
-        setTimeout(() => {
-          window.location.href = `${BASE_URL}home`;
-        }, 2000);
-      } else {
-        const url2 = `${BASE_URL}createAsistencia`;
-        const respu = await axios.post(url2);
-        const respuesta = respu.data;
-        if (respuesta.estado === "ok" && respuesta.codigo === 201) {
+      if (response.data.estado === 1) {
+        if (usuario.rol !== "Administrador") {
+          try {
+            const url2 = `${BASE_URL}createAsistencia/${usuario.id_usuario}`;
+            const respu = await axios.get(url2, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            const respuesta = respu.data;
+            if (respuesta.estado === "ok" && respuesta.codigo === 201) {
+              toast(
+                `Bienvenido ${usuario.nombre} ${usuario.apellido}`,
+                "success"
+              );
+              setTimeout(() => {
+                window.location.href = `${BASE_URL}home`;
+              }, 2000);
+            }
+
+            if (respuesta.estado === "ok" && respuesta.codigo === 200) {
+              toast(
+                `Bienvenido ${usuario.nombre} ${usuario.apellido}, ${respuesta.data}`,
+                "info"
+              );
+
+              setTimeout(() => {
+                window.location.href = `${BASE_URL}home`;
+              }, 2000);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
           toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
           setTimeout(() => {
             window.location.href = `${BASE_URL}home`;
           }, 2000);
         }
       }
-    } else {
-      document.getElementById("cod1").value = "";
-      document.getElementById("cod2").value = "";
-      document.getElementById("cod3").value = "";
-      document.getElementById("cod4").value = "";
-      document.getElementById("cod1").focus();
-      return toast("El código ingresado es incorrecto.", "warning");
     }
   } catch (e) {
     console.error(e);
-    toast("Error al verificar el código. Intenta nuevamente.", "error");
+    document.getElementById("cod1").value = "";
+    document.getElementById("cod2").value = "";
+    document.getElementById("cod3").value = "";
+    document.getElementById("cod4").value = "";
+    document.getElementById("cod1").focus();
+    return toast("Error al verificar el código. Intenta nuevamente.", "error");
   }
+}
+
+async function actualizarCodigo() {
+  try {
+    const updateUrl = `${BASE_URL}updateCodigo`;
+    await axios.get(updateUrl);
+
+    const createUrl = `${BASE_URL}createCodigo`;
+    const response = await axios.get(createUrl);
+
+    if (response.data.estado === "ok" && response.data.codigo === 201) {
+      return true;
+    }
+  } catch (error) {
+    console.error("Error al actualizar código:", error);
+  }
+}
+
+function iniciarActualizacionCodigo() {
+  actualizarCodigo();
+  const intervalId = setInterval(actualizarCodigo, 60000);
+  localStorage.setItem("codigoIntervalId", intervalId);
 }

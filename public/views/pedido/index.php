@@ -29,7 +29,7 @@
         <div class="content d-flex flex-column flex-column-fluid fs-6" id="kt_content">
             <div class="container-fluid">
                 <div class="row gy-5 g-xl-10">
-                    <div class="row" id="lista_pedido">
+                    <section class="row" id="lista_pedido">
                         <div class="col-xl-12 mb-xl-10">
                             <div class="card card-flush">
                                 <div class="card-header align-items-center py-5 gap-2 gap-md-5">
@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
                    
                     <?php include_once 'public/components/pedido/cardPedido.php' ?>
 

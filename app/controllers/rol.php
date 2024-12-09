@@ -8,6 +8,7 @@ use app\config\guard;
 use app\config\response;
 use app\models\rolModel;
 use app\config\controller;
+use app\config\cache;
 
 class rol extends controller
 {
@@ -40,20 +41,26 @@ class rol extends controller
     public function getRoles()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $roles = $this->model->getRoles();
-            if (empty($roles)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+            $cacheKey = 'roles_list';
+            $roles = cache::get($cacheKey);
+
+            if (!$roles) {
+                $roles = $this->model->getRoles();
+                cache::set($cacheKey, $roles, 600);
             }
-            http_response_code(200);
+
+            if (empty($roles)) {
+                return $this->response(response::estado204('No se encontraron roles'));
+            }
+
             return $this->response(response::estado200($roles));
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }

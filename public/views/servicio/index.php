@@ -68,5 +68,4 @@
 </html>
 
 <?php include_once 'public/components/servicio/modalBebida.php' ?>
-<?php include_once 'public/components/servicio/modalDetalleServicio.php' ?>
 <?php include_once 'public/components/servicio/modalCuenta.php' ?>

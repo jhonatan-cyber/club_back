@@ -1,23 +1,30 @@
 <?php
 
+use Bramus\Router\Router;
+use app\controllers\anticipo;
 use app\controllers\categoria;
+use app\controllers\planilla; 
 use app\controllers\producto;
 use app\controllers\rol;
 use app\controllers\home;
-use Bramus\Router\Router;
 use app\controllers\login;
 use app\controllers\cliente;
 use app\controllers\usuario;
 use app\controllers\pedido;
 use app\controllers\venta;
-use app\controllers\contrato;
 use app\controllers\comision;
 use app\controllers\pieza;
 use app\controllers\servicio;
 use app\controllers\cuenta;
+use app\controllers\devolucion;
+use app\controllers\propina;
+use app\controllers\asistencia;
+use app\controllers\horaExtra;
 
 
+$router = new Router();
 $rol = new rol();
+$devolucion = new devolucion();
 $usuario = new usuario();
 $login = new login();
 $cliente = new cliente();
@@ -26,23 +33,26 @@ $categoria = new categoria();
 $producto = new producto();
 $pedido = new pedido();
 $venta = new venta();
-$contrato = new contrato();
 $comision = new comision();
 $pieza = new pieza();
 $servicio = new servicio();
 $cuenta = new cuenta();
-$router = new Router();
+$anticipo = new anticipo();
+$planilla = new planilla();
+$propina = new propina();
+$asistencia = new asistencia();
+$horaExtra = new horaExtra();
+
 
 
 /******************** Login ********************/
 $router->get('/', [$login, 'index']);
 $router->post('login', [$login, 'login']);
 $router->get('logout', [$login, 'logout']);
-$router->post('updateCodigo', [$login, 'updateCodigo']);
-$router->post('createCodigo', [$login, 'createCodigo']);
+$router->get('updateCodigo', [$login, 'updateCodigo']);
+$router->get('createCodigo', [$login, 'createCodigo']);
 $router->get('validarCodigo/(.+)', [$login, 'validarCodigo']);
-$router->post('createAsistencia', [$login, 'createAsistencia']);
-
+$router->get('createAsistencia/(\d+)', [$login, 'createAsistencia']);
 
 /******************** Home ********************/
 $router->get('home', [$home, 'index']);
@@ -69,7 +79,6 @@ $router->get('getClientes', [$cliente, 'getClientes']);
 $router->post('createCliente', [$cliente, 'createCliente']);
 $router->get('getCliente/(\d+)', [$cliente, 'getCliente']);
 $router->get('deleteCliente/(\d+)', [$cliente, 'deleteCliente']);
-
 
 /******************** Categorias ********************/
 $router->get('categorias', [$categoria, 'index']);
@@ -101,14 +110,6 @@ $router->post('createVenta', [$venta, 'createVenta']);
 $router->get('getVentas', [$venta, 'getVentas']);
 $router->get('getVenta/(\d+)', [$venta, 'getVenta']);
 
-
-/******************** Contratos ********************/
-$router->get('contratos', [$contrato, 'index']);
-$router->get('getContratos', [$contrato, 'getContratos']);
-$router->post('createContrato', [$contrato, 'createContrato']);
-$router->get('getContrato/(\d+)', [$contrato, 'getContrato']);
-$router->get('deleteContrato/(\d+)', [$contrato, 'deleteContrato']);
-
 /******************** Comisiones ********************/
 $router->get('comisiones', [$comision, 'index']);
 $router->get('getComisionUsuario', [$comision, 'getComisionUsuario']);
@@ -133,13 +134,50 @@ $router->get('updatePieza/(\d+)', [$servicio, 'updatePieza']);
 $router->get('getDetalleCuenta/(\d+)', [$servicio, 'getDetalleCuenta']);
 $router->get('getServicio/(\w+)', [$servicio, 'getServicio']);
 $router->post('updateCuenta', [$servicio, 'updateCuenta']);
+$router->get('getCuentaServicio/(\d+)', [$servicio, 'getCuentaServicio']);
 
 /******************** Cuentas ********************/
 $router->get('cuentas', [$cuenta, 'index']);
 $router->get('getCuentas', [$cuenta, 'getCuentas']);
+$router->post('clearCuentasCache', [$cuenta, 'clearCuentasCache']);
 $router->get('getDetalleCuentas/(\d+)', [$cuenta, 'getDetalleCuentas']);
 $router->post('cobrarCuenta', [$cuenta, 'cobrarCuenta']);
 $router->post('createDetalleCuenta', [$cuenta, 'createDetalleCuenta']);
+$router->post('createCuenta', [$cuenta, 'createCuenta']);
+
+/******************** Anticipos ********************/
+$router->get('anticipos', [$anticipo, 'index']);
+$router->get('getAnticipos', [$anticipo, 'getAnticipos']);
+$router->post('createAnticipo', [$anticipo, 'createAnticipo']);
+$router->get('getAnticipo/(\d+)', [$anticipo, 'getAnticipo']);
+$router->post('updateAnticipo', [$anticipo, 'updateAnticipo']);
+
+/******************** Devoluciones ********************/
+$router->get('devoluciones', [$devolucion, 'index']);
+$router->get('getAllServicios', [$devolucion, 'getAllServicios']);
+$router->post('createDevolucion', [$devolucion, 'createDevolucion']);
+$router->get('getDevolucion/(\d+)', [$devolucion, 'getDevolucion']);
+$router->get('getDevoluciones', [$devolucion, 'getDevoluciones']);
+
+$router->post('createDevolucionVenta', [$devolucion, 'createDevolucionVenta']);
 
 
+
+/******************** Planillas ********************/
+$router->get('planillas', [$planilla, 'index']);
+
+/******************** Propinas ********************/
+$router->get('propinas', [$propina, 'index']);
+
+/******************** Asistencias ********************/
+$router->get('asistencias', [$asistencia, 'index']);
+$router->get('getAsistencias', [$asistencia, 'getAsistencias']);
+$router->get('getAsistencia/(\d+)', [$asistencia, 'getAsistencia']);
+
+
+/******************** Horas Extras ********************/
+$router->get('horasExtras', [$horaExtra, 'index']);
+$router->post('createHoraExtra', [$horaExtra, 'createHoraExtra']);
+$router->get('getHorasExtras', [$horaExtra, 'getHorasExtras']);
+$router->get('getHoraExtra/(\d+)', [$horaExtra, 'getHoraExtra']);
 $router->run();

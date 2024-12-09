@@ -7,6 +7,7 @@ use app\models\clienteModel;
 use app\config\response;
 use app\config\guard;
 use app\config\view;
+use app\config\cache;
 use Exception;
 
 class cliente extends controller
@@ -48,20 +49,29 @@ class cliente extends controller
     {
 
         if ($this->method !== 'GET') {
-            http_response_code(405);
+        
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
-            $cliente = $this->model->getClientes();
-            if (empty($cliente)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+          
+            $cacheKey = 'clientes_list';
+            $clientes = cache::get($cacheKey);
+
+            if (!$clientes) {
+               
+                $clientes = $this->model->getClientes();
+                cache::set($cacheKey, $clientes, 600); 
             }
-            http_response_code(200);
-            return $this->response(response::estado200($cliente));
+
+            if (empty($clientes)) {
+        
+                return $this->response(response::estado204('No se encontraron clientes'));
+            }
+         
+            return $this->response(response::estado200($clientes));
         } catch (Exception $e) {
-            http_response_code(500);
+          
             return $this->response(response::estado500($e));
         }
     }
@@ -69,38 +79,38 @@ class cliente extends controller
     public function getCliente(int $id)
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
+        
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
             $cliente = $this->model->getCliente($id);
             if (empty($cliente)) {
-                http_response_code(204);
+                
                 return $this->response(response::estado204());
             }
-            http_response_code(200);
+            
             return $this->response(response::estado200($cliente));
         } catch (Exception $e) {
-            http_response_code(500);
+            
             return $this->response(response::estado500($e));
         }
     }
     public function createCliente()
     {
         if ($this->method !== 'POST') {
-            http_response_code(405);
+        
             return $this->response(response::estado405());
         }
         if ($this->data === null) {
-            http_response_code(400);
+            
             return $this->response(response::estado400(['Datos JSON no válidos.']));
         }
 
         $required = ['run', 'nombre', 'apellido', 'telefono'];
         foreach ($required as $field) {
             if (empty($this->data[$field])) {
-                http_response_code(400);
+                
                 return $this->response(response::estado400("El campo $field es obligatorio"));
             }
         }
@@ -111,7 +121,7 @@ class cliente extends controller
             }
         }
         if (!preg_match(self::$validar_numero, $this->data['telefono'])) {
-            http_response_code(400);
+            
             return $this->response(Response::estado400('El campo telefono solo puede contener números'));
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -124,16 +134,16 @@ class cliente extends controller
 
             if ($cliente == 'ok') {
 
-                http_response_code(201);
+                
                 return $this->response(Response::estado201());
             }
 
             if ($cliente == 'existe') {
-                http_response_code(409);
+                
                 return $this->response(Response::estado409('El cliente ya existe'));
             }
         } catch (Exception $e) {
-            http_response_code(500);
+            
             return $this->response(response::estado500($e));
         }
     }
@@ -141,7 +151,7 @@ class cliente extends controller
     public function deleteCliente(int $id)
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
+        
             return $this->response(response::estado405());
         }
 
@@ -149,13 +159,13 @@ class cliente extends controller
         try {
             $res = $this->model->deleteCliente($id);
             if ($res === "ok") {
-                http_response_code(200);
+                
                 return $this->response(response::estado200('ok'));
             }
-            http_response_code(500);
+            
             return $this->response(response::estado500());
         } catch (Exception $e) {
-            http_response_code(500);
+            
             return $this->response(response::estado500($e));
         }
     }

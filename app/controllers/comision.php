@@ -43,8 +43,9 @@ class comision extends controller
             $this->response(Response::estado404($e));
         }
     }
-    public function getComisionUsuario(){
-        if($this->method !== 'GET'){
+    public function getComisionUsuario()
+    {
+        if ($this->method !== 'GET') {
             http_response_code(405);
             return $this->response(response::estado405());
         }
@@ -52,7 +53,7 @@ class comision extends controller
         try {
             $usuario_id = $_SESSION['usuario_id'];
             $comision = $this->model->getComisionUsuario($usuario_id);
-            if(!empty($comision)){
+            if (!empty($comision)) {
                 http_response_code(200);
                 return $this->response(response::estado200($comision));
             }
@@ -63,23 +64,27 @@ class comision extends controller
             $this->response(response::estado500($e));
         }
     }
-    public function getComisiones(){
-        if($this->method !== 'GET'){
-            http_response_code(405);
+    public function getComisiones()
+    {
+        if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $comision = $this->model->getComisiones();
-            if(!empty($comision)){
-                http_response_code(200);
-                return $this->response(response::estado200($comision));
+           
+            $comisiones = $this->model->getComisiones();
+            if (!empty($comisiones)) {
+                return $this->response(response::estado200($comisiones));
+                
             }
-            http_response_code(204);
-            return $this->response(response::estado204());
+            return $this->response(response::estado204('No se encontraron comisiones'));
+           
         } catch (Exception $e) {
-            http_response_code(500);
-            $this->response(response::estado500($e));
+            return $this->response(response::estado500($e));
         }
     }
+   
+
 }

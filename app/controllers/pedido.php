@@ -3,10 +3,10 @@
 namespace app\controllers;
 
 use app\config\controller;
-use app\models\pedidoModel;
-use app\config\response;
 use app\config\guard;
+use app\config\response;
 use app\config\view;
+use app\models\pedidoModel;
 use Exception;
 
 class pedido extends controller
@@ -21,6 +21,7 @@ class pedido extends controller
         parent::__construct();
         $this->model = new pedidoModel();
     }
+
     public function index()
     {
         if ($this->method !== 'GET') {
@@ -73,7 +74,7 @@ class pedido extends controller
             return $this->response(response::estado400(['Datos JSON no válidos.']));
         }
 
-        $required = ['usuario_id', 'subtotal', 'total'];
+        $required = ['chica_id', 'subtotal', 'total'];
         foreach ($required as $field) {
             if (empty($this->data[$field])) {
                 http_response_code(400);
@@ -92,10 +93,14 @@ class pedido extends controller
             return $this->response(response::estado400(['El campo productos debe ser una cadena JSON.']));
         }
         try {
+            $this->data['mesero_id'] = $_SESSION['id_usuario'];
             $this->data['codigo'] = generarCodigoAleatorio(8);
-            $pedido = $this->model->createPedido($this->data);
 
-            if ($pedido == 'ok') {
+            $pedido = $this->model->createPedido($this->data);
+            if ($pedido !== 'ok') {
+                return $this->response(response::estado500());
+            }
+            if ($pedido === 'ok') {
                 $id_pedido = $this->model->getLastPedido();
                 foreach ($productos as $value) {
                     $detalle = [
@@ -111,11 +116,7 @@ class pedido extends controller
                 http_response_code(201);
                 return $this->response(response::estado201());
             }
-            http_response_code(500);
-            return $this->response(response::estado500());
-
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
@@ -136,12 +137,12 @@ class pedido extends controller
             }
             http_response_code(204);
             return $this->response(response::estado204());
-
         } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
+
     public function getDetallePedido(int $id)
     {
         if ($this->method !== 'GET') {
@@ -162,8 +163,8 @@ class pedido extends controller
             return $this->response(response::estado400($e));
         }
     }
-
 }
+
 function generarCodigoAleatorio($length)
 {
     $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';

@@ -41,20 +41,18 @@ class home extends controller
     }
     public function getCodigo(){
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
             $codigo = $this->model->getCodigo();
-            if (empty($codigo)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+            if (!empty($codigo)) {
+                return $this->response(response::estado200($codigo));
+               
             }
-            http_response_code(200);
-            return $this->response(response::estado200($codigo));
+            return $this->response(response::estado204('No se pudo obtener el codigo'));
+           
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }

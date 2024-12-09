@@ -1,5 +1,156 @@
 const defaultThemeMode = "light";
 let themeMode;
+
+const MAX_PIEZAS = 50;
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  ajustes();
+  window.addEventListener("resize", () => {
+    ajustes();
+  });
+  verificarTemporizadorActivo();
+  usuarioAvatar();
+  initializeWebSocket();
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+if(usuario.rol === "Administrador"){
+  iniciarActualizacionCodigo()
+}
+  
+});
+function initializeWebSocket() {
+  const socket = io("http://localhost:3000", {
+    transports: ["polling", "websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 5000,
+  });
+
+  // Evento cuando se conecta exitosamente
+  socket.on("connect", () => {
+    console.log("Conectado al servidor WebSocket");
+  });
+
+  // Manejar errores de conexión
+  socket.on("connect_error", (error) => {
+    console.error("Error de conexión:", error.message);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("Desconectado del servidor:", reason);
+  });
+
+  socket.on("pedidos_update", (data) => {
+    if (data.codigo === 200 && data.estado === "ok") {
+      const pedidoCount = data.data.length;
+      const pedidoCountElement = document.getElementById("pedido-count");
+      if (pedidoCount > 0) {
+        pedidoCountElement.textContent = pedidoCount;
+        pedidoCountElement.classList.remove("d-none");
+      } else {
+        pedidoCountElement.classList.add("d-none");
+      }
+
+      const pedidoLista = document.getElementById("pedido_");
+      if (pedidoLista) {
+        pedidoLista.innerHTML = "";
+        for (const pedido of data.data) {
+          pedidoLista.innerHTML += `<div class="d-flex align-items-center bg-hover-lighten py-3 px-9">
+            <div class="symbol symbol-40px symbol-circle me-5">
+              <span class="symbol-label bg-light-success">
+                <span class="svg-icon svg-icon-success svg-icon-1">
+                  <i class="fa-solid fa-champagne-glasses"></i>
+                </span>
+              </span>
+            </div>
+            <div class="mb-1 pe-3 flex-grow-1">
+              <a href="${BASE_URL}pedidos" class="fs-6 text-dark text-hover-primary fw-bold">
+                <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Código: ${pedido.codigo}</div>
+                <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${pedido.nombre_c} ${pedido.apellido_c}</div>
+                <div class="text-gray-400 fw-bold fs-7">Chica: ${pedido.nombre_ch} ${pedido.apellido_ch}</div>
+                <div class="text-gray-400 fw-bold fs-7">Mesero: ${pedido.nombre_m} ${pedido.apellido_m}</div>
+                <div class="text-gray-400 fw-bold fs-7">Subtotal: $${pedido.subtotal}</div>
+                <div class="text-gray-400 fw-bold fs-7">Total: $${pedido.total}</div>
+              </a>
+            </div>
+          </div>`;
+        }
+      }
+    }
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("Error de conexión WebSocket:", error);
+    // Intentar reconectar después de un error
+    setTimeout(() => {
+      socket.connect();
+    }, 5000);
+  });
+
+  socket.on("pedidos_error", (error) => {
+    console.error("Error al obtener pedidos:", error);
+  });
+
+  // Reconexión automática
+  socket.on("disconnect", () => {
+    console.log(
+      "Desconectado del servidor WebSocket, intentando reconectar..."
+    );
+  });
+
+  // Manejar errores de reconexión
+  socket.on("reconnect_error", (error) => {
+    console.error("Error al intentar reconectar:", error);
+  });
+
+  socket.on("reconnect_failed", () => {
+    console.error("Falló la reconexión después de varios intentos");
+  });
+}
+
+async function getPedidosTotal() {
+  const url = `${BASE_URL}getPedidos`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    if (data.codigo === 200 && data.estado === "ok") {
+      const pedidoCount = data.data.length;
+      const pedidoCountElement = document.getElementById("pedido-count");
+      if (pedidoCount > 0) {
+        pedidoCountElement.textContent = pedidoCount;
+        pedidoCountElement.classList.remove("d-none");
+      } else {
+        pedidoCountElement.classList.add("d-none");
+      }
+      const pedidoLista = document.getElementById("pedido_");
+      pedidoLista.innerHTML = "";
+      for (let i = 0; i < data.data.length; i++) {
+        const pedido = data.data[i];
+        pedidoLista.innerHTML += `<div class="d-flex align-items-center bg-hover-lighten py-3 px-9">
+                        <div class="symbol symbol-40px symbol-circle me-5">
+                            <span class="symbol-label bg-light-success">
+                                <span class="svg-icon svg-icon-success svg-icon-1">
+                                    <i class="fa-solid fa-champagne-glasses"></i>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="mb-1 pe-3 flex-grow-1" >
+                            <a href="${BASE_URL}pedidos" class="fs-6 text-dark text-hover-primary fw-bold">
+                            <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${pedido.nombre_c} ${pedido.apellido_c}</div>
+                            <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Acompañante: ${pedido.nombre_u} ${pedido.apellido_u}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Subtotal: $${pedido.subtotal}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Total: $${pedido.total}</div>
+                            </a>                       
+                        </div>
+                    </div>`;
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 if (document.documentElement) {
   if (document.documentElement.hasAttribute("data-bs-theme-mode")) {
     themeMode = document.documentElement.getAttribute("data-bs-theme-mode");
@@ -17,12 +168,14 @@ if (document.documentElement) {
   }
   document.documentElement.setAttribute("data-bs-theme", themeMode);
 }
+const TOKEN = localStorage.getItem("token");
 const DISPLAY_LENGTH = 5;
 const config = {
   headers: {
     Authorization: `Bearer ${TOKEN}`,
   },
 };
+
 const LENGUAJE = {
   sProcessing: "Procesando...",
   sLengthMenu: "Listar _MENU_ registros",
@@ -55,6 +208,7 @@ function capitalizarPalabras(texto) {
     })
     .join(" ");
 }
+
 function toast(mensaje, tipoMensaje) {
   toastr.options = {
     closeButton: false,
@@ -76,9 +230,11 @@ function toast(mensaje, tipoMensaje) {
 
   toastr[tipoMensaje](mensaje);
 }
+
 function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
+
 const boton = document.getElementById("mod");
 const modo_movil = document.querySelectorAll(".mobile-hide");
 function ajustes() {
@@ -97,10 +253,7 @@ function ajustes() {
     }
   }
 }
-ajustes();
-window.addEventListener("resize", () => {
-  ajustes();
-});
+
 function mostrarPassword(idInput, idIcono) {
   const tipoInput = document.getElementById(idInput).getAttribute("type");
   const icono = document.getElementById(idIcono);
@@ -118,7 +271,6 @@ function mostrarPassword(idInput, idIcono) {
 function preview(event) {
   const input = event.target;
   if (!input.files || !input.files[0]) {
-    console.error("No se ha seleccionado ningún archivo");
     return;
   }
 
@@ -132,6 +284,7 @@ function preview(event) {
 
   reader.readAsDataURL(file);
 }
+
 function deleteImg(button) {
   const input = button
     .closest(".image-input")
@@ -139,10 +292,12 @@ function deleteImg(button) {
   input.value = "";
   preview({ target: input });
 }
+
 function validarCorreo(correo) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(correo);
 }
+
 async function usuarioAvatar() {
   const id_usuario = JSON.parse(localStorage.getItem("usuario")).id_usuario;
   const url = `${BASE_URL}getUsuario/${id_usuario}`;
@@ -161,7 +316,7 @@ async function usuarioAvatar() {
     return null;
   }
 }
-usuarioAvatar();
+
 async function logaout(e) {
   e.preventDefault();
   const url = `${BASE_URL}logout`;
@@ -169,6 +324,7 @@ async function logaout(e) {
     const resp = await axios.get(url, config);
     const response = resp;
     if (response.status === 200) {
+      detenerActualizacionCodigo();
       toast("Cerrando sesión", "success");
       localStorage.clear();
       setTimeout(() => {
@@ -176,18 +332,20 @@ async function logaout(e) {
       }, 2000);
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
+
 function primeraLetraMayuscula(cadena) {
   return cadena.charAt(0).toUpperCase() + cadena.slice(1);
 }
+
 async function getPedidosTotal() {
   const url = `${BASE_URL}getPedidos`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    if (data.codigo == 200 && data.estado == "ok") {
+    if (data.codigo === 200 && data.estado === "ok") {
       const pedidoCount = data.data.length;
       const pedidoCountElement = document.getElementById("pedido-count");
       if (pedidoCount > 0) {
@@ -223,4 +381,151 @@ async function getPedidosTotal() {
     console.error(error);
   }
 }
-setInterval(getPedidosTotal, 1000);
+
+async function updatePiezaVenta(id_pieza) {
+  const pieza = `${BASE_URL}updatePieza/${id_pieza}`;
+  try {
+    const resp_pieza = await axios.get(pieza, config);
+    const data = resp_pieza.data;
+    if (data.estado === "ok" && data.codigo === 201) {
+      toast("Habitacion actualizada", "info");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+async function iniciarTemporizadorLocalStorage(tiempoEnMinutos, piezaId) {
+  let intervalo;
+  const tiempoInicial = localStorage.getItem(`temporizadorInicio_${piezaId}`);
+  const tiempoRestanteAlmacenado = localStorage.getItem(
+    `temporizadorRestante_${piezaId}`
+  );
+  let tiempoRestante;
+
+  const url = `${BASE_URL}getPieza/${piezaId}`;
+
+  const resp = await axios.get(url, config);
+  const data = resp.data;
+  if (data.estado === "ok" && data.codigo === 200) {
+    nombrePieza = data.data.nombre;
+  }
+  if (tiempoInicial && tiempoRestanteAlmacenado) {
+    const tiempoTranscurrido = Math.floor((Date.now() - tiempoInicial) / 1000);
+    tiempoRestante = tiempoRestanteAlmacenado - tiempoTranscurrido;
+
+    if (tiempoRestante <= 0) {
+      clearInterval(intervalo);
+      localStorage.removeItem(`temporizadorRestante_${piezaId}`);
+      localStorage.removeItem(`temporizadorInicio_${piezaId}`);
+      localStorage.removeItem(`piezaId_${piezaId}`);
+      localStorage.setItem(`tiempoFinalizado_${piezaId}`, true);
+      updatePiezaVenta(piezaId);
+      Swal.fire({
+        title: "Tiempo Finalizado",
+        text: `El tiempo de uso de la pieza ${nombrePieza} ha terminado.`,
+        icon: "info",
+      });
+      return;
+    }
+  } else {
+    tiempoRestante = tiempoEnMinutos * 60;
+    localStorage.setItem(`temporizadorInicio_${piezaId}`, Date.now());
+    localStorage.setItem(`temporizadorRestante_${piezaId}`, tiempoRestante);
+    localStorage.setItem(`piezaId_${piezaId}`, piezaId);
+  }
+
+  const actualizarTemporizador = () => {
+    const tiempoTranscurrido = Math.floor(
+      (Date.now() - localStorage.getItem(`temporizadorInicio_${piezaId}`)) /
+        1000
+    );
+    const tiempoActualizado = tiempoRestante - tiempoTranscurrido;
+
+    if (tiempoActualizado <= 0) {
+      clearInterval(intervalo);
+      localStorage.removeItem(`temporizadorRestante_${piezaId}`);
+      localStorage.removeItem(`temporizadorInicio_${piezaId}`);
+      localStorage.removeItem(`piezaId_${piezaId}`);
+
+      localStorage.setItem(`tiempoFinalizado_${piezaId}`, true);
+      updatePiezaVenta(piezaId);
+      Swal.fire({
+        title: "Tiempo Finalizado",
+        text: `El tiempo de uso de la pieza ${nombrePieza} ha terminado.`,
+        icon: "info",
+      });
+    } else {
+      localStorage.setItem(
+        `temporizadorRestante_${piezaId}`,
+        tiempoActualizado
+      );
+    }
+  };
+
+  intervalo = setInterval(actualizarTemporizador, 1000);
+  actualizarTemporizador();
+}
+
+function verificarTemporizadorActivo() {
+  for (let piezaId = 1; piezaId <= MAX_PIEZAS; piezaId++) {
+    const tiempoRestante = localStorage.getItem(
+      `temporizadorRestante_${piezaId}`
+    );
+    if (tiempoRestante && tiempoRestante > 0) {
+      iniciarTemporizadorLocalStorage(0, piezaId);
+    }
+  }
+}
+
+async function showTiempoTerminadoAlert(nombrePieza, mensajeAdicional = '') {
+    await Swal.fire({
+        title: 'Las Muñecas de Ramón',
+        text: `El tiempo de servicio en ${nombrePieza} ha terminado.${mensajeAdicional}`,
+        icon: 'info',
+        confirmButtonText: 'Aceptar',
+        customClass: {
+          confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+          popup: "swal2-dark",
+          title: "swal2-title",
+          htmlContainer: "swal2-html-container"
+        },
+        buttonsStyling: false,
+        confirmButtonColor: "#dc3545",
+        background: "var(--bs-body-bg)",
+        color: "var(--bs-body-color)",
+    });
+}
+function generarCodigoAleatorio(length) {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return Array.from({ length }, () =>
+    chars.charAt(Math.floor(Math.random() * chars.length))
+  ).join("");
+}
+function iniciarActualizacionCodigo() {
+  actualizarCodigo();
+
+  const intervalId = setInterval(actualizarCodigo, 60000);
+  localStorage.setItem("codigoIntervalId", intervalId);
+}
+async function actualizarCodigo() {
+  try {
+    const updateUrl = `${BASE_URL}updateCodigo`;
+    await axios.get(updateUrl);
+    const createUrl = `${BASE_URL}createCodigo`;
+    const response = await axios.get(createUrl);
+    if (response.data.estado === "ok" && response.data.codigo === 201) {
+      return;
+    }
+  } catch (error) {
+    console.error("Error al actualizar código:", error);
+  }
+}
+
+function detenerActualizacionCodigo() {
+  const intervalId = localStorage.getItem("codigoIntervalId");
+  if (intervalId) {
+    clearInterval(intervalId);
+    localStorage.removeItem("codigoIntervalId");
+  }
+}

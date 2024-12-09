@@ -8,6 +8,7 @@ use app\config\guard;
 use app\config\response;
 use app\models\productoModel;
 use app\config\controller;
+use app\config\cache;
 
 class producto extends controller
 {
@@ -63,21 +64,27 @@ class producto extends controller
     public function getProductos()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
+
         try {
-            $productos = $this->model->getProductos();
-            if (empty($productos)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
+            $cacheKey = 'productos_list';
+            $productos = cache::get($cacheKey);
+
+            if (!$productos) {
+                $productos = $this->model->getProductos();
+                cache::set($cacheKey, $productos, 600);
             }
-            http_response_code(200);
+
+            if (empty($productos)) {
+                return $this->response(response::estado204('No se encontraron productos'));
+            }
+
             return $this->response(response::estado200($productos));
         } catch (Exception $e) {
-            http_response_code(500);
-            $this->response(response::estado500());
+            return $this->response(response::estado500($e));
         }
     }
     public function getProducto(int $id)

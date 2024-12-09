@@ -15,7 +15,4 @@
     <link href="<?php echo BASE_URL ?>public/assets/css/buttons.bootstrap4.min.css" rel="stylesheet">
     <link href="<?php echo BASE_URL ?>public/assets/css/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <link href="<?php echo BASE_URL ?>public/assets/css/toastr.css" rel="stylesheet" type="text/css" />
-    <script>
-        var TOKEN = "<?php echo $_SESSION['token']?>";
-    </script>
 </head>

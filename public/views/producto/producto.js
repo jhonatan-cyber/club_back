@@ -132,12 +132,6 @@ function Mproducto(e) {
     document.getElementById("nombre").focus();
   });
 }
-function generarCodigoAleatorio(length) {
-  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return Array.from({ length }, () =>
-    chars.charAt(Math.floor(Math.random() * chars.length))
-  ).join("");
-}
 function reset() {
   document.getElementById("id_producto").value = "";
   document.getElementById("codigo").value = "";
@@ -150,18 +144,23 @@ function reset() {
 }
 async function deleteProducto(id) {
   const result = await Swal.fire({
-    title: "NuweSoft",
+    title: "Las Muñecas de Ramón",
     text: "¿Está seguro de eliminar el producto ?",
-    icon: "warning",
+    icon: "info",
     showCancelButton: true,
     confirmButtonText: "Si, eliminar",
     cancelButtonText: "No, cancelar",
     customClass: {
-      confirmButton: "btn btn-danger btn-sm m-2 rounded-pill",
-      cancelButton: "btn btn-secondary btn-sm m-2 rounded-pill",
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container"
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
   });
   if (result.isConfirmed) {
     try {
@@ -273,7 +272,7 @@ function validarDatos(
     nombre.focus();
     return;
   }
-  let descripcionValue = descripcion; 
+  let descripcionValue = descripcion;
   if (descripcionValue === "") {
     descripcionValue = "Sin descripcion";
   }
@@ -301,7 +300,7 @@ function validarDatos(
     return;
   }
 
-  if (comision == "") {
+  if (comision === "") {
     toast("La comisión es requerida", "info");
     return;
   }
@@ -313,23 +312,24 @@ function enterKey() {
   const descripcion = document.getElementById("descripcion");
 
   nombre.focus();
-  nombre.addEventListener("keyup", function (e) {
+  nombre.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (nombre.value == "") {
+      if (nombre.value === "") {
         toast("El nombre es requerido", "info");
         nombre.focus();
         return;
       }
       nombre.setAttribute("placeholder", "");
+      nombre.value = capitalizarPalabras(nombre.value);
       document.getElementById("txt_precio").innerHTML = "<b>Precio</b>";
       precio.focus();
     }
   });
-  precio.addEventListener("keyup", function (e) {
+  precio.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (precio.value == "") {
+      if (precio.value === "") {
         toast("El precio es requerido", "info");
         precio.focus();
         return;
@@ -339,7 +339,7 @@ function enterKey() {
         precio.focus();
         return;
       }
-      if (precio.value == 0) {
+      if (precio.value === 0) {
         toast("El precio no puede ser 0", "info");
         precio.focus();
         return;
@@ -349,10 +349,10 @@ function enterKey() {
       comision.focus();
     }
   });
-  comision.addEventListener("keyup", function (e) {
+  comision.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (comision.value == "") {
+      if (comision.value === "") {
         toast("La comisión es requerida", "info");
         comision.focus();
         return;
@@ -369,14 +369,15 @@ function enterKey() {
       descripcion.focus();
     }
   });
-  descripcion.addEventListener("keyup", function (e) {
+  descripcion.addEventListener("keyup", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (descripcion.value == "") {
+      if (descripcion.value === "") {
         toast("La descripción es requerida", "info");
         descripcion.focus();
         return;
       }
+      descripcion.value = capitalizarPalabras(descripcion.value);
       descripcion.setAttribute("placeholder", "");
       createProducto(e);
     }
@@ -398,8 +399,8 @@ async function getProducto(id) {
       document.getElementById("codigo").value = data.data.codigo;
       document.getElementById("nombre").value = data.data.nombre;
       document.getElementById("descripcion").value = data.data.descripcion;
-      document.getElementById("precio").value = parseInt(data.data.precio);
-      document.getElementById("comision").value = parseInt(data.data.comision);
+      document.getElementById("precio").value = Number.parseInt(data.data.precio);
+      document.getElementById("comision").value = Number.parseInt(data.data.comision);
       document.getElementById("imagen_anterior").value = data.data.foto;
       const wrapper = document.querySelector("#imagen");
       if (data.data.foto !== "default.png") {

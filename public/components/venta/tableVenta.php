@@ -6,6 +6,7 @@
                     <th>#</th>
                     <th>Codigo</th>
                     <th>Cliente</th>
+                    <th>Habitacion</th>
                     <th>Metodo de Pago</th>
                     <th>Total</th>
                     <th>Fecha</th>

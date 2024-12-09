@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     getComisiones();
   }
 });
+
 async function getComisiones() {
   const url = `${BASE_URL}getComisiones`;
   try {
@@ -22,30 +23,39 @@ async function getComisiones() {
         paging: true,
         searching: true,
         columns: [
-          {
-            data: null,
-            render: (data, type, row, meta) =>
-              `<span class="badge badge-sm badge-primary">${formatNumber(
-                meta.row + 1
-              )}</span>`,
+          { 
+            data: "chica",
+            className: "text-center"
           },
-          { data: "nombre" },
-          { data: "apellido" },
-          { data: "total_comision" },
+          { 
+            data: "total_venta",
+            render: (data) => `${parseFloat(data)}`,
+            className: "text-center"
+          },
+          { 
+            data: "total_servicio",
+            render: (data) => ` ${parseFloat(data)}`,
+            className: "text-center"
+          },
+          { 
+            data: "anticipo",
+            render: (data) => ` ${parseFloat(data)}`,
+            className: "text-center"
+          },
+          { 
+            data: "total",
+            render: (data) => `${parseFloat(data)}`,
+            className: "text-center fw-bold"
+          },
           {
-            data: null,
-            render: (data, type, row) => {
-              if (row.estado === 1) {
-                return `<span class="badge badge-sm badge-info">Pendiente</span>`;
-              }
-              return `<span class="badge badge-sm badge-success">Pagado</span>`;
+            data: "estado",
+            render: (data) => {
+              return data === 1 
+                ? '<span class="badge badge-danger">Pendiente</span>'
+                : '<span class="badge badge-success">Pagado</span>';
             },
-          },
-          {
-            data: null,
-            render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.usuario_id}" onclick="getComision('${row.usuario_id}')"><i class="fas fa-edit"></i></button>`,
-          },
+            className: "text-center"
+          }
         ],
       });
     } else {

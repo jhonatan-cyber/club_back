@@ -45,7 +45,7 @@
 
                             </div>
                             <div id="comision_table" class="card-body pt-0">
-                                <?php include_once 'public/components/comision/tableComision.php' ?>
+                                <?php include 'public/components/comision/tableComision.php' ?>
                             </div>
                         </div>
                     </div>
@@ -59,4 +59,3 @@
 <script src="<?php echo BASE_URL ?>public/views/comision/comision.js"></script>
 
 </html>
-<?php include_once 'public/components/comision/modalComision.php' ?>

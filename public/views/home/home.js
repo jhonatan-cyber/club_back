@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  getCodigo();
-  getComisionusuario();
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+  if (usuario.rol === "Administrador") {
+    setTimeout(() => {
+      getCodigo();
+      setInterval(getCodigo, 60000);
+    }, 1000);
+  }
 });
 
 async function getCodigo() {
@@ -8,20 +14,12 @@ async function getCodigo() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
+    console.log("Código actualizado:", data.data);
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById("codigo").innerHTML = data.data.codigo;
     }
   } catch (error) {
-    console.log(error);
-  }
-}
-async function getComisionusuario() {
-  const url = `${BASE_URL}getComisionUsuario`;
-  try {
-    const resp = await axios.get(url, config);
-    const data = resp.data;
-    console.log(data);
-  } catch (error) {
-    console.log(error);
+    console.log("Error al obtener código:", error);
   }
 }

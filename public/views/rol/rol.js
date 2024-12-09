@@ -121,18 +121,23 @@ async function createRol(e) {
 }
 async function deleteRol(id) {
     const result = await Swal.fire({
-        title: "NuweSoft",
+        title: "Las Muñecas de Ramón",
         text: "¿Está seguro de eliminar el rol ?",
-        icon: "warning",
+        icon: "info",
         showCancelButton: true,
         confirmButtonText: "Si, eliminar",
         cancelButtonText: "No, cancelar",
         customClass: {
-            confirmButton: "btn btn-danger btn-sm rounded-pill",
-            cancelButton: "btn btn-secondary btn-sm rounded-pill",
-        },
-        buttonsStyling: false,
-        confirmButtonColor: "#dc3545",
+            confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+            cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+            popup: "swal2-dark",
+            title: "swal2-title",
+            htmlContainer: "swal2-html-container"
+          },
+          buttonsStyling: false,
+          confirmButtonColor: "#dc3545",
+          background: "var(--bs-body-bg)",
+          color: "var(--bs-body-color)",
     });
     if (result.isConfirmed) {
         const url = `${BASE_URL}deleteRol/${id}`;
