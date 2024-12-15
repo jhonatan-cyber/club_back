@@ -272,9 +272,9 @@ function validarDatos(
     nombre.focus();
     return;
   }
-  let descripcionValue = descripcion;
-  if (descripcionValue === "") {
-    descripcionValue = "Sin descripcion";
+  
+  if (descripcion === "") {
+    descripcion = "Sin descripcion";
   }
   if (precio === "") {
     toast("El precio es requerido", "info");

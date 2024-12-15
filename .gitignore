@@ -14,6 +14,7 @@ composer.lock
 /cache/
 logs/
 tmp/
+/storage/
 
 # Archivos de autoload generados
 composer.phar

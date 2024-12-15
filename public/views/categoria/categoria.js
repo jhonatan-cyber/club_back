@@ -2,9 +2,9 @@ let tbCategoria;
 
 document.addEventListener("DOMContentLoaded", () => {
   getCategorias();
-  const nombre = document.getElementById("nombre_c");
-  const descripcion = document.getElementById("descripcion_c");
-  document.getElementById("nombre_c").focus();
+  const nombre = document.getElementById("nombre");
+  const descripcion = document.getElementById("descripcion");
+  document.getElementById("nombre").focus();
   nombre.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -37,7 +37,7 @@ function MCategoria(e) {
   document.getElementById("frmCategoria").reset();
   $("#ModalCategoria").modal("show");
   $("#ModalCategoria").on("shown.bs.modal", () => {
-    document.getElementById("nombre_c").focus();
+    document.getElementById("nombre").focus();
   });
 }
 
@@ -46,6 +46,9 @@ async function getCategorias() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron categorias", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       tbCategoria = $("#tbCategoria").DataTable({
         data: data.data,
@@ -85,14 +88,9 @@ async function getCategorias() {
           },
         ],
       });
-    } else {
-      return toast("No se encontraron datos", "info");
     }
   } catch (e) {
-    resultado = e.response.data;
-    if (resultado.codigo === 400 && resultado.error === "Error") {
-      return toast(resultado.data, "info");
-    }
+    console.log(e);
   }
 }
 
@@ -101,14 +99,17 @@ async function getCategoria(id) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron datos", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById("id_categoria").value = data.data.id_categoria;
-      document.getElementById("nombre_c").value = data.data.nombre;
-      document.getElementById("descripcion_c").value = data.data.descripcion;
+      document.getElementById("nombre").value = data.data.nombre;
+      document.getElementById("descripcion").value = data.data.descripcion;
       document.getElementById("tituloCategoria").innerHTML = "Editar Categoria";
       $("#ModalCategoria").modal("show");
       $("#ModalCategoria").on("shown.bs.modal", () => {
-        document.getElementById("nombre_c").focus();
+        document.getElementById("nombre").focus();
       });
     }
   } catch (e) {
@@ -119,8 +120,8 @@ async function getCategoria(id) {
 async function createCategoria(e) {
   e.preventDefault();
   const id_categoria = document.getElementById("id_categoria").value;
-  const nombre = document.getElementById("nombre_c").value;
-  const descripcion = document.getElementById("descripcion_c").value;
+  const nombre = document.getElementById("nombre").value;
+  const descripcion = document.getElementById("descripcion").value;
 
   if (!nombre) {
     return toast("El nombre del categoria es obligatorio", "warning");
@@ -130,19 +131,19 @@ async function createCategoria(e) {
   }
 
   try {
-    const data = {
+    const datos = {
       nombre: nombre,
       descripcion: descripcion,
       id_categoria: id_categoria,
     };
     const url = `${BASE_URL}createCategoria`;
-    const resp = await axios.post(url, data, config);
+    const resp = await axios.post(url, datos, config);
     const result = resp.data;
-    console.log(result);
     if (result.estado === "ok" && result.codigo === 201) {
       toast("Categoria registrado correctamente", "success");
       $("#ModalCategoria").modal("hide");
       getCategorias();
+      return;
     }
   } catch (error) {
     resultado = error.response.data;
@@ -171,13 +172,12 @@ async function deleteCategoria(id) {
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
     background: "var(--bs-body-bg)",
     color: "var(--bs-body-color)",
-    
   });
   if (result.isConfirmed) {
     const url = `${BASE_URL}deleteCategoria/${id}`;

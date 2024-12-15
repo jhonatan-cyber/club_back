@@ -44,6 +44,21 @@
                         </div>
                         <div class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>cajas" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-cash-register"></i>
+                                </span>
+                                <span class="menu-title">Cajas</span>
+                            </a>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-content">
+                                <div class="separator mx-1 my-1"></div>
+                            </div>
+                        </div>
+                        <div class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>clientes" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
@@ -138,7 +153,7 @@
                                 href="<?php echo BASE_URL ?>ventas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                    <i class="fa-solid fa-cash-register"></i>
+                                <i class="fa-solid fa-store"></i>
                                 </span>
                                 <span class="menu-title">Ventas</span>
                             </a>

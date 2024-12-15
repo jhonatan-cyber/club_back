@@ -106,7 +106,7 @@ class pedidoModel extends query
          JOIN clientes AS C ON P.cliente_id = C.id_cliente 
          JOIN usuarios AS CH ON P.chica_id = CH.id_usuario 
          JOIN usuarios AS M ON P.mesero_id = M.id_usuario 
-         WHERE P.estado=1";
+         WHERE P.estado = 1";
         try {
             return $this->selectAll($sql);
 

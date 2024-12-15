@@ -27,9 +27,7 @@
 <script src="<?php echo BASE_URL ?>public/assets/js/dataTables.buttons.min.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/function.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/timers.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-
-<script src="<?php echo BASE_URL ?>public/assets/js/register.js"></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/webSocket.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/widgets.bundle.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/axios.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/moment.js"></script>

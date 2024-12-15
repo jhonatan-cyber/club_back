@@ -1,9 +1,6 @@
 const defaultThemeMode = "light";
 let themeMode;
-
 const MAX_PIEZAS = 50;
-
-
 document.addEventListener("DOMContentLoaded", async () => {
   ajustes();
   window.addEventListener("resize", () => {
@@ -11,103 +8,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   verificarTemporizadorActivo();
   usuarioAvatar();
-  initializeWebSocket();
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-if(usuario.rol === "Administrador"){
-  iniciarActualizacionCodigo()
-}
-  
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (usuario.rol === "Administrador") {
+    iniciarActualizacionCodigo();
+  }
+
+  getCajas();
+  if (usuario.rol === "Administrador" || usuario.rol === "Cajero") {
+    getPedidosTotal();
+  }
 });
-function initializeWebSocket() {
-  const socket = io("http://localhost:3000", {
-    transports: ["polling", "websocket"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    timeout: 5000,
-  });
-
-  // Evento cuando se conecta exitosamente
-  socket.on("connect", () => {
-    console.log("Conectado al servidor WebSocket");
-  });
-
-  // Manejar errores de conexión
-  socket.on("connect_error", (error) => {
-    console.error("Error de conexión:", error.message);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("Desconectado del servidor:", reason);
-  });
-
-  socket.on("pedidos_update", (data) => {
-    if (data.codigo === 200 && data.estado === "ok") {
-      const pedidoCount = data.data.length;
-      const pedidoCountElement = document.getElementById("pedido-count");
-      if (pedidoCount > 0) {
-        pedidoCountElement.textContent = pedidoCount;
-        pedidoCountElement.classList.remove("d-none");
-      } else {
-        pedidoCountElement.classList.add("d-none");
-      }
-
-      const pedidoLista = document.getElementById("pedido_");
-      if (pedidoLista) {
-        pedidoLista.innerHTML = "";
-        for (const pedido of data.data) {
-          pedidoLista.innerHTML += `<div class="d-flex align-items-center bg-hover-lighten py-3 px-9">
-            <div class="symbol symbol-40px symbol-circle me-5">
-              <span class="symbol-label bg-light-success">
-                <span class="svg-icon svg-icon-success svg-icon-1">
-                  <i class="fa-solid fa-champagne-glasses"></i>
-                </span>
-              </span>
-            </div>
-            <div class="mb-1 pe-3 flex-grow-1">
-              <a href="${BASE_URL}pedidos" class="fs-6 text-dark text-hover-primary fw-bold">
-                <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Código: ${pedido.codigo}</div>
-                <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${pedido.nombre_c} ${pedido.apellido_c}</div>
-                <div class="text-gray-400 fw-bold fs-7">Chica: ${pedido.nombre_ch} ${pedido.apellido_ch}</div>
-                <div class="text-gray-400 fw-bold fs-7">Mesero: ${pedido.nombre_m} ${pedido.apellido_m}</div>
-                <div class="text-gray-400 fw-bold fs-7">Subtotal: $${pedido.subtotal}</div>
-                <div class="text-gray-400 fw-bold fs-7">Total: $${pedido.total}</div>
-              </a>
-            </div>
-          </div>`;
-        }
-      }
-    }
-  });
-
-  socket.on("connect_error", (error) => {
-    console.error("Error de conexión WebSocket:", error);
-    // Intentar reconectar después de un error
-    setTimeout(() => {
-      socket.connect();
-    }, 5000);
-  });
-
-  socket.on("pedidos_error", (error) => {
-    console.error("Error al obtener pedidos:", error);
-  });
-
-  // Reconexión automática
-  socket.on("disconnect", () => {
-    console.log(
-      "Desconectado del servidor WebSocket, intentando reconectar..."
-    );
-  });
-
-  // Manejar errores de reconexión
-  socket.on("reconnect_error", (error) => {
-    console.error("Error al intentar reconectar:", error);
-  });
-
-  socket.on("reconnect_failed", () => {
-    console.error("Falló la reconexión después de varios intentos");
-  });
-}
 
 async function getPedidosTotal() {
   const url = `${BASE_URL}getPedidos`;
@@ -478,23 +388,23 @@ function verificarTemporizadorActivo() {
   }
 }
 
-async function showTiempoTerminadoAlert(nombrePieza, mensajeAdicional = '') {
-    await Swal.fire({
-        title: 'Las Muñecas de Ramón',
-        text: `El tiempo de servicio en ${nombrePieza} ha terminado.${mensajeAdicional}`,
-        icon: 'info',
-        confirmButtonText: 'Aceptar',
-        customClass: {
-          confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
-          popup: "swal2-dark",
-          title: "swal2-title",
-          htmlContainer: "swal2-html-container"
-        },
-        buttonsStyling: false,
-        confirmButtonColor: "#dc3545",
-        background: "var(--bs-body-bg)",
-        color: "var(--bs-body-color)",
-    });
+async function showTiempoTerminadoAlert(nombrePieza, mensajeAdicional = "") {
+  await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: `El tiempo de servicio en ${nombrePieza} ha terminado.${mensajeAdicional}`,
+    icon: "info",
+    confirmButtonText: "Aceptar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container",
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
 }
 function generarCodigoAleatorio(length) {
   const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -527,5 +437,101 @@ function detenerActualizacionCodigo() {
   if (intervalId) {
     clearInterval(intervalId);
     localStorage.removeItem("codigoIntervalId");
+  }
+}
+
+async function getCajas() {
+  const url = `${BASE_URL}getCajas`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      if (document.getElementById("btn_nuevo_caja")) {
+        document.getElementById("btn_nuevo_caja").hidden = false;
+      }
+
+      if (document.getElementById("btn_nuevo_venta")) {
+        document.getElementById("btn_nuevo_venta").hidden = true;
+      }
+
+      return;
+    }
+
+    if (data.estado === "ok" && data.codigo === 200) {
+      const cajas = Array.isArray(data.data) ? data.data : [data.data];
+
+      if (document.getElementById("btn_nuevo_venta")) {
+        document.getElementById("btn_nuevo_venta").hidden = cajas.some(
+          (caja) => caja.estado === 0
+        );
+      }
+      if (document.getElementById("btn_nuevo_caja")) {
+        document.getElementById("btn_nuevo_caja").hidden = cajas.some(
+          (caja) => caja.estado === 1
+        );
+      }
+      if (document.getElementById("tbCaja")) {
+        tbCaja = $("#tbCaja").DataTable({
+          data: cajas,
+          language: LENGUAJE,
+          destroy: true,
+          responsive: true,
+          info: true,
+          lengthMenu: [DISPLAY_LENGTH, 10, 25, 50],
+          autoWidth: true,
+          paging: true,
+          searching: true,
+          columns: [
+            {
+              data: null,
+              render: (data, type, row, meta) =>
+                ` <span class="badge badge-sm badge-primary" >${formatNumber(
+                  meta.row + 1
+                )}</span>`,
+            },
+            {
+              data: null,
+              render: (data, type, row) =>
+                moment(row.fecha_apertura).format("DD/MM/YYYY HH:mm"),
+            },
+            { data: "monto_apertura" },
+            {
+              data: null,
+              render: (data, type, row) =>
+                row.estado === 1
+                  ? `<span class="badge badge-sm badge-primary">Abierta</span>`
+                  : row.monto_cierre,
+            },
+            {
+              data: null,
+              render: (data, type, row) =>
+                row.estado === 1
+                  ? `<span class="badge badge-sm badge-primary">Abierta</span>`
+                  : moment(row.fecha_cierre).format("DD/MM/YYYY HH:mm"),
+            },
+            {
+              data: null,
+              render: (data, type, row) => {
+                if (row.estado === 1) {
+                  return `
+                  <button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_caja}" onclick="cerrarCaja('${row.id_caja}')">
+                    <i class="fa-solid fa-store-slash"></i>
+                  </button>`;
+                }
+                if (row.estado === 0) {
+                  return `
+                  <button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_caja}" onclick="verCaja('${row.id_caja}')">
+                    <i class="fas fa-eye"></i>
+                  </button>`;
+                }
+              },
+            },
+          ],
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error al obtener cajas:", error);
   }
 }

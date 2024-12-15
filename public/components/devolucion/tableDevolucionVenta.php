@@ -8,9 +8,8 @@
                     <th>Acompañante</th>
                     <th>Producto</th>
                     <th>Cantidad</th>
-                    <th>Total</th>
+                    <th>Monto Devuelto</th>
                     <th>Fecha</th>
-                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody class="fw-semibold text-gray-600"></tbody>

@@ -10,7 +10,7 @@
                     data-kt-swapper="true" data-kt-swapper-mode="prepend"
                     data-kt-swapper-parent="{default: '#kt_content_container', lg: '#kt_header_container'}">
                     <h1 class="text-dark fw-bold mt-1 mb-1 fs-2">
-                        <i class="fa-solid fa-champagne-glasses"></i> Venta <small
+                    <i class="fa-solid fa-store"></i> Venta <small
                             class="text-muted fs-6 fw-normal ms-1"></small>
                     </h1>
                     <ul class="breadcrumb fw-semibold fs-base mb-1">
@@ -41,7 +41,7 @@
                                         </div>
                                     </div>
                                     <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                                        <button class="btn btn-light-dark btn-sm text-center hover-scale"
+                                        <button id="btn_nuevo_venta" class="btn btn-light-dark btn-sm text-center hover-scale"
                                             onclick="nuevoVenta(event);"><i class="fa-solid fa-plus"></i>
                                             Nuevo</button>
                                     </div>

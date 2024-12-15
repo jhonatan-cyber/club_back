@@ -20,12 +20,12 @@
                         <small class="text-gray-700 d-block m-1"><b>Nombre de la Categoria</b></small>
                         <div class="input-group input-group-solid mb-3">
                             <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-address-card"></i></span>
-                            <input type="text" class="form-control form-control-sm form-control-solid" id="nombre_c" placeholder="Nombre del Categoria" />
+                            <input type="text" class="form-control form-control-sm form-control-solid" id="nombre" placeholder="Nombre del Categoria" />
                         </div>
                         <small class="text-gray-700 d-block m-1"><b>Descripcion de la Categoria</b></small>
                         <div class="input-group input-group-solid mb-3">
-                            <span class="input-group-text"><svg class="svg-inline--fa fa-audio-description" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="audio-description" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM213.5 173.3l72 144c5.9 11.9 1.1 26.3-10.7 32.2s-26.3 1.1-32.2-10.7l-9.4-18.9H150.9l-9.4 18.9c-5.9 11.9-20.3 16.7-32.2 10.7s-16.7-20.3-10.7-32.2l72-144c4.1-8.1 12.4-13.3 21.5-13.3s17.4 5.1 21.5 13.3zm-.4 106.6L192 237.7l-21.1 42.2h42.2zM304 184c0-13.3 10.7-24 24-24h56c53 0 96 43 96 96s-43 96-96 96H328c-13.3 0-24-10.7-24-24V184zm48 24v96h32c26.5 0 48-21.5 48-48s-21.5-48-48-48H352z"></path></svg><!-- <i class="fa-solid fa-audio-description"></i> Font Awesome fontawesome.com --></span>
-                            <textarea class="form-control" id="descripcion_c"  placeholder="Ingrese descripcion" type="text"  style="height: 100px;"></textarea>
+                            <span class="input-group-text"><i class="fa-solid fa-audio-description"></i></span>
+                            <textarea class="form-control" id="descripcion"  placeholder="Ingrese descripcion" type="text"  style="height: 100px;"></textarea>
                         </div>
                     </div>
                 </div>

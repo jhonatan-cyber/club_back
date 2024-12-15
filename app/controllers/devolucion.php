@@ -185,13 +185,96 @@ class devolucion extends controller
         guard::validateToken($this->header, guard::secretKey());
         try {
             $devolucion = $this->model->createDevolucionVenta($this->data);
-
             if ($devolucion !== 'ok') {
-                return $this->response(response::estado500($devolucion));
+                return $this->response(response::estado500('Error al crear la devolucion'));
             }
-            return $this->response(response::estado201());
+
+            if ($this->data['chica_id'] !== 0) {
+                $lastDetalleComision = $this->model->getLastDetalleComisionChica($this->data['chica_id']);
+                if (empty($lastDetalleComision)) {
+                    return $this->response(Response::estado500('Error al obtener el detalle de la comision'));
+                }
+                $montoRestante = $this->data['comision'];
+                $montoComision = $this->data['comision'];
+
+                while ($montoRestante > 0 && !empty($lastDetalleComision)) {
+                    if ($montoRestante >= $lastDetalleComision['comision']) {
+                        $detalle_comision_update = [
+                            'comision' => 0,
+                            'estado' => 0,
+                            'chica_id' => $this->data['chica_id'],
+                            'comision_id' => $lastDetalleComision['comision_id']
+                        ];
+                        $montoRestante -= $lastDetalleComision['comision'];
+                    } else {
+                        $detalle_comision_update = [
+                            'comision' => $lastDetalleComision['comision'] - $montoRestante,
+                            'estado' => 1,
+                            'chica_id' => $this->data['chica_id'],
+                            'comision_id' => $lastDetalleComision['comision_id']
+                        ];
+                        $montoRestante = 0;
+                    }
+                    $resultado_detalle = $this->model->updateDetalleComisionMonto($detalle_comision_update);
+                    if ($resultado_detalle !== 'ok') {
+                        return $this->response(Response::estado500('Error al actualizar el detalle de la comision'));
+                    }
+
+                    $comision = $this->model->getComision($lastDetalleComision['comision_id']);
+                    if (empty($comision)) {
+                        return $this->response(Response::estado500('Error al obtener la comision'));
+                    }
+
+                    if ($montoComision >= $comision['monto']) {
+                        $comision_update = [
+                            'monto' => 0,
+                            'estado' => 0,
+                            'id_comision' => $comision['id_comision']
+                        ];
+                        $montoComision -= $comision['monto'];
+                    } else {
+                        $comision_update = [
+                            'monto' => $comision['monto'] - $montoComision,
+                            'estado' => 1,
+                            'id_comision' => $comision['id_comision']
+                        ];
+                        $montoComision = 0;
+                    }
+
+                    $resultado_comision = $this->model->updateComisionMonto($comision_update);
+                    if ($resultado_comision !== 'ok') {
+                        return $this->response(Response::estado500('Error al actualizar la comision'));
+                    }
+
+                    if ($montoRestante > 0) {
+                        $lastDetalleComision = $this->model->getLastDetalleComisionChica($this->data['chica_id']);
+                        if (empty($lastDetalleComision)) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return $this->response(Response::estado201());
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
+        }
+    }
+
+    public function getDevolucionesVentas()
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(Response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $devoluciones = $this->model->getDevolucionesVenta();
+            if (!empty($devoluciones)) {
+                return $this->response(response::estado200($devoluciones));
+            }
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            $this->response(response::estado500($e));
         }
     }
 }

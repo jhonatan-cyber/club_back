@@ -70,7 +70,23 @@ class login extends controller
                     return $this->response(response::estado400('El usuario no esta activo'));
                 }
                 $_SESSION['id_usuario'] = $res['data']['id_usuario'];
-                if ($res['data']['rol'] === 'Administrador') {
+                if ($res['data']['rol'] === 'Administrador' || $res['data']['rol'] === 'Cajero') {
+                    if ($res['data']['rol'] === 'Cajero') {
+                        $login = $this->model->createLogin($_SESSION['id_usuario']);
+                        if ($login !== 'ok') {
+                            return $this->response(response::estado500('No se pudo crear el login'));
+                        }
+                        $asistencias = $this->model->getAsistenciaUsuario($_SESSION['id_usuario']);
+
+                        if ($asistencias > 0) {
+                            return $this->response(response::estado200('Ya registraste tu asistencia hoy'));
+                        }
+
+                        $asistencia = $this->model->createAsistencia($_SESSION['id_usuario']);
+                        if ($asistencia !== 'ok') {
+                            return $this->response(response::estado500('No se pudo crear la asistencia'));
+                        }
+                    }
                     if ($res['data']['estado'] === 0) {
                         $_SESSION['activo'] = false;
                     } else {
@@ -79,7 +95,7 @@ class login extends controller
                     return $this->response($res);
                 }
 
-                if ($res['data']['rol'] !== 'Administrador') {
+                if ($res['data']['rol'] !== 'Administrador' && $res['data']['rol'] !== 'Cajero') {
                     return $this->response($res);
                 }
             }

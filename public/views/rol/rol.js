@@ -1,6 +1,6 @@
 let tbRol;
-document.addEventListener("DOMContentLoaded", () => {
 
+document.addEventListener("DOMContentLoaded", () => {
     getRoles();
     const nombre = document.getElementById("nombre_r");
     document.getElementById("nombre_r").focus();
@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 function MRol(e) {
     e.preventDefault();
     document.getElementById("id_rol").value = "";
@@ -27,6 +28,7 @@ function MRol(e) {
         document.getElementById("nombre_r").focus();
     });
 }
+
 async function getRoles() {
     const url = `${BASE_URL}getRoles`;
     try {
@@ -67,6 +69,7 @@ async function getRoles() {
         console.log(e);
     }
 }
+
 async function getRol(id) {
     const url = `${BASE_URL}getRol/${id}`;
     try {
@@ -85,6 +88,7 @@ async function getRol(id) {
         console.log(e);
     }
 }
+
 async function createRol(e) {
     e.preventDefault();
     const id_rol = document.getElementById("id_rol").value;
@@ -105,8 +109,9 @@ async function createRol(e) {
         if (result.estado === "ok" && result.codigo === 201) {
             toast("Rol registrado correctamente", "success");
             $("#ModalRol").modal("hide");
+            sendWebSocketMessage("rol", "createRol", data);
+            
             getRoles();
-
         }
     } catch (error) {
         resultado = error.response.data;
@@ -119,6 +124,7 @@ async function createRol(e) {
         }
     }
 }
+
 async function deleteRol(id) {
     const result = await Swal.fire({
         title: "Las Muñecas de Ramón",
@@ -133,11 +139,11 @@ async function deleteRol(id) {
             popup: "swal2-dark",
             title: "swal2-title",
             htmlContainer: "swal2-html-container"
-          },
-          buttonsStyling: false,
-          confirmButtonColor: "#dc3545",
-          background: "var(--bs-body-bg)",
-          color: "var(--bs-body-color)",
+        },
+        buttonsStyling: false,
+        confirmButtonColor: "#dc3545",
+        background: "var(--bs-body-bg)",
+        color: "var(--bs-body-color)",
     });
     if (result.isConfirmed) {
         const url = `${BASE_URL}deleteRol/${id}`;
@@ -146,6 +152,10 @@ async function deleteRol(id) {
             const data = resp.data;
             if (data.estado === "ok" && data.codigo === 200) {
                 toast("Rol eliminado correctamente", "success");
+                
+                // Notificar a través de WebSocket
+                sendWebSocketMessage("rol", "eliminar", { id_rol: id });
+                
                 getRoles();
             }
         } catch (error) {

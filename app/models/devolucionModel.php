@@ -171,10 +171,10 @@ class devolucionModel extends query
 
     public function createDevolucionVenta(array $data)
     {
-        $sql = 'INSERT INTO evoluciones_ventas (usuario_id,cliente_id,cliente_id,producto_id,cantidad,monto)
-                VALUES(:usuario_id,:cliente_id,:cliente_id,:producto_id,:cantidad,:monto)';
+        $sql = 'INSERT INTO devoluciones_ventas (chica_id, cliente_id, producto_id, cantidad, monto)
+                VALUES(:chica_id, :cliente_id, :producto_id, :cantidad, :monto)';
         $params = [
-            ':usuario_id' => $data['usuario_id'],
+            ':chica_id' => $data['chica_id'],
             ':cliente_id' => $data['cliente_id'],
             ':producto_id' => $data['producto_id'],
             ':cantidad' => $data['cantidad'],
@@ -183,6 +183,101 @@ class devolucionModel extends query
         try {
             $result = $this->save($sql, $params);
             return $result == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getDevolucionesVenta()
+    {
+        $sql = 'SELECT DV.id_devolucion_venta, DV.cantidad, DV.monto, 
+                CASE 
+                    WHEN DV.chica_id = 0 THEN "Sin Acompañante"
+                    ELSE U.nick 
+                END AS nick,
+                DV.fecha_crea, 
+                CONCAT(C.nombre, " ", C.apellido) as cliente,
+                CONCAT(
+                    CASE 
+                        WHEN RIGHT(CA.nombre, 1) = "s" THEN LEFT(CA.nombre, LENGTH(CA.nombre) - 1)
+                        ELSE CA.nombre
+                    END,
+                    " ", P.nombre
+                ) AS producto
+            FROM devoluciones_ventas AS DV
+            JOIN clientes AS C ON DV.cliente_id = C.id_cliente
+            JOIN productos AS P ON DV.producto_id = P.id_producto
+            LEFT JOIN usuarios AS U ON DV.chica_id = U.id_usuario
+            JOIN categorias AS CA ON P.categoria_id = CA.id_categoria
+            ORDER BY DV.id_devolucion_venta DESC';
+        try {
+            $res = $this->selectAll($sql);
+            return $res;
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getLastDetalleComisionChica(int $chica_id)
+    {
+        $sql = 'SELECT comision_id, comision
+                FROM detalle_comisiones
+                WHERE chica_id = :chica_id AND estado = 1
+                ORDER BY comision_id DESC
+                LIMIT 1';
+        $params = [
+            ':chica_id' => $chica_id,
+        ];
+        try {
+            return $this->select($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function updateDetalleComisionMonto(array $data)
+    {
+        $sql = 'UPDATE detalle_comisiones SET comision = :comision, estado = :estado WHERE chica_id = :chica_id AND comision_id = :comision_id';
+        $params = [
+            ':comision' => $data['comision'],
+            ':estado' => $data['estado'],
+            ':chica_id' => $data['chica_id'],
+            ':comision_id' => $data['comision_id'],
+        ];
+        try {
+            $result = $this->save($sql, $params);
+            return $result == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function updateComisionMonto(array $data)
+    {
+        $sql = 'UPDATE comisiones SET monto = :monto, estado = :estado, fecha_mod = now() WHERE id_comision = :id_comision';
+        $params = [
+            ':monto' => $data['monto'],
+            ':estado' => $data['estado'],
+            ':id_comision' => $data['id_comision'],
+        ];
+        try {
+            $result = $this->save($sql, $params);
+            return $result == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function getComision(int $id_comision)
+    {
+        $sql = 'SELECT id_comision, monto
+        FROM comisiones
+        WHERE id_comision = :id_comision AND estado = 1';
+        $params = [
+            ':id_comision' => $id_comision,
+        ];
+        try {
+            return $this->select($sql, $params);
         } catch (Exception $e) {
             return response::estado500($e);
         }

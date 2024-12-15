@@ -19,6 +19,7 @@ use app\controllers\cuenta;
 use app\controllers\devolucion;
 use app\controllers\propina;
 use app\controllers\asistencia;
+use app\controllers\caja;
 use app\controllers\horaExtra;
 
 
@@ -42,7 +43,7 @@ $planilla = new planilla();
 $propina = new propina();
 $asistencia = new asistencia();
 $horaExtra = new horaExtra();
-
+$caja = new caja();
 
 
 /******************** Login ********************/
@@ -160,14 +161,17 @@ $router->get('getDevolucion/(\d+)', [$devolucion, 'getDevolucion']);
 $router->get('getDevoluciones', [$devolucion, 'getDevoluciones']);
 
 $router->post('createDevolucionVenta', [$devolucion, 'createDevolucionVenta']);
+$router->get('getDevolucionesVentas', [$devolucion,'getDevolucionesVentas']);
 
 
 
 /******************** Planillas ********************/
 $router->get('planillas', [$planilla, 'index']);
 
+
 /******************** Propinas ********************/
 $router->get('propinas', [$propina, 'index']);
+
 
 /******************** Asistencias ********************/
 $router->get('asistencias', [$asistencia, 'index']);
@@ -180,4 +184,14 @@ $router->get('horasExtras', [$horaExtra, 'index']);
 $router->post('createHoraExtra', [$horaExtra, 'createHoraExtra']);
 $router->get('getHorasExtras', [$horaExtra, 'getHorasExtras']);
 $router->get('getHoraExtra/(\d+)', [$horaExtra, 'getHoraExtra']);
+
+/******************** Cajas ********************/
+$router->get('cajas', [$caja, 'index']);
+$router->post('createCaja', [$caja, 'createCaja']);
+$router->get('getCajas', [$caja,'getCajas']);
+$router->get('cerrarCaja/(\d+)', [$caja,'cerrarCaja']);
+
+
+
+
 $router->run();

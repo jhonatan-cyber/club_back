@@ -5,10 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   actualizarTablaCarrito(carrito);
+  
   document.getElementById("propina").addEventListener("input", () => {
+    const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
+    const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
     const propina = parseFloat(document.getElementById("propina").value) || 0;
-    const total = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
-    const total_a_pagar = parseFloat(total) + parseFloat(propina);
+    const total_a_pagar = subtotal + propina;
     document.getElementById("total").innerText = total_a_pagar;
   });
 });
@@ -369,21 +371,23 @@ function cargarCarrito(
     carrito.push(producto);
   }
 
-  const total = carrito.reduce((acc, item) => {
-    return acc + (item.subtotal || 0);
-  }, 0);
   const subtotal_ = carrito.reduce((acc, item) => {
     return acc + (item.subtotal || 0);
   }, 0);
   const total_comision = carrito.reduce((acc, item) => {
     return acc + (item.cantidad * item.comision || 0);
   }, 0);
+  
+  // Obtener la propina actual y calcular el total
+  const propina = parseFloat(document.getElementById("propina").value) || 0;
+  const total = subtotal_ + propina;
 
   const totales = {
     total: total,
     subtotal: subtotal_,
     total_comision: total_comision,
   };
+  
   localStorage.setItem("carrito_venta", JSON.stringify(carrito));
   localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
@@ -411,18 +415,29 @@ function actualizarTablaCarrito(carrito) {
     tbody.appendChild(row);
   }
 
-  const total = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+  const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
   const propina = parseFloat(document.getElementById("propina").value) || 0;
-  const total_a_pagar = parseFloat(total) + parseFloat(propina);
+  const total_a_pagar = subtotal + propina;
   document.getElementById("total").innerText = total_a_pagar;
 }
 
 function eliminarProducto(id_producto) {
   let carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
-
+  
   carrito = carrito.filter((item) => item.id_producto !== id_producto);
-  localStorage.setItem("carrito_venta", JSON.stringify(carrito));
+  
+  const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
+  const propina = parseFloat(document.getElementById("propina").value) || 0;
+  const total = subtotal + propina;
+  
+  const totales = {
+    total: total,
+    subtotal: subtotal,
+    total_comision: carrito.reduce((acc, item) => acc + (item.cantidad * item.comision || 0), 0)
+  };
 
+  localStorage.setItem("carrito_venta", JSON.stringify(carrito));
+  localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
   toast("Producto eliminado del carrito", "info");
 }
@@ -532,17 +547,18 @@ async function createVenta(e) {
     usuario_id: usuario_id,
     pieza_id: pieza_id,
     productos: productos,
-    total: totales.total || 0,
+ 
     total_comision: totales.total_comision,
     subtotal: totales.subtotal || 0,
     metodo_pago: metodo_pago,
     codigo: codigo,
     propina: propina,
+    total: totales.total + propina || 0,
   };
 
   const url = `${BASE_URL}createVenta`;
   const categorias = productos.map((producto) => producto.categoria);
-  if (categorias.includes("Champañas")) {
+  if (categorias.includes("Champaña")) {
     if (pieza_id === "0") {
       toast("Seleccione una pieza", "info");
       return;
@@ -560,7 +576,6 @@ async function createVenta(e) {
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
-    console.log(datos);
     console.log(data);
     if (data.estado === "ok" && data.codigo === 201) {
       localStorage.removeItem("carrito_venta");
@@ -577,7 +592,7 @@ async function createVenta(e) {
 function verificarCategorias() {
   const productos = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   const categorias = productos.map((producto) => producto.categoria);
-  if (categorias.includes("Champañas")) {
+  if (categorias.includes("Champaña")) {
     document.getElementById("pieza_venta").hidden = false;
   } else {
     document.getElementById("pieza_venta").hidden = true;

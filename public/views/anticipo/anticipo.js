@@ -117,7 +117,9 @@ async function getAnticipos() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+if(data.estado !== "ok" && data.codigo !== 200){
+  return toast("No se encontraron anticipos", "info");
+}
     if (data.estado === "ok" && data.codigo === 200) {
       tbAnticipo = $("#tbAnticipo").DataTable({
         data: data.data,
@@ -154,9 +156,7 @@ async function getAnticipos() {
           },
         ],
       });
-    } else {
-      return toast("No se encontraron datos", "info");
-    }
+    } 
   } catch (e) {
     resultado = e.response.data;
     if (resultado.codigo === 400 && resultado.error === "Error") {

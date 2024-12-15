@@ -161,7 +161,7 @@ async function login(e) {
       };
       localStorage.setItem("usuario", JSON.stringify(usuario));
 
-      if (rol === "Administrador") {
+      if (rol === "Administrador" || rol === "Cajero") {
         iniciarActualizacionCodigo();
         toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
         setTimeout(() => {

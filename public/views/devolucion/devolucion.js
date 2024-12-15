@@ -1,13 +1,17 @@
 let tbServicios;
 let tbDevoluciones;
+let tbDevolucionesVenta;
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("cantidad").addEventListener("input", () => {
     const cantidad = Number($("#cantidad").val());
     const precio = document
       .getElementById("producto_id")
-      .options[document.getElementById("producto_id").selectedIndex]
-      .getAttribute("data-precio");
-    document.getElementById("subtotal").innerHTML = `<b>Pagó : ${cantidad * precio}</b>`;
+      .options[
+        document.getElementById("producto_id").selectedIndex
+      ].getAttribute("data-precio");
+    document.getElementById("subtotal").innerHTML = `<b>Pagó : ${
+      cantidad * precio
+    }</b>`;
   });
 });
 async function getServicios() {
@@ -163,7 +167,7 @@ async function devolverServicio(
   }
 }
 
-function nuevo(e) {
+function listarServicios(e) {
   e.preventDefault();
   getServicios();
   document.getElementById("servicio_table").hidden = false;
@@ -171,18 +175,17 @@ function nuevo(e) {
   document.getElementById("btn_atras").hidden = false;
   document.getElementById("btn_nuevo").hidden = true;
   document.getElementById("btn_atras_dev").hidden = true;
-  document.getElementById("title_").innerHTML = "Lista servicios activos";
+  document.getElementById("title_servicios").innerHTML = "Listado de servicios activos";
 }
-
-/* function atras() {
+function listarDevolucionesServicios() {
   document.getElementById("servicio_table").hidden = true;
   document.getElementById("devolucion_table").hidden = false;
   document.getElementById("btn_atras").hidden = true;
   document.getElementById("btn_nuevo").hidden = false;
   document.getElementById("btn_atras_dev").hidden = false;
-  document.getElementById("title_").innerHTML = "Lista devoluciones";
+  document.getElementById("title_servicios").innerHTML = "Listado de devoluciones de servicios";
   getDevoluciones();
-} */
+}
 
 async function getDevoluciones() {
   const url = `${BASE_URL}getDevoluciones`;
@@ -291,6 +294,8 @@ function devolucionServicio(e) {
   document.getElementById("devoluciones").hidden = true;
   document.getElementById("devolucion_servicio").hidden = false;
   document.getElementById("btn_atras_dev").hidden = false;
+  document.getElementById("btn_nuevo").hidden = false;
+  document.getElementById("title_servicios").innerHTML = "Listado de devoluciones de servicios";
   getDevoluciones();
 }
 
@@ -305,13 +310,15 @@ function devolucionVenta(e) {
   document.getElementById("devoluciones").hidden = true;
   document.getElementById("devolucion_servicio").hidden = true;
   document.getElementById("devolucion_venta").hidden = false;
+  getDevolucionesVentas();
 }
 
 function MDevolucionVenta(e) {
   e.preventDefault();
-document.getElementById("monto").value = "";
-document.getElementById("cantidad").value = "";
-document.getElementById("subtotal").innerHTML = "";
+
+  document.getElementById("monto").value = "";
+  document.getElementById("cantidad").value = "";
+  document.getElementById("subtotal").innerHTML = "";
   getChicas();
   getClientes();
   getProductos();
@@ -397,6 +404,7 @@ async function getProductos() {
         option.value = producto.id_producto;
         option.text = `${producto.nombre}`;
         option.setAttribute("data-precio", producto.precio);
+        option.setAttribute("data-comision", producto.comision);
         select.appendChild(option);
       }
     }
@@ -412,7 +420,12 @@ async function createDevolucionVenta(e) {
   const producto_id = Number($("#producto_id").val());
   const cantidad = Number($("#cantidad").val()) || 1;
   const monto = Number($("#monto").val());
-
+  const comisionInput = document
+    .getElementById("producto_id")
+    .options[document.getElementById("producto_id").selectedIndex].getAttribute(
+      "data-comision"
+    );
+  const comision = Number(comisionInput) * cantidad;
 
   if (cliente_id == 0 || cliente_id == null || cliente_id == "") {
     cliente_id = 1;
@@ -428,12 +441,65 @@ async function createDevolucionVenta(e) {
     chica_id: chica_id,
     producto_id: producto_id,
     cantidad: cantidad,
-    precio: monto,
+    monto: monto,
+    comision: Number(comision),
   };
-    const url = `${BASE_URL}createDevolucionVenta`;
+  const url = `${BASE_URL}createDevolucionVenta`;
   const resp = await axios.post(url, datos, config);
   const data = resp.data;
   console.log(data);
   if (data.estado === "ok" && data.codigo === 201) {
-  } 
+    toast("Devolucion creada correctamente", "success");
+    getDevolucionesVentas();
+    $("#ModalDevolucionVenta").modal("hide");
+  }
+}
+async function getDevolucionesVentas() {
+  const url = `${BASE_URL}getDevolucionesVentas`;
+  try {
+    const response = await axios.get(url, config);
+    const data = response.data;
+
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron devoluciones de ventas", "info");
+    }
+    if (data.estado === "ok" && data.codigo === 200) {
+      tbDevolucionesVentas = $("#tbDevolucionesVentas").DataTable({
+        data: data.data,
+        language: LENGUAJE,
+        destroy: true,
+        responsive: true,
+        info: true,
+        lengthMenu: [DISPLAY_LENGTH, 10, 25, 50],
+        autoWidth: true,
+        paging: true,
+        searching: true,
+        columns: [
+          {
+            data: null,
+            render: (data, type, row, meta) =>
+              `<span class="badge badge-sm badge-primary">${
+                meta.row + 1
+              }</span>`,
+          },
+          { data: "cliente" },
+          { data: "nick" },
+          { data: "producto" },
+          { data: "cantidad" },
+          { data: "monto" },
+          {
+            data: null,
+            render: (data, type, row) => {
+              const date = moment(row.fecha_crea);
+              const formattedDate = date.format("DD/MM/YYYY");
+              const formattedTime = date.format("HH:mm:ss");
+              return `<div>${formattedDate}</div><div>${formattedTime}</div>`;
+            },
+          },
+        ],
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }

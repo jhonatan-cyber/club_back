@@ -40,20 +40,20 @@
                         </div>
                         <small class="text-gray-700 d-block m-1"><b>Fecha</b></small>
                         <div class="input-group input-group-solid mb-3">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-calendar-days"></i>
-                                <input type="text" min="0" class="form-control form-control-sm form-control-solid"
-                                    id="fecha" disabled />
+                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-calendar-days"></i></span>
+                            <input type="text" min="0" class="form-control form-control-sm form-control-solid"
+                                id="fecha" disabled />
                         </div>
                     </div>
                 </div>
                 <div class="row text-center">
-                <div class="col-6 text-center"><button type="button"
+                    <div class="col-6 text-center"><button type="button"
                             class="btn btn-light-dark btn-sm hover-elevate-up" onclick="createAnticipo(event)"><i
                                 class="fa fa-save"></i> Guardar</button></div>
                     <div class="col-6 text-center"><button type="button"
                             class="btn btn-light-dark btn-sm hover-elevate-up" data-bs-dismiss="modal"><i
                                 class="fa fa-times"></i> Cancelar</button></div>
-                   
+
                 </div>
             </form>
             <br>

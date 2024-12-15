@@ -1,11 +1,6 @@
 let tbPedido;
 document.addEventListener("DOMContentLoaded", () => {
-  getClientes();
-  getChicas();
   getPedidos();
-  getProductosPrecio();
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  actualizarTablaCarrito(carrito);
 });
 async function getPedidos() {
   const url = `${BASE_URL}getPedidos`;
@@ -66,6 +61,11 @@ function nuevoPedido(e) {
   e.preventDefault();
   document.getElementById("nuevo_pedido").hidden = false;
   document.getElementById("lista_pedido").hidden = true;
+  getClientes();
+  getChicas();
+  getProductosPrecio();
+  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  actualizarTablaCarrito(carrito);
 }
 function atras(e) {
   e.preventDefault();
@@ -80,7 +80,7 @@ async function getProductosPrecio() {
     if (data.estado === "ok" && data.codigo === 200) {
       const precios = data.data;
       const preciosHTML = precios
-        .filter((precio) => precio.nombre !== "Champañas")
+        .filter((precio) => precio.nombre !== "Champaña")
         .map(
           (precio) => `
           <div class="col-xl-3 col-md-3 col-sm-4 mb-2">
@@ -231,8 +231,9 @@ async function getClientes() {
     const datos = response.data;
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("cliente_id");
+      select.innerHTML = "";
       const defaultOption = document.createElement("option");
-      defaultOption.value = "0";
+      defaultOption.value = 0;
       defaultOption.text = "Seleccione un cliente";
       defaultOption.selected = true;
       select.appendChild(defaultOption);
@@ -255,8 +256,9 @@ async function getChicas() {
     const datos = response.data;
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("chica_id");
+      select.innerHTML = "";
       const defaultOption = document.createElement("option");
-      defaultOption.value = "0";
+      defaultOption.value = 0;
       defaultOption.text = "Seleccione una acompañante";
       defaultOption.selected = true;
       select.appendChild(defaultOption);
@@ -276,17 +278,20 @@ async function createPedido(e) {
   e.preventDefault();
   let cliente_id = document.getElementById("cliente_id").value;
   const chica_id = document.getElementById("chica_id").value;
-  if (chica_id === "0") {
+  if (chica_id === 0) {
     return toast("Seleccione una compañera", "info");
   }
-  if (cliente_id === "0") {
+  if (cliente_id === 0) {
     cliente_id = 1;
   }
 
   const productos = JSON.parse(localStorage.getItem("carrito")) || [];
+  if (productos.length === 0) {
+    return toast("No hay productos en el carrito, agrega alguno", "info");
+  }
   const datos = {
-    cliente_id,
-    chica_id,
+    cliente_id: cliente_id,
+    chica_id: chica_id,
     productos: JSON.stringify(productos),
     total: localStorage.getItem("total_carrito") || 0,
     total_comision: localStorage.getItem("total_comision") || 0,
@@ -304,6 +309,7 @@ async function createPedido(e) {
       localStorage.removeItem("total_comision");
       const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
       actualizarTablaCarrito(carrito);
+      sendWebSocketMessage("pedido", "createPedido");
       getPedidosTotal();
       getPedidos();
       atras(e);
@@ -329,7 +335,6 @@ async function verPedido(id) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
     if (data.codigo === 200 && data.estado === "ok") {
       const productos = data.data;
       const primerProducto = productos[0];
@@ -408,20 +413,19 @@ async function createVenta(e) {
   if (nuevoMetodoPago === "0") {
     return toast("Seleccione un metodo de pago", "info");
   }
-const propina = Number.parseInt(document.getElementById("propina").value) ;
+  const propina = Number.parseInt(document.getElementById("propina").value);
   const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
   datos.metodo_pago = nuevoMetodoPago;
   datos.propina = propina;
   localStorage.setItem("datos_venta", JSON.stringify(datos));
 
-
-
   const url = `${BASE_URL}createVenta`;
-
-   try {
+  console.log(datos);
+    try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
-console.log(data);
+
+    console.log(data);
     if (data.codigo === 201 && data.estado === "ok") {
       toast("Venta realizada correctamente", "success");
       localStorage.removeItem("datos_venta");

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\config\cache;
 use app\config\controller;
 use app\config\guard;
 use app\config\response;
@@ -69,38 +70,38 @@ class pedido extends controller
             http_response_code(405);
             return $this->response(response::estado405());
         }
-        if ($this->data === null) {
-            http_response_code(400);
-            return $this->response(response::estado400(['Datos JSON no válidos.']));
-        }
-
-        $required = ['chica_id', 'subtotal', 'total'];
-        foreach ($required as $field) {
-            if (empty($this->data[$field])) {
-                http_response_code(400);
-                return $this->response(response::estado400("El campo $field es obligatorio"));
-            }
-        }
-
-        guard::validateToken($this->header, guard::secretKey());
-        if (isset($this->data['productos']) && is_string($this->data['productos'])) {
-            $productos = json_decode($this->data['productos'], true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return $this->response(response::estado400(['Error al decodificar productos: ' . json_last_error_msg()]));
-            }
-        } else {
-            return $this->response(response::estado400(['El campo productos debe ser una cadena JSON.']));
-        }
         try {
-            $this->data['mesero_id'] = $_SESSION['id_usuario'];
-            $this->data['codigo'] = generarCodigoAleatorio(8);
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
 
-            $pedido = $this->model->createPedido($this->data);
-            if ($pedido !== 'ok') {
-                return $this->response(response::estado500());
+            if (empty($data)) {
+                return $this->response(response::estado400());
             }
-            if ($pedido === 'ok') {
+
+            $required = ['chica_id', 'subtotal', 'total'];
+            foreach ($required as $field) {
+                if (empty($data[$field])) {
+                    http_response_code(400);
+                    return $this->response(response::estado400("El campo $field es obligatorio"));
+                }
+            }
+
+            if (isset($data['productos']) && is_string($data['productos'])) {
+                $productos = json_decode($data['productos'], true);
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    return $this->response(response::estado400(['Error al decodificar productos: ' . json_last_error_msg()]));
+                }
+            } else {
+                return $this->response(response::estado400(['El campo productos debe ser una cadena JSON.']));
+            }
+
+            $data['mesero_id'] = $_SESSION['id_usuario'];
+            $data['codigo'] = $this->generarCodigoAleatorio(8);
+
+            $result = $this->model->createPedido($data);
+
+            if ($result) {
                 $id_pedido = $this->model->getLastPedido();
                 foreach ($productos as $value) {
                     $detalle = [
@@ -113,9 +114,18 @@ class pedido extends controller
                     ];
                     $this->model->createDetallePedido($detalle);
                 }
-                http_response_code(201);
+
+                $message = json_encode([
+                    'tipo' => 'pedido',
+                    'accion' => 'createPedido',
+                    'data' => $data
+                ]);
+                file_put_contents(__DIR__ . '/../../tmp/websocket_message.txt', $message);
+
                 return $this->response(response::estado201());
             }
+
+            return $this->response(response::estado400());
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }
@@ -132,10 +142,8 @@ class pedido extends controller
         try {
             $pedido = $this->model->getPedidos();
             if (!empty($pedido)) {
-                http_response_code(200);
                 return $this->response(response::estado200($pedido));
             }
-            http_response_code(204);
             return $this->response(response::estado204());
         } catch (Exception $e) {
             http_response_code(500);
@@ -163,16 +171,16 @@ class pedido extends controller
             return $this->response(response::estado400($e));
         }
     }
-}
 
-function generarCodigoAleatorio($length)
-{
-    $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $codigo = '';
+    function generarCodigoAleatorio($length)
+    {
+        $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $codigo = '';
 
-    for ($i = 0; $i < $length; $i++) {
-        $codigo .= $chars[rand(0, strlen($chars) - 1)];
+        for ($i = 0; $i < $length; $i++) {
+            $codigo .= $chars[rand(0, strlen($chars) - 1)];
+        }
+
+        return $codigo;
     }
-
-    return $codigo;
 }
