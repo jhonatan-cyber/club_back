@@ -2,17 +2,18 @@
 
 namespace app\controllers;
 
-use app\config\controller;
-use app\models\propinaModel;
-use app\config\response;
-use app\config\guard;
-use app\config\view;
 use app\config\cache;
+use app\config\controller;
+use app\config\guard;
+use app\config\response;
+use app\config\view;
+use app\models\propinaModel;
 use Exception;
 
 class propina extends controller
 {
     private $model;
+
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -25,7 +26,7 @@ class propina extends controller
     public function index()
     {
         if ($this->method !== 'GET') {
-            return $this->response(Response::estado405());
+            return $this->response(response::estado405());
         }
 
         try {
@@ -39,7 +40,25 @@ class propina extends controller
             }
         } catch (Exception $e) {
             http_response_code(404);
-            $this->response(Response::estado404($e));
+            $this->response(response::estado404($e));
+        }
+    }
+
+    public function getPropinas()
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $propinas = $this->model->getPropinas();
+            if (!empty($propinas)) {
+                return $this->response(response::estado200($propinas));
+            }
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
         }
     }
 }

@@ -9,7 +9,7 @@ ini_set('error_log', 'debug.log');
 $allowedOrigins = [
     'http://localhost',
     'http://127.0.0.1',
-    'http://192.168.1.100'
+    'http://192.168.0.10'
 ];
 
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';

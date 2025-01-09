@@ -37,7 +37,7 @@ async function getMesero() {
       const select = document.getElementById("usuario_id");
       select.innerHTML = "";
       const usuariosFiltrados = datos.data.filter(
-        (usuario) => usuario.rol_id === 3
+        (usuario) => usuario.rol_id === 3 || usuario.rol_id === 2
       );
       for (const usuario of usuariosFiltrados) {
         const option = document.createElement("option");
@@ -50,6 +50,7 @@ async function getMesero() {
     console.log(error);
   }
 }
+
 async function createHoraExtra(e) {
   e.preventDefault();
   const hora = document.getElementById("hora").value;
@@ -78,7 +79,7 @@ async function createHoraExtra(e) {
     if (data.estado === "ok" && data.codigo === 201) {
       toast("Hora Extra creada correctamente", "success");
       $("#ModalHoraExtra").modal("hide");
-      getHorasExtras();
+      getHorasExtras()
     }
   } catch (error) {
     console.error(error);
@@ -124,7 +125,6 @@ async function getHorasExtras() {
           },
         ],
       });
-      console.log(horasExtras);
     }
   } catch (error) {
     console.error(error);

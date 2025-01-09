@@ -424,6 +424,7 @@ async function actualizarCodigo() {
     await axios.get(updateUrl);
     const createUrl = `${BASE_URL}createCodigo`;
     const response = await axios.get(createUrl);
+ 
     if (response.data.estado === "ok" && response.data.codigo === 201) {
       return;
     }

@@ -1,85 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
-<?php require_once 'public/views/layout/head.php'; ?>
+<?php include_once 'public/views/layout/head.php' ?>
 
 <body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed aside-fixed">
-    <?php require_once 'public/views/layout/aside.php'; ?>
+    <?php include_once 'public/views/layout/aside.php' ?>
     <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
-        <div id="kt_header" class="header " data-kt-sticky="true" data-kt-sticky-name="header" data-kt-sticky-offset="{default: '200px', lg: '300px'}">
+        <div id="kt_header" class="header " data-kt-sticky="true" data-kt-sticky-name="header"
+            data-kt-sticky-offset="{default: '200px', lg: '300px'}">
             <div class=" container-fluid  d-flex align-items-stretch justify-content-between" id="kt_header_container">
-                <div class="page-title d-flex flex-column align-items-start justify-content-center flex-wrap me-2 mb-5 mb-lg-0" data-kt-swapper="true" data-kt-swapper-mode="prepend" data-kt-swapper-parent="{default: '#kt_content_container', lg: '#kt_header_container'}">
+                <div class="page-title d-flex flex-column align-items-start justify-content-center flex-wrap me-2 mb-5 mb-lg-0"
+                    data-kt-swapper="true" data-kt-swapper-mode="prepend"
+                    data-kt-swapper-parent="{default: '#kt_content_container', lg: '#kt_header_container'}">
                     <h1 class="text-dark fw-bold mt-1 mb-1 fs-2">
-                    <i class="fa-solid fa-coins"></i>  Propinas <small class="text-muted fs-6 fw-normal ms-1"></small>
+                        <i class="fa-solid fa-users"></i> Propina <small class="text-muted fs-6 fw-normal ms-1"></small>
                     </h1>
                     <ul class="breadcrumb fw-semibold fs-base mb-1">
                         <li class="breadcrumb-item text-muted">
-                            <a href="<?php echo BASE_URL ?>dashboard" class="text-muted text-hover-primary">
+                            <a href="<?php echo BASE_URL ?>Dashboard" class="text-muted text-hover-primary">
                                 Dashboard </a>
                         </li>
 
                         <li class="breadcrumb-item text-muted">
-                            Propinas </li>
+                            Propina </li>
                     </ul>
                 </div>
-                <?php require_once 'public/views/layout/navbar.php'; ?>
+                <?php include_once 'public/views/layout/navbar.php' ?>
             </div>
         </div>
+        <!-- contenido del sistema -->
         <div class="content d-flex flex-column flex-column-fluid fs-6" id="kt_content">
-            <div class=" container-fluid ">
+            <div class="container-fluid">
                 <div class="row gy-5 g-xl-10">
-                    <div class="col-xl-4 mb-xl-10 mobile-hide">
-                        <div class="card shadow-sm">
-                            <div class="card-body p-0">
-                                <div class="card-p mb-10 text-center">
-                                    <div class="text-center px-4">
-                                        <img class="mw-100 mh-300px card-rounded-bottom" alt="" src="<?php echo BASE_URL ?>public/assets/img/sistema/propina.png" />
-                                    </div>
-                                    <hr>
-                                    <h5 class="text-muted mb-3">Agregar Propina</h5>
-                                    <button class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MPropina(event);"><i class="fa fa-plus"></i> Nuevo</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-8 mb-xl-10 col-sm-12 mb-sm-5">
-                        <div class="card shadow-sm">
+                    <div class="col-xl-12 mb-xl-10"> 
+                        <div class="card card-flush">
                             <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                                 <div class="row align-items-center">
                                     <div class>
-                                        <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo TITLE ?></b></small>
-                                        <h5 class="h3 mb-0">Lista Propinas</h5>
+                                        <small
+                                            class="text-uppercase text-muted ls-1 mb-1"><b><?php echo TITLE ?></b></small>
+                                        <h5 class="h3 mb-0">Lista propinas</h5>
                                     </div>
                                 </div>
-                                <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                                    <button id="mod" class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MPropina(event);"><i class="fa fa-plus"></i> Nuevo</button>
-                                </div>
+                           
                             </div>
-
-
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <table id="tbPropina" class="table table-striped gy-5 gs-7 border rounded w-100  align-middle table-row-dashed fs-6 gy-5 dataTable no-footer">
-                                        <thead>
-                                            <tr class="text-center text-gray-800 fw-bold fs-7 text-uppercase gs-0">
-                                                <th>#</th>
-                                                <th>Usuario</th>
-                                                <th>Propina</th>
-                                                <th>Fecha</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="fw-semibold text-gray-600 text-start"></tbody>
-                                    </table>
-                                </div>
+                            <div id="propina_table" class="card-body pt-0">
+                                <?php include_once 'public/components/propina/tablePropina.php' ?>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <?php require_once 'public/views/layout/footer.php' ?>
-        <script src="<?php BASE_URL ?>public/views/propina/propina.js"></script>
-    </div>
-</body>
+        <!--fin contenido del sistema -->
+        <?php include_once 'public/views/layout/footer.php' ?>
 
+</body>
+<script src="<?php echo BASE_URL ?>public/views/propina/propina.js"></script>
 </html>

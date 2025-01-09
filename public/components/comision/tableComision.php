@@ -13,12 +13,10 @@
                         <th>Anticipos</th>
                         <th>Total</th>
                         <th>estado de pago</th>
-                        <th>Detalle</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="text-center fw-semibold text-gray-600">
- 
                     </tr>
                 </tbody>
             </table>

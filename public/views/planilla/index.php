@@ -41,10 +41,6 @@
                                         <h5 class="h3 mb-0">Lista planilla de sueldos</h5>
                                     </div>
                                 </div>
-                                <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                                    <button class="btn btn-light-dark btn-sm text-center hover-scale"
-                                        onclick="Mplanilla(event);"><i class="fa fa-plus"></i> Nuevo</button>
-                                </div>
                             </div>
                             <div id="planilla_table" class="card-body pt-0">
                                 <?php include_once 'public/components/planilla/tablePlanilla.php' ?>

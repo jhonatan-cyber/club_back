@@ -1,6 +1,10 @@
 let conn;
 function initWebSocket() {
+<<<<<<< HEAD
   conn = new WebSocket("ws://192.168.1.100:8888");
+=======
+  conn = new WebSocket("ws://192.168.0.8:8888");
+>>>>>>> 21c0d6e (arreglos)
 
   conn.onopen = function (e) {
     console.log("Conexión establecida!");
@@ -32,7 +36,11 @@ function initWebSocket() {
   };
 }
 
+<<<<<<< HEAD
 // Función para enviar mensajes WebSocket
+=======
+
+>>>>>>> 21c0d6e (arreglos)
 function sendWebSocketMessage(tipo, accion, data) {
   if (conn && conn.readyState === WebSocket.OPEN) {
     const mensaje = {
