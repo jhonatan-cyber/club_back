@@ -113,14 +113,17 @@ class login extends controller
 
         try {
             $res = $this->model->validarCodigo($codigo);
-
             if (!empty($res)) {
-                $_SESSION['activo'] = true;
-                $login = $this->model->createLogin($_SESSION['id_usuario']);
-                if ($login !== 'ok') {
-                    return $this->response(response::estado500('No se pudo crear el login'));
+                if (!empty($_SESSION['id_usuario'])) {
+                    $login = $this->model->createLogin($_SESSION['id_usuario']);
+                    $_SESSION['activo'] = true;
+                    if ($login === 'activo') {
+                        return $this->response(response::estado200($res));
+                    }
+                    if ($login !== 'ok') {
+                        return $this->response(response::estado500('No se pudo crear el login'));
+                    }
                 }
-
                 return $this->response(response::estado200($res));
             }
             return $this->response(response::estado204('No se pudo validar el codigo'));

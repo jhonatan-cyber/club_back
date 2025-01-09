@@ -210,6 +210,7 @@ async function verificarCodigo(e) {
       },
     });
     const response = resp.data;
+    console.log(response);
     if (response.data === undefined) {
       document.getElementById("cod1").value = "";
       document.getElementById("cod2").value = "";

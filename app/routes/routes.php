@@ -8,13 +8,7 @@ use app\controllers\cliente;
 use app\controllers\comision;
 use app\controllers\cuenta;
 use app\controllers\devolucion;
-<<<<<<< HEAD
-use app\controllers\propina;
-use app\controllers\asistencia;
-use app\controllers\caja;
-=======
 use app\controllers\home;
->>>>>>> 21c0d6e (arreglos)
 use app\controllers\horaExtra;
 use app\controllers\login;
 use app\controllers\pedido;
@@ -50,12 +44,7 @@ $asistencia = new asistencia();
 $horaExtra = new horaExtra();
 $caja = new caja();
 
-<<<<<<< HEAD
-
-/******************** Login ********************/
-=======
 /* Login */
->>>>>>> 21c0d6e (arreglos)
 $router->get('/', [$login, 'index']);
 $router->post('login', [$login, 'login']);
 $router->get('logout', [$login, 'logout']);
@@ -170,32 +159,18 @@ $router->get('getDevolucion/(\d+)', [$devolucion, 'getDevolucion']);
 $router->get('getDevoluciones', [$devolucion, 'getDevoluciones']);
 
 $router->post('createDevolucionVenta', [$devolucion, 'createDevolucionVenta']);
-<<<<<<< HEAD
-$router->get('getDevolucionesVentas', [$devolucion,'getDevolucionesVentas']);
-=======
 $router->get('getDevolucionesVentas', [$devolucion, 'getDevolucionesVentas']);
->>>>>>> 21c0d6e (arreglos)
 
 /* Planillas */
 $router->get('planillas', [$planilla, 'index']);
 $router->get('getPlanillas', [$planilla, 'getPlanillas']);
 $router->get('pagarPlanilla/(\d+)', [$planilla, 'pagarPlanilla']);
 
-<<<<<<< HEAD
-
-/******************** Propinas ********************/
-=======
 /* Propinas */
->>>>>>> 21c0d6e (arreglos)
 $router->get('propinas', [$propina, 'index']);
 $router->get('getPropinas', [$propina, 'getPropinas']);
 
-<<<<<<< HEAD
-
-/******************** Asistencias ********************/
-=======
 /* Asistencias */
->>>>>>> 21c0d6e (arreglos)
 $router->get('asistencias', [$asistencia, 'index']);
 $router->get('getAsistencias', [$asistencia, 'getAsistencias']);
 $router->get('getAsistencia/(\d+)', [$asistencia, 'getAsistencia']);
@@ -206,21 +181,10 @@ $router->post('createHoraExtra', [$horaExtra, 'createHoraExtra']);
 $router->get('getHorasExtras', [$horaExtra, 'getHorasExtras']);
 $router->get('getHoraExtra/(\d+)', [$horaExtra, 'getHoraExtra']);
 
-<<<<<<< HEAD
-/******************** Cajas ********************/
-$router->get('cajas', [$caja, 'index']);
-$router->post('createCaja', [$caja, 'createCaja']);
-$router->get('getCajas', [$caja,'getCajas']);
-$router->get('cerrarCaja/(\d+)', [$caja,'cerrarCaja']);
-
-
-
-=======
 /* Cajas */
 $router->get('cajas', [$caja, 'index']);
 $router->post('createCaja', [$caja, 'createCaja']);
 $router->get('getCajas', [$caja, 'getCajas']);
 $router->get('cerrarCaja/(\d+)', [$caja, 'cerrarCaja']);
->>>>>>> 21c0d6e (arreglos)
 
 $router->run();

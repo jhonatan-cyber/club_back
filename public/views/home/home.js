@@ -14,10 +14,9 @@ async function getCodigo() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-<<<<<<< HEAD
-=======
+
     console.log(data.data);
->>>>>>> 21c0d6e (arreglos)
+
     if (data.estado === "ok" && data.codigo === 200) {
       console.log(data.data.codigo);
       document.getElementById("codigo").innerHTML = data.data.codigo;

@@ -129,7 +129,7 @@ class loginModel extends query
 
         $data = $this->select($sql, $params);
         if ($data) {
-            return 'ya activo';
+            return 'activo';
         }
         $sql = 'SELECT * FROM logins WHERE usuario_id = :usuario_id AND estado = 0';
         $data = $this->select($sql, $params);
