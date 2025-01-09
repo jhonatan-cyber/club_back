@@ -48,10 +48,7 @@ $caja = new caja();
 $router->get('/', [$login, 'index']);
 $router->post('login', [$login, 'login']);
 $router->get('logout', [$login, 'logout']);
-$router->get('updateCodigo', [$login, 'updateCodigo']);
-$router->get('createCodigo', [$login, 'createCodigo']);
 $router->get('validarCodigo/(.+)', [$login, 'validarCodigo']);
-$router->get('createAsistencia/(\d+)', [$login, 'createAsistencia']);
 
 /* Home */
 $router->get('home', [$home, 'index']);

@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const inputValue = event.target.value;
 
       if (!/^\d$/.test(inputValue)) {
-        toast("Solo se permiten números", "error");
+        toast("Solo se permiten números", "info");
         event.target.value = "";
         return;
       }
@@ -82,6 +82,7 @@ function toast(mensaje, tipoMensaje) {
 
   toastr[tipoMensaje](mensaje);
 }
+
 function desencriptarToken(token) {
   const base64Url = token.split(".")[1];
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -101,6 +102,7 @@ function validateEmail(corrreo) {
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(corrreo).toLowerCase());
 }
+
 function validate(correo, password) {
   if (!correo && !password) {
     toast("Ingrese su usuario y contraseña", "info");
@@ -144,7 +146,7 @@ async function login(e) {
     });
 
     const result = await response.json();
-
+    console.log(result);
     if (result.estado === "ok" && result.codigo === 200) {
       const token = desencriptarToken(result.data.token);
       const { id_usuario, run, nombre, apellido, rol, correo, foto } =
@@ -162,7 +164,6 @@ async function login(e) {
       localStorage.setItem("usuario", JSON.stringify(usuario));
 
       if (rol === "Administrador" || rol === "Cajero") {
-        iniciarActualizacionCodigo();
         toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
         setTimeout(() => {
           window.location.href = `${BASE_URL}home`;
@@ -204,14 +205,13 @@ async function verificarCodigo(e) {
   const token = localStorage.getItem("token");
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   try {
-    const resp = await axios.get(url, {
+    const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    const response = resp.data;
-    console.log(response);
-    if (response.data === undefined) {
+    const data = response.data;
+    if (data.data === undefined) {
       document.getElementById("cod1").value = "";
       document.getElementById("cod2").value = "";
       document.getElementById("cod3").value = "";
@@ -219,49 +219,13 @@ async function verificarCodigo(e) {
       document.getElementById("cod1").focus();
       return toast("El código ingresado es incorrecto.", "info");
     }
-    if (response.estado === "ok" && response.codigo === 200) {
-      if (response.data.estado === 1) {
-        if (usuario.rol !== "Administrador") {
-          try {
-            const url2 = `${BASE_URL}createAsistencia/${usuario.id_usuario}`;
-            const respu = await axios.get(url2, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            const respuesta = respu.data;
-            if (respuesta.estado === "ok" && respuesta.codigo === 201) {
-              toast(
-                `Bienvenido ${usuario.nombre} ${usuario.apellido}`,
-                "success"
-              );
-              setTimeout(() => {
-                window.location.href = `${BASE_URL}home`;
-              }, 2000);
-            }
-
-            if (respuesta.estado === "ok" && respuesta.codigo === 200) {
-              toast(
-                `Bienvenido ${usuario.nombre} ${usuario.apellido}, ${respuesta.data}`,
-                "info"
-              );
-
-              setTimeout(() => {
-                window.location.href = `${BASE_URL}home`;
-              }, 2000);
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        } else {
-          toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
-          setTimeout(() => {
-            window.location.href = `${BASE_URL}home`;
-          }, 2000);
-        }
-      }
+    if (data.estado === "ok" && data.codigo === 200) {
+      toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
+      setTimeout(() => {
+        window.location.href = `${BASE_URL}home`;
+      }, 2000);
     }
-  } catch (e) {
+  } catch (error) {
     console.error(e);
     document.getElementById("cod1").value = "";
     document.getElementById("cod2").value = "";
@@ -270,26 +234,4 @@ async function verificarCodigo(e) {
     document.getElementById("cod1").focus();
     return toast("Error al verificar el código. Intenta nuevamente.", "error");
   }
-}
-
-async function actualizarCodigo() {
-  try {
-    const updateUrl = `${BASE_URL}updateCodigo`;
-    await axios.get(updateUrl);
-
-    const createUrl = `${BASE_URL}createCodigo`;
-    const response = await axios.get(createUrl);
-
-    if (response.data.estado === "ok" && response.data.codigo === 201) {
-      return true;
-    }
-  } catch (error) {
-    console.error("Error al actualizar código:", error);
-  }
-}
-
-function iniciarActualizacionCodigo() {
-  actualizarCodigo();
-  const intervalId = setInterval(actualizarCodigo, 60000);
-  localStorage.setItem("codigoIntervalId", intervalId);
 }

@@ -63,44 +63,25 @@ class loginModel extends query
         }
     }
 
-    public function createCodigo(string $codigo)
-    {
-        try {
-            $sql = 'INSERT INTO codigos (codigo) VALUES (:codigo)';
-            $params = [
-                ':codigo' => $codigo,
-            ];
-            $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function updateCodigo()
-    {
-        try {
-            $sql = 'DELETE FROM codigos WHERE estado = :estado';
-            $params = [
-                ':estado' => 1,
-            ];
-
-            $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
     public function createAsistencia(int $usuario_id)
     {
         try {
-            $sql = 'INSERT INTO asistencia (usuario_id, fercha_asistencia) VALUES (:usuario_id, CURDATE())';
-            $params = [
+            $sql1 = 'SELECT id_asistencia FROM asistencia WHERE usuario_id = :usuario_id AND DATE(fercha_asistencia) = CURDATE() LIMIT 1';
+            $params1 = [
                 ':usuario_id' => $usuario_id
             ];
-            $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            $result = $this->select($sql1, $params1);
+
+            if (!empty($result)) {
+                return 'existe';
+            } else {
+                $sql = 'INSERT INTO asistencia (usuario_id, fercha_asistencia) VALUES (:usuario_id, CURDATE())';
+                $params = [
+                    ':usuario_id' => $usuario_id
+                ];
+                $data = $this->save($sql, $params);
+                return $data == 1 ? 'ok' : 'error';
+            }
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -162,20 +143,6 @@ class loginModel extends query
         try {
             $data = $this->save($sql, $params);
             return $data == 1 ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function getAsistenciaUsuario($usuario_id)
-    {
-        try {
-            $sql = 'SELECT id_asistencia FROM asistencia WHERE usuario_id = :usuario_id AND DATE(fercha_asistencia) = CURDATE() LIMIT 1';
-            $params = [
-                ':usuario_id' => $usuario_id
-            ];
-            $result = $this->select($sql, $params);
-            return !empty($result) ? 1 : 0;
         } catch (Exception $e) {
             return response::estado500($e);
         }

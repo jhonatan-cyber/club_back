@@ -9,10 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   verificarTemporizadorActivo();
   usuarioAvatar();
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if (usuario.rol === "Administrador") {
-    iniciarActualizacionCodigo();
-  }
-
   getCajas();
   if (usuario.rol === "Administrador" || usuario.rol === "Cajero") {
     getPedidosTotal();
@@ -234,7 +230,6 @@ async function logaout(e) {
     const resp = await axios.get(url, config);
     const response = resp;
     if (response.status === 200) {
-      detenerActualizacionCodigo();
       toast("Cerrando sesión", "success");
       localStorage.clear();
       setTimeout(() => {
@@ -412,34 +407,10 @@ function generarCodigoAleatorio(length) {
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
 }
-function iniciarActualizacionCodigo() {
-  actualizarCodigo();
 
-  const intervalId = setInterval(actualizarCodigo, 60000);
-  localStorage.setItem("codigoIntervalId", intervalId);
-}
-async function actualizarCodigo() {
-  try {
-    const updateUrl = `${BASE_URL}updateCodigo`;
-    await axios.get(updateUrl);
-    const createUrl = `${BASE_URL}createCodigo`;
-    const response = await axios.get(createUrl);
- 
-    if (response.data.estado === "ok" && response.data.codigo === 201) {
-      return;
-    }
-  } catch (error) {
-    console.error("Error al actualizar código:", error);
-  }
-}
 
-function detenerActualizacionCodigo() {
-  const intervalId = localStorage.getItem("codigoIntervalId");
-  if (intervalId) {
-    clearInterval(intervalId);
-    localStorage.removeItem("codigoIntervalId");
-  }
-}
+
+
 
 async function getCajas() {
   const url = `${BASE_URL}getCajas`;

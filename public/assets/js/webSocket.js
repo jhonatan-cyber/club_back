@@ -32,7 +32,6 @@ function initWebSocket() {
   };
 }
 
-
 function sendWebSocketMessage(tipo, accion, data) {
   if (conn && conn.readyState === WebSocket.OPEN) {
     const mensaje = {
@@ -46,7 +45,26 @@ function sendWebSocketMessage(tipo, accion, data) {
   }
 }
 
-// Iniciar WebSocket cuando se carga la página
-document.addEventListener("DOMContentLoaded",  ()=> {
+document.addEventListener("DOMContentLoaded", () => {
   initWebSocket();
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (usuario.rol === "Administrador" || usuario.rol === "Cajero") {
+    getCodigo();
+    setInterval(getCodigo, 70000)
+  }
 });
+
+async function getCodigo() {
+  const url = `${BASE_URL}getCodigo`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    if (data.estado === "ok" && data.codigo === 200) {
+      if(document.getElementById("codigo")){
+        document.getElementById("codigo").innerHTML = data.data.codigo;
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
