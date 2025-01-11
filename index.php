@@ -7,20 +7,14 @@ ini_set('log_errors', true);
 ini_set('error_log', 'debug.log');
 
 $allowedOrigins = [
-    'http://localhost',
-    'http://127.0.0.1',
-    'http://192.168.0.10'
+    '*'
 ];
 
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 
 if (in_array($origin, $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: " . $origin);
-} /* else {
-    header("HTTP/1.1 403 Forbidden");
-    exit('Origen no permitido');
-} */
-
+    header("Access-Control-Allow-Origin: * " . $origin);
+}  
 
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE, PATCH");
 header("Access-Control-Allow-Headers: Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");

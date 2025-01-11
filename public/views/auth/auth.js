@@ -199,7 +199,6 @@ async function verificarCodigo(e) {
   const cod2 = document.getElementById("cod2").value;
   const cod3 = document.getElementById("cod3").value;
   const cod4 = document.getElementById("cod4").value;
-
   const codigo = `${cod1}${cod2}${cod3}${cod4}`;
   const url = `${BASE_URL}validarCodigo/${codigo}`;
   const token = localStorage.getItem("token");

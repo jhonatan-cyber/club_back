@@ -24,12 +24,9 @@ class token extends controller
 
         $tokenStatus = guard::checkTokenStatus($headers, $secretKey);
         if ($tokenStatus['status'] !== true) {
-           
-            return $this->response(response::estado401($tokenStatus)); ;
-       
+            return $this->response(response::estado401($tokenStatus));
         }
-       
+
         return $this->response(response::estado200($tokenStatus));
-       
     }
 }

@@ -13,30 +13,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (usuario.rol === "Administrador" || usuario.rol === "Cajero") {
     getPedidosTotal();
   }
+
   getToken();
+  setInterval(getToken, 10000);
 });
 async function getToken() {
   const url = `${BASE_URL}tokenVerify`;
   const token = localStorage.getItem("token");
 
   try {
-    const resp = await axios.post(
-      url,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const resp = await axios.post(url, {}, config);
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       if (data.data.newToken && data.data.tokenRefreshed === true) {
         localStorage.removeItem("token");
         localStorage.setItem("token", data.data.newToken);
-        console.log("Token actualizado");
+        config.headers.Authorization = `Bearer ${data.data.newToken}`;
+        console.log("Token renovado");
       }
       console.log(data);
     }

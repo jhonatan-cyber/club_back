@@ -15,6 +15,7 @@
 </div>
 </div>
 <script> const BASE_URL = '<?php echo BASE_URL ?>'; </script>
+<script> const IP_URL = '<?php echo IP_URL ?>'; </script>
 <script src="<?php echo BASE_URL ?>public/assets/js/jquery.min.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/plugins.bundle.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/scripts.bundle.js"></script>

@@ -80,6 +80,6 @@ class rateLimitMiddleware {
             }
         }
         
-        return 60; 
+        return 100; 
     }
 }

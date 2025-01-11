@@ -1,6 +1,6 @@
 let conn;
 function initWebSocket() {
-  conn = new WebSocket("ws://192.168.0.8:8888");
+  conn = new WebSocket(`ws://${IP_URL}:8888`);
 
   conn.onopen = function (e) {
     console.log("Conexión establecida!");
@@ -8,7 +8,6 @@ function initWebSocket() {
 
   conn.onmessage = function (e) {
     const mensaje = JSON.parse(e.data);
-    console.log("Mensaje recibido:", mensaje);
 
     switch (mensaje.tipo) {
       case "rol":

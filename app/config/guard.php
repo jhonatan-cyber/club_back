@@ -39,7 +39,7 @@ class guard
     {
         $payload = [
             'iat' => time(),
-            'exp' => time() + (60 * 2),  // 2 minutes
+            'exp' => time() + (60 * 60 * 8),  
             'data' => $data
         ];
 
@@ -163,7 +163,7 @@ class guard
                 if ($refreshedToken) {
                     $response['tokenRefreshed'] = true;
                     $response['newToken'] = $refreshedToken['token'];
-                }else {
+                } else {
                     throw new Exception('No se pudo refrescar el token');
                 }
             }
