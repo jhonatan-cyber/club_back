@@ -50,14 +50,7 @@ class anticipo extends controller
 
         guard::validateToken($this->header, guard::secretKey());
 
-        try {
-            /*  $cacheKey = 'anticipos_list';
-             $anticipos = cache::get($cacheKey);
-
-             if (!$anticipos) {
-
-                 cache::set($cacheKey, $anticipos, 600);
-             } */
+        try {           
             $anticipos = $this->model->getAnticipos();
             if (empty($anticipos)) {
                 return $this->response(response::estado204('No se encontraron anticipos'));

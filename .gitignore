@@ -1,6 +1,6 @@
 
 # Dependencias de Composer
-/vendor/
+vendor/
 
 .vscode/
 
@@ -11,10 +11,10 @@
 composer.lock
 
 # Directorios de cache
-/cache/
+cache/
 logs/
 tmp/
-/storage/*
+storage/
 
 # Archivos de autoload generados
 composer.phar

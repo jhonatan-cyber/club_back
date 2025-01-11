@@ -44,6 +44,7 @@ class home extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
         try {
             $codigo = $this->model->getCodigo();
             if (!empty($codigo)) {

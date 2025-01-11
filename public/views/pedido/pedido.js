@@ -1,7 +1,16 @@
 let tbPedido;
 document.addEventListener("DOMContentLoaded", () => {
   getPedidos();
+  if (document.getElementById("propina")) {
+    document.getElementById("propina").addEventListener("input", () => {
+      const propina = parseInt(document.getElementById("propina").value) || 0;
+      const carrito = JSON.parse(localStorage.getItem("datos_venta"));
+      const total_a_pagar = carrito.total + propina;
+      document.getElementById("total_").innerHTML = ` TOTAL: $${total_a_pagar}`;
+    });
+  }
 });
+
 async function getPedidos() {
   const url = `${BASE_URL}getPedidos`;
   try {
@@ -44,7 +53,7 @@ async function getPedidos() {
           {
             data: null,
             render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="verPedido('${row.id_pedido}')">
+              `<button title="Ver detalles" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="verPedido('${row.id_pedido}')">
                   <i class="fa-solid fa-eye"></i>
                 </button> `,
           },
@@ -57,6 +66,7 @@ async function getPedidos() {
     console.error(error);
   }
 }
+
 function nuevoPedido(e) {
   e.preventDefault();
   document.getElementById("nuevo_pedido").hidden = false;
@@ -67,11 +77,13 @@ function nuevoPedido(e) {
   const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
   actualizarTablaCarrito(carrito);
 }
+
 function atras(e) {
   e.preventDefault();
   document.getElementById("nuevo_pedido").hidden = true;
   document.getElementById("lista_pedido").hidden = false;
 }
+
 async function getProductosPrecio() {
   const url = `${BASE_URL}getProductosPrecio`;
   try {
@@ -111,6 +123,7 @@ async function getProductosPrecio() {
     console.error(error);
   }
 }
+
 async function getBebidasPrecio(precio) {
   const url = `${BASE_URL}getBebidasPrecio/${precio}`;
   try {
@@ -143,6 +156,7 @@ async function getBebidasPrecio(precio) {
     console.error("Error en la petición:", error);
   }
 }
+
 function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   const parsedCantidad = Number.parseInt(cantidad);
   if (Number.isNaN(parsedCantidad) || parsedCantidad <= 0) {
@@ -190,6 +204,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   actualizarTablaCarrito(carrito);
   document.getElementById("total").innerText = total;
 }
+
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoPedido tbody");
   tbody.innerHTML = "";
@@ -216,6 +231,7 @@ function actualizarTablaCarrito(carrito) {
 
   document.getElementById("total").innerText = total.toFixed(2);
 }
+
 function eliminarProducto(id_producto) {
   let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
@@ -224,6 +240,7 @@ function eliminarProducto(id_producto) {
 
   actualizarTablaCarrito(carrito);
 }
+
 async function getClientes() {
   const url = `${BASE_URL}getClientes`;
   try {
@@ -249,6 +266,7 @@ async function getClientes() {
     console.log(error);
   }
 }
+
 async function getChicas() {
   const url = `${BASE_URL}getChicas`;
   try {
@@ -274,6 +292,7 @@ async function getChicas() {
     console.log(error);
   }
 }
+
 async function createPedido(e) {
   e.preventDefault();
   let cliente_id = document.getElementById("cliente_id").value;
@@ -311,8 +330,8 @@ async function createPedido(e) {
       actualizarTablaCarrito(carrito);
       sendWebSocketMessage("pedido", "createPedido");
       getPedidosTotal();
-      getPedidos();
       atras(e);
+      getPedidos();
     }
   } catch (error) {
     console.error(error);
@@ -418,14 +437,11 @@ async function createVenta(e) {
   datos.metodo_pago = nuevoMetodoPago;
   datos.propina = propina;
   localStorage.setItem("datos_venta", JSON.stringify(datos));
-
   const url = `${BASE_URL}createVenta`;
-  console.log(datos);
-    try {
+  try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
 
-    console.log(data);
     if (data.codigo === 201 && data.estado === "ok") {
       toast("Venta realizada correctamente", "success");
       localStorage.removeItem("datos_venta");
@@ -434,12 +450,13 @@ async function createVenta(e) {
     }
   } catch (error) {
     console.error(error);
-  } 
+  }
 }
 
 async function createCuenta() {
   const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
   const url = `${BASE_URL}createCuenta`;
+
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;

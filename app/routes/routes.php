@@ -20,6 +20,7 @@ use app\controllers\rol;
 use app\controllers\servicio;
 use app\controllers\usuario;
 use app\controllers\venta;
+use app\controllers\token;
 use Bramus\Router\Router;
 
 $router = new Router();
@@ -43,7 +44,9 @@ $propina = new propina();
 $asistencia = new asistencia();
 $horaExtra = new horaExtra();
 $caja = new caja();
-
+$token = new token();
+/* Token */
+$router->post('tokenVerify', [$token, 'tokenVerify']);
 /* Login */
 $router->get('/', [$login, 'index']);
 $router->post('login', [$login, 'login']);

@@ -14,7 +14,7 @@ class homeModel extends query
 
     public function getCodigo()
     {
-        $sql = "CALL getCodigo()";
+        $sql = "SELECT * FROM codigos";
         try {
             return $this->select($sql);
         } catch (Exception $e) {

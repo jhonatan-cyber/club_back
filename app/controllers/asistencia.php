@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\config\cache;
+
 use app\config\controller;
 use app\config\guard;
 use app\config\response;
