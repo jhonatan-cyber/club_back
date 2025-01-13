@@ -146,7 +146,7 @@ async function login(e) {
     });
 
     const result = await response.json();
-    console.log(result);
+
     if (result.estado === "ok" && result.codigo === 200) {
       const token = desencriptarToken(result.data.token);
       const { id_usuario, run, nombre, apellido, rol, correo, foto } =
@@ -174,8 +174,9 @@ async function login(e) {
         document.getElementById("cod1").focus();
       }
     }
+
     if (response.status === 400) {
-      return toast("El correo o la contraseña son incorrectos", "info");
+     return toast(result.data, "info");
     }
 
     if (response.status === 429) {

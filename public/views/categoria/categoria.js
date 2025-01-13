@@ -82,9 +82,24 @@ async function getCategorias() {
           },
           {
             data: null,
-            render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="getCategoria(\'${row.id_categoria}\')"><i class="fas fa-edit"></i></button> 
-            <button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="deleteCategoria(\'${row.id_categoria}\')"><i class="fas fa-trash"></i></button>`,
+            render: (data, type, row) => {
+              if (row.estado === 1) {
+                return `<span class="badge badge-sm badge-success">Activo</span>`;
+              } else {
+                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
+              }
+            },
+          },
+          {
+            data: null,
+            render: (data, type, row) => {
+              if (row.estado === 1) {
+                return `<button title="Editar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="getCategoria(\'${row.id_categoria}\')"><i class="fas fa-edit"></i></button> 
+                <button title="Eliminar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="deleteCategoria(\'${row.id_categoria}\')"><i class="fas fa-trash"></i></button>`;
+              } else {
+                return `<button title="Activar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="highCategoria('${row.id_categoria}')"><i class="fa-solid fa-check-to-slot"></i></button>`;
+              }
+            },
           },
         ],
       });
@@ -195,6 +210,43 @@ async function deleteCategoria(id) {
           "Error al eliminar el categoria, intente nuevamente",
           "warning"
         );
+      }
+    }
+  }
+}
+async function highCategoria(id) {
+  const result = await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: "¿Está seguro de activar la categoria?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Si, activar",
+    cancelButtonText: "No, cancelar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container"
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
+  if (result.isConfirmed) {
+    const url = `${BASE_URL}highCategoria/${id}`;
+    try {
+      const resp = await axios.get(url, config);
+      const data = resp.data;
+      if (data.estado === "ok" && data.codigo === 200) {
+        toast("Categoria activada correctamente", "success");
+        getCategorias();
+      }
+    } catch (error) {
+      resultado = error.response.data;
+      if (resultado.codigo === 500 && resultado.estado === "error") {
+        return toast("Error al activar la categoria, intente nuevamente", "info");
       }
     }
   }

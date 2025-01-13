@@ -14,11 +14,10 @@ class clienteModel extends query
     }
     public function getClientes()
     {
-        $sql = "SELECT * FROM clientes WHERE estado = 1";
+        $sql = "SELECT * FROM clientes";
         try {
             return $this->selectAll($sql);
         } catch (Exception $e) {
-            error_log('ClienteModel::getClientes() -> ' . $e);
             return response::estado500($e);
         }
     }
@@ -28,7 +27,6 @@ class clienteModel extends query
         try {
             return $this->select($sql);
         } catch (Exception $e) {
-            error_log('ClienteModel::getClientes() -> ' . $e);
             return response::estado500($e);
         }
     }
@@ -40,7 +38,7 @@ class clienteModel extends query
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
-        $sql = "SELECT * FROM clientes WHERE run = :run AND estado = 1";
+        $sql = "SELECT * FROM clientes WHERE run = :run";
         $params = [
             ':run' => $clientes['run'],
         ];
@@ -59,7 +57,6 @@ class clienteModel extends query
             $result = $this->save($sql, $params);
             return $result == 1 ? "ok" : "error";
         } catch (Exception $e) {
-            error_log("clienteModel::createCliente() -> " . $e);
             return response::estado500();
         }
     }
@@ -93,7 +90,6 @@ class clienteModel extends query
             $result = $this->save($sql, $params);
             return $result == 1 ? "ok" : "error";
         } catch (Exception $e) {
-            error_log("clienteModel::updateCliente() -> " . $e);
             return response::estado500();
         }
     }
@@ -106,6 +102,17 @@ class clienteModel extends query
             return $data == 1 ? "ok" : "error";
         } catch (Exception $e) {
             error_log('clienteModel::deleteCliente() -> ' . $e);
+            return response::estado500($e);
+        }
+    }
+
+    public function highCliente(int $id_cliente){
+        $sql = 'UPDATE clientes SET estado = 1 , fecha_mod = now() WHERE id_cliente = :id_cliente';
+        $params = [':id_cliente' => $id_cliente];
+        try {
+            $data = $this->save($sql, $params);
+            return $data == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
             return response::estado500($e);
         }
     }

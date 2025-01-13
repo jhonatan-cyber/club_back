@@ -8,6 +8,7 @@
                     <th>Nombre(s)</th>
                     <th>Apellido(s)</th>
                     <th>Telefono</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

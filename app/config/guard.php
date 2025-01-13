@@ -39,7 +39,7 @@ class guard
     {
         $payload = [
             'iat' => time(),
-            'exp' => time() + (60 * 60 * 8),  
+            'exp' => time() + (60 * 60 * 8),
             'data' => $data
         ];
 

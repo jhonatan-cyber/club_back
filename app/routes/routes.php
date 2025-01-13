@@ -18,9 +18,9 @@ use app\controllers\producto;
 use app\controllers\propina;
 use app\controllers\rol;
 use app\controllers\servicio;
+use app\controllers\token;
 use app\controllers\usuario;
 use app\controllers\venta;
-use app\controllers\token;
 use Bramus\Router\Router;
 
 $router = new Router();
@@ -45,8 +45,10 @@ $asistencia = new asistencia();
 $horaExtra = new horaExtra();
 $caja = new caja();
 $token = new token();
+
 /* Token */
 $router->post('tokenVerify', [$token, 'tokenVerify']);
+
 /* Login */
 $router->get('/', [$login, 'index']);
 $router->post('login', [$login, 'login']);
@@ -63,6 +65,7 @@ $router->get('getRoles', [$rol, 'getRoles']);
 $router->post('createRol', [$rol, 'createRol']);
 $router->get('getRol/(\d+)', [$rol, 'getRol']);
 $router->get('deleteRol/(\d+)', [$rol, 'deleteRol']);
+$router->get('highRol/(\d+)', [$rol, 'highRol']);
 
 /* Usuarios */
 $router->get('usuarios', [$usuario, 'index']);
@@ -71,6 +74,7 @@ $router->post('createUsuario', [$usuario, 'createUsuario']);
 $router->get('getUsuario/(\d+)', [$usuario, 'getUsuario']);
 $router->get('deleteUsuario/(\d+)', [$usuario, 'deleteUsuario']);
 $router->get('getChicas', [$usuario, 'getChicas']);
+$router->get('highUsuario/(\d+)', [$usuario, 'highUsuario']);
 
 /* Clientes */
 $router->get('clientes', [$cliente, 'index']);
@@ -78,6 +82,7 @@ $router->get('getClientes', [$cliente, 'getClientes']);
 $router->post('createCliente', [$cliente, 'createCliente']);
 $router->get('getCliente/(\d+)', [$cliente, 'getCliente']);
 $router->get('deleteCliente/(\d+)', [$cliente, 'deleteCliente']);
+$router->get('highCliente/(\d+)', [$cliente, 'highCliente']);
 
 /* Categorias */
 $router->get('categorias', [$categoria, 'index']);
@@ -85,6 +90,7 @@ $router->get('getCategorias', [$categoria, 'getCategorias']);
 $router->post('createCategoria', [$categoria, 'createCategoria']);
 $router->get('getCategoria/(\d+)', [$categoria, 'getCategoria']);
 $router->get('deleteCategoria/(\d+)', [$categoria, 'deleteCategoria']);
+$router->get('highCategoria/(\d+)', [$categoria, 'highCategoria']);
 
 /* Productos */
 $router->get('productos', [$producto, 'index']);

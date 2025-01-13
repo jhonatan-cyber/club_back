@@ -55,7 +55,7 @@ class categoria extends controller
 
             if (!$categorias) {
                 $categorias = $this->model->getCategorias();
-                cache::set($cacheKey, $categorias, 600);
+                cache::set($cacheKey, $categorias, 0);
             }
 
             if (empty($categorias)) {
@@ -131,6 +131,22 @@ class categoria extends controller
                 return $this->response(response::estado200('ok'));
             }
             return $this->response(response::estado500());
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
+    public function highCategoria(int $id)
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $res = $this->model->highCategoria($id);
+            if ($res === "ok") {
+                return $this->response(response::estado200('ok'));
+            }
+            return $this->response(response::estado500('No se pudo activar la categoria'));
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }

@@ -2,9 +2,9 @@
 
 namespace app\models;
 
+use app\config\guard;
 use app\config\query;
 use app\config\response;
-use app\config\guard;
 use Exception;
 
 class usuarioModel extends query
@@ -13,17 +13,18 @@ class usuarioModel extends query
     {
         parent::__construct();
     }
+
     public function getUsuarios()
     {
-        $sql = "SELECT U.*, R.nombre AS rol
-                FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol WHERE U.estado = 1";
+        $sql = 'SELECT U.*, R.nombre AS rol
+                FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol';
         try {
             return $this->selectAll($sql);
         } catch (Exception $e) {
-            error_log('UsuarioModel::getUsuarios() -> ' . $e);
             return response::estado500($e);
         }
     }
+
     public function getUsuario(int $id)
     {
         $sql = "SELECT * FROM usuarios WHERE id_usuario =$id AND estado = 1";
@@ -34,6 +35,7 @@ class usuarioModel extends query
             return response::estado500($e);
         }
     }
+
     public function createUsuario(array $usuario)
     {
         $requiredFields = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
@@ -42,17 +44,17 @@ class usuarioModel extends query
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
         }
-        $sql = "SELECT * FROM usuarios WHERE run = :run AND correo = :correo AND estado = 1";
+        $sql = 'SELECT * FROM usuarios WHERE run = :run AND correo = :correo AND estado = 1';
         $params = [
             ':run' => $usuario['run'],
             ':correo' => $usuario['correo']
         ];
         $existe = $this->select($sql, $params);
         if (!empty($existe)) {
-            return "existe";
+            return 'existe';
         }
-        $sql = "INSERT INTO usuarios (run, nick, nombre, apellido, direccion, telefono, estado_civil, afp, aporte, sueldo, correo, password, rol_id, foto) 
-        VALUES (:run, :nick, :nombre, :apellido, :direccion, :telefono, :estado_civil, :afp, :aporte, :sueldo, :correo, :password, :rol_id, :foto)";
+        $sql = 'INSERT INTO usuarios (run, nick, nombre, apellido, direccion, telefono, estado_civil, afp, aporte, sueldo, correo, password, rol_id, foto) 
+        VALUES (:run, :nick, :nombre, :apellido, :direccion, :telefono, :estado_civil, :afp, :aporte, :sueldo, :correo, :password, :rol_id, :foto)';
         $params = [
             ':run' => $usuario['run'],
             ':nick' => $usuario['nick'],
@@ -71,12 +73,13 @@ class usuarioModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? "ok" : "error";
+            return $result == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log("usuarioModel::createUsuario() -> " . $e);
+            error_log('usuarioModel::createUsuario() -> ' . $e);
             return response::estado500();
         }
     }
+
     public function updateUsuario(array $usuario)
     {
         $requiredFields = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'rol_id', 'id_usuario'];
@@ -89,10 +92,9 @@ class usuarioModel extends query
             $usuario['foto'] = 'default.jpg';
         }
 
-
-        $sql = "SELECT * FROM usuarios WHERE run = :run AND nick = :nick AND nombre = :nombre AND apellido = :apellido 
+        $sql = 'SELECT * FROM usuarios WHERE run = :run AND nick = :nick AND nombre = :nombre AND apellido = :apellido 
         AND direccion = :direccion AND telefono = :telefono AND estado_civil = :estado_civil AND afp = :afp
-        AND aporte = :aporte AND sueldo = :sueldo AND rol_id = :rol_id AND foto = :foto";
+        AND aporte = :aporte AND sueldo = :sueldo AND rol_id = :rol_id AND foto = :foto';
         $params = [
             'run' => $usuario['run'],
             'nick' => $usuario['nick'],
@@ -109,12 +111,12 @@ class usuarioModel extends query
         ];
         $existe = $this->select($sql, $params);
         if (!empty($existe)) {
-            return "existe";
+            return 'existe';
         }
 
-        $sql = "UPDATE usuarios SET run = :run, nick = :nick, nombre = :nombre, apellido = :apellido,
+        $sql = 'UPDATE usuarios SET run = :run, nick = :nick, nombre = :nombre, apellido = :apellido,
         direccion = :direccion, telefono = :telefono, estado_civil = :estado_civil, afp = :afp,
-        aporte = :aporte, sueldo = :sueldo, rol_id = :rol_id, foto = :foto, fecha_mod = now() WHERE id_usuario = :id_usuario";
+        aporte = :aporte, sueldo = :sueldo, rol_id = :rol_id, foto = :foto, fecha_mod = now() WHERE id_usuario = :id_usuario';
 
         $params = [
             ':run' => $usuario['run'],
@@ -131,27 +133,28 @@ class usuarioModel extends query
             ':foto' => $usuario['foto'],
             ':id_usuario' => $usuario['id_usuario']
         ];
-        
+
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? "ok" : "error";
+            return $result == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log("usuarioModel::updateUsuario() -> " . $e);
+            error_log('usuarioModel::updateUsuario() -> ' . $e);
             return response::estado500();
         }
     }
-    public function deleteUsuario(int $id)
+
+    public function deleteUsuario(int $id_usuario)
     {
-        $sql = "UPDATE usuarios SET estado = 0, fecha_baja = now() WHERE id_usuario = :id";
-        $params = [':id' => $id];
+        $sql = 'UPDATE usuarios SET estado = 0, fecha_baja = now() WHERE id_usuario = :id_usuario';
+        $params = [':id_usuario' => $id_usuario];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data == 1 ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log('UsuarioModel::deleteUsuario() -> ' . $e);
             return response::estado500($e);
         }
     }
+
     public function getChicas()
     {
         $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chicas' AND L.estado = 1;";
@@ -163,4 +166,15 @@ class usuarioModel extends query
         }
     }
 
+    public function highUsuario(int $id_usuario)
+    {
+        $sql = 'UPDATE usuarios SET estado = 1 , fecha_mod = now() WHERE id_usuario = :id_usuario';
+        $params = [':id_usuario' => $id_usuario];
+        try {
+            $data = $this->save($sql, $params);
+            return $data == 1 ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

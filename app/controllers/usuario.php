@@ -54,7 +54,7 @@ class usuario extends controller
 
             if (!$usuarios) {
                 $usuarios = $this->model->getUsuarios();
-                cache::set($cacheKey, $usuarios, 600);
+                cache::set($cacheKey, $usuarios, 0);
             }
 
             if (empty($usuarios)) {
@@ -169,7 +169,7 @@ class usuario extends controller
                 return $this->response(Response::estado409('El usuario ya existe'));
             }
 
-            return $this->response(Response::estado500());
+            return $this->response(Response::estado500('No se pudo crear el usuario'));
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }
@@ -255,6 +255,22 @@ class usuario extends controller
                 return $this->response(response::estado204());
             }
             return $this->response(response::estado200($res));
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
+
+    public function highUsuario(int $id){
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $res = $this->model->highUsuario($id); 
+            if ($res === 'ok') {
+                return $this->response(response::estado200('Usuario activado correctamente'));
+            }
+            return $this->response(response::estado500('No se pudo activar el usuario'));
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }

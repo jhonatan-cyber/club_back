@@ -231,6 +231,7 @@ function enterKey() {
     }
   });
 }
+
 function Musuario(e) {
   e.preventDefault();
   document.getElementById("id_usuario").value = "";
@@ -288,15 +289,34 @@ async function getUsuarios() {
           { data: "direccion" },
           { data: "telefono" },
           { data: "rol" },
+          { data: null,
+            render: (data, type, row) => {
+              if (row.estado === 1) {
+                return `<span class="badge badge-sm badge-success">Activo</span>`;
+              } else {
+                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
+              }
+            }
+           },
           {
             data: null,
-            render: (data, type, row) => `
-                        <button title="Editar usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="getUsuario('${row.id_usuario}')">
+            render: (data, type, row) =>{
+
+
+              if (row.estado === 1) {
+                return `<button title="Editar usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="getUsuario('${row.id_usuario}')">
                           <i class="fas fa-edit"></i>
                         </button>
                         <button title="Eliminar usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="deleteUsuario('${row.id_usuario}')">
                           <i class="fas fa-trash"></i>
-                        </button>`,
+                        </button>`;
+              } else {
+                return `<button title="Activar Usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="highUsuario('${row.id_usuario}')">
+                                <i class="fa-solid fa-check-to-slot"></i>
+                            </button>`;
+              }
+
+            },
           },
         ],
       });
@@ -334,7 +354,7 @@ async function deleteUsuario(id) {
       const resp = await axios.get(url, config);
       const data = resp.data;
       if (data.estado === "ok" && data.codigo === 201) {
-        toast("Usuario eliminado correctamente", "info");
+        toast("Usuario eliminado correctamente", "success");
         getUsuarios();
       }
     } catch (error) {
@@ -642,5 +662,43 @@ function validarDatos(
   ) {
     toast("Seleccione un rol", "info");
     return;
+  }
+}
+
+async function highUsuario(id){
+  const result = await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: "¿Está seguro de activar el usuario ?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Si, activar",
+    cancelButtonText: "No, cancelar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container"
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
+  if (result.isConfirmed) {
+    const url = `${BASE_URL}highUsuario/${id}`;
+    try {
+      const resp = await axios.get(url, config);
+      const data = resp.data;
+      if (data.estado === "ok" && data.codigo === 200) {
+        toast("Usuario activado correctamente", "success");
+        getUsuarios();
+      }
+    } catch (error) {
+      resultado = error.response.data;
+      if (resultado.codigo === 500 && resultado.estado === "error") {
+        return toast("Error al activar el usuario, intente nuevamente", "info");
+      }
+    }
   }
 }

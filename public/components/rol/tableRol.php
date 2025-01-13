@@ -5,6 +5,7 @@
                 <tr class="text-center text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                     <th>#</th>
                     <th>Nombre</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

@@ -61,13 +61,13 @@ class login extends controller
         try {
             $res = $this->model->login($data);
 
-            if ($res['estado'] == 'error') {
-                return $this->response(response::estado400());
+            if ($res['estado'] === 'error') {
+                return $this->response(response::estado500('No se pudo iniciar sesion'));
             }
 
             if ($res['estado'] === 'ok') {
                 if ($res['data']['estado'] === 0) {
-                    return $this->response(response::estado400('El usuario no esta activo'));
+                    return $this->response(response::estado400('El usuario no esta activo, contacte al administrador'));
                 }
 
                 $_SESSION['id_usuario'] = $res['data']['id_usuario'];
@@ -110,24 +110,22 @@ class login extends controller
         guard::validateToken($this->header, guard::secretKey());
         $token = guard::getDataJwt();
 
-        $token = json_encode($token);  
-        $datosToken = json_decode($token, true);  
-        $tokenData = $datosToken['token']; 
-        $usuario_id = $tokenData['id_usuario']; 
+        $token = json_encode($token);
+        $datosToken = json_decode($token, true);
+        $tokenData = $datosToken['token'];
+        $usuario_id = $tokenData['id_usuario'];
 
         try {
-             $validadacion = $this->model->validarCodigo($codigo); 
+            $validadacion = $this->model->validarCodigo($codigo);
 
-             if (empty($validadacion)) {
+            if (empty($validadacion)) {
                 return $this->response(response::estado204('No se pudo validar el código'));
             }
-
 
             if (!isset($usuario_id)) {
                 return $this->response(response::estado401('Sesión no iniciada'));
             }
 
-           
             if (empty($_SESSION['activo'])) {
                 $login = $this->model->createLogin($usuario_id);
 
@@ -160,7 +158,7 @@ class login extends controller
             }
             if ($asistencia === 'ok') {
                 return $this->response(response::estado200('Codigo validado y asistencia registrada'));
-            }  
+            }
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }
@@ -171,15 +169,23 @@ class login extends controller
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
+
         guard::validateToken($this->header, guard::secretKey());
 
-        if (session_status() === PHP_SESSION_ACTIVE) {
+        if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['id_usuario'])) {
             $this->model->updateLogin($_SESSION['id_usuario']);
+            $_SESSION = [];
+
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000,
+                    $params['path'], $params['domain'],
+                    $params['secure'], $params['httponly']);
+            }
+
             session_destroy();
-        } else {
-            $this->model->updateLogin($_SESSION['id_usuario']);
         }
 
-        return $this->response(response::estado200('ok'));
+        return $this->response(response::estado200('Sesión cerrada correctamente'));
     }
 }

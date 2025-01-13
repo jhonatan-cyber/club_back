@@ -25,7 +25,7 @@ class loginModel extends query
 
         $sql = 'SELECT U.id_usuario, U.run, U.nombre, U.apellido, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
                 FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol 
-                WHERE U.correo = :correo AND U.estado = 1 LIMIT 1';
+                WHERE U.correo = :correo LIMIT 1';
         $params = [':correo' => $usuario['correo']];
         $password = $usuario['password'];
 
@@ -75,7 +75,7 @@ class loginModel extends query
             if (!empty($result)) {
                 return 'existe';
             } else {
-                $sql = 'INSERT INTO asistencia (usuario_id, fercha_asistencia) VALUES (:usuario_id, CURDATE())';
+                $sql = 'INSERT INTO asistencia (usuario_id, hora_asistencia, fercha_asistencia) VALUES (:usuario_id, CURTIME(), CURDATE())';
                 $params = [
                     ':usuario_id' => $usuario_id
                 ];

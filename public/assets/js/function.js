@@ -3,41 +3,59 @@ let themeMode;
 const MAX_PIEZAS = 50;
 document.addEventListener("DOMContentLoaded", async () => {
   ajustes();
-  window.addEventListener("resize", () => {
-    ajustes();
-  });
+  window.addEventListener("resize", ajustes);
   verificarTemporizadorActivo();
   usuarioAvatar();
+
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   getCajas();
-  if (usuario.rol === "Administrador" || usuario.rol === "Cajero") {
+
+  if (
+    usuario &&
+    (usuario.rol === "Administrador" || usuario.rol === "Cajero")
+  ) {
     getPedidosTotal();
   }
 
   getToken();
-  setInterval(getToken, 10000);
+  setInterval(getToken, 7200000);
 });
+
 async function getToken() {
   const url = `${BASE_URL}tokenVerify`;
   const token = localStorage.getItem("token");
 
+  if (!token) {
+    console.warn("No hay token almacenado.");
+    return;
+  }
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
   try {
     const resp = await axios.post(url, {}, config);
     const data = resp.data;
+
     if (data.estado === "ok" && data.codigo === 200) {
       if (data.data.newToken && data.data.tokenRefreshed === true) {
-        localStorage.removeItem("token");
         localStorage.setItem("token", data.data.newToken);
         config.headers.Authorization = `Bearer ${data.data.newToken}`;
-        console.log("Token renovado");
       }
-      console.log(data);
     }
   } catch (error) {
     console.error(
       "Error al verificar el token:",
       error.response?.data || error.message
     );
+
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      localStorage.removeItem("token");
+      window.location.href = `${BASE_URL}`;
+    }
   }
 }
 
@@ -90,6 +108,7 @@ const LENGUAJE = {
     sSortDescending: ": Activar para ordenar la columna de manera descendente",
   },
 };
+
 function capitalizarPalabras(texto) {
   return texto
     .split(" ")
