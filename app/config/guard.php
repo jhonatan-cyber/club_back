@@ -54,13 +54,16 @@ class guard
 
     public static function validateToken(array $token, string $key, bool $autoRefresh = true)
     {
-        if (!isset($token['Authorization']) || !str_starts_with($token['Authorization'], 'Bearer ')) {
-            throw new Exception('Token de acceso no proporcionado', 400);
+        $authorizationHeader = null;
+        foreach ($token as $headerKey => $headerValue) {
+            if (strtolower($headerKey) === 'authorization') {
+                $authorizationHeader = trim($headerValue);
+                break;
+            }
         }
 
-        $authorizationHeader = trim($token['Authorization']);
-        if (!preg_match('/^Bearer\s+(\S+)$/', $authorizationHeader, $matches)) {
-            throw new Exception('Formato de token incorrecto', 400);
+        if (!$authorizationHeader || !preg_match('/^Bearer\s+(\S+)$/i', $authorizationHeader, $matches)) {
+            throw new Exception('Token de acceso no proporcionado o formato incorrecto', 400);
         }
 
         $jwt = $matches[1];
@@ -69,11 +72,7 @@ class guard
             $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
             self::$jwt_data = $decoded;
 
-            if (
-                $autoRefresh &&
-                (isset($decoded->exp) &&
-                    ($decoded->exp - time()) < 60)
-            ) {
+            if ($autoRefresh && isset($decoded->exp) && ($decoded->exp - time()) < 60) {
                 $refreshedToken = self::refreshToken(['Authorization' => 'Bearer ' . $jwt], $key);
                 if ($refreshedToken) {
                     header('X-Refresh-Token: ' . $refreshedToken['token']);
@@ -83,36 +82,43 @@ class guard
                         'data' => $refreshedToken['data'],
                         'message' => 'Token refrescado correctamente',
                     ];
-                } else {
-                    throw new Exception('No se pudo refrescar el token');
                 }
+                throw new Exception('No se pudo refrescar el token');
             }
+
             return [
                 'token' => $jwt,
                 'data' => $decoded,
             ];
         } catch (Exception $e) {
-            error_log('Token inválido' . $e->getMessage());
             throw new Exception('Token inválido', 401);
         }
     }
 
     public static function refreshToken(array $token, string $key)
     {
-        try {
-            $jwt = explode(' ', $token['Authorization']);
-            if (count($jwt) < 2) {
-                throw new Exception('Formato de token incorrecto', 400);
+        $authorizationHeader = null;
+        foreach ($token as $headerKey => $headerValue) {
+            if (strtolower($headerKey) === 'authorization') {
+                $authorizationHeader = trim($headerValue);
+                break;
             }
+        }
 
-            $decoded = JWT::decode($jwt[1], new Key($key, 'HS256'));
+        if (!$authorizationHeader || !preg_match('/^Bearer\s+(\S+)$/i', $authorizationHeader, $matches)) {
+            throw new Exception('Token de acceso no proporcionado o formato incorrecto', 400);
+        }
+
+        $jwt = $matches[1];
+
+        try {
+            $decoded = JWT::decode($jwt, new Key($key, 'HS256'));
 
             if (isset($decoded->exp) && $decoded->exp < time()) {
                 throw new Exception('El token ya expiró, no se puede refrescar', 401);
             }
 
             $originalData = $decoded->data;
-
             $newToken = self::createToken($key, (array) $originalData);
 
             if (!$newToken) {
@@ -125,7 +131,6 @@ class guard
                 'message' => 'Token refrescado correctamente',
             ];
         } catch (Exception $e) {
-            error_log('Error al refrescar token: ' . $e->getMessage());
             throw new Exception('Error al refrescar token', 500);
         }
     }

@@ -13,8 +13,6 @@ use Exception;
 class cuenta extends controller
 {
     private $model;
-    private static $valdiate_number = '/^[0-9]+$/';
-
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
