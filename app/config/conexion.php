@@ -1,12 +1,10 @@
 <?php
-
 namespace app\config;
 
 use PDO;
 use PDOException;
 use Exception;
 use Dotenv\Dotenv;
-
 
 class conexion
 {
@@ -32,7 +30,7 @@ class conexion
 
     private function validarVariablesEntorno()
     {
-        $requiredEnvVars = ['HOST', 'DB', 'DB_USER', 'CHARSET'];
+        $requiredEnvVars = ['HOST', 'DB', 'DB_USER', 'CHARSET', 'APP_ENV']; 
         foreach ($requiredEnvVars as $envVar) {
             if (empty($_ENV[$envVar])) {
                 $this->manejarError("La variable de entorno $envVar no está definida o está vacía.");
@@ -45,7 +43,13 @@ class conexion
             'USER' => $_ENV['DB_USER'],
             'PASSWORD' => $_ENV['PASSWORD'] ?? '', 
             'CHARSET' => $_ENV['CHARSET'],
+            'APP_ENV' => $_ENV['APP_ENV'], 
         ];
+
+
+        if ($this->data['APP_ENV'] === 'production' && empty($this->data['PASSWORD'])) {
+            $this->manejarError('La contraseña de la base de datos es requerida en el entorno de producción.');
+        }
     }
 
     private function establecerConexion()
@@ -55,11 +59,15 @@ class conexion
 
         try {
             if (!$this->conexion instanceof PDO) {
-                $this->conexion = new PDO($dsn, $this->data['USER'], $this->data['PASSWORD'], $opt);
+   
+                if ($this->data['APP_ENV'] === 'development') {
+                    $this->conexion = new PDO($dsn, $this->data['USER'], '', $opt);
+                } else {
+                    $this->conexion = new PDO($dsn, $this->data['USER'], $this->data['PASSWORD'], $opt);
+                }
                 $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             }
         } catch (PDOException $e) {
-            error_log('Error en la conexión: ' . $e->getMessage());
             $this->manejarError('Error al intentar conectarse a la base de datos.');
         }
     }
