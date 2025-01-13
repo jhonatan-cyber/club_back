@@ -1,23 +1,24 @@
 {
-    "require": {
-        "firebase/php-jwt": "^6.10",
-        "vlucas/phpdotenv": "^5.6",
-        "bramus/router": "~1.6",
-        "cboden/ratchet": "^0.4.4",
-        "workerman/workerman": "^4.2"
-    },
-    "autoload": {
-        "psr-4": {
-            "app\\": "app/"
-        }
-    },
-    "config": {
-        "optimize-autoloader": true
-    },
-    "authors": [
-        {
-            "name": "jhonatan-cyber",
-            "email": "jhonatanancasi@gmail.com"
-        }
-    ]
+  "require": {
+    "php": "^8.2",
+    "firebase/php-jwt": "^6.10",
+    "vlucas/phpdotenv": "^5.6",
+    "bramus/router": "~1.6",
+    "cboden/ratchet": "^0.4.4",
+    "workerman/workerman": "^4.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "app\\": "app/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  },
+  "authors": [
+    {
+      "name": "jhonatan-cyber",
+      "email": "jhonatanancasi@gmail.com"
+    }
+  ]
 }
