@@ -137,14 +137,24 @@ class guard
 
     public static function checkTokenStatus(array $token, string $key)
     {
-        if (!isset($token['Authorization']) || !str_starts_with($token['Authorization'], 'Bearer ')) {
+        $authorizationHeader = null;
+
+        foreach ($token as $headerKey => $headerValue) {
+            if (strtolower($headerKey) === 'authorization') {
+                $authorizationHeader = trim($headerValue);
+                break;
+            }
+        }
+
+        if (!$authorizationHeader || !str_starts_with(strtolower($authorizationHeader), 'bearer ')) {
             return [
                 'status' => false,
-                'message' => 'Token de acceso no proporcionado'
+                'message' => 'Token de acceso no proporcionado o formato incorrecto'
             ];
         }
+
         try {
-            $jwt = explode(' ', $token['Authorization']);
+            $jwt = explode(' ', $authorizationHeader);
 
             if (count($jwt) < 2) {
                 return [
@@ -163,6 +173,7 @@ class guard
                 'tokenRefreshed' => false,
                 'newToken' => null
             ];
+
             if ($timeLeft < 60) {
                 $refreshedToken = self::refreshToken(['Authorization' => 'Bearer ' . $jwt[1]], $key);
                 if ($refreshedToken) {
@@ -172,6 +183,7 @@ class guard
                     throw new Exception('No se pudo refrescar el token');
                 }
             }
+
             return $response;
         } catch (Exception $e) {
             return [
