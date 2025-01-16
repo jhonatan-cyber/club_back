@@ -204,7 +204,7 @@
                                 href="<?php echo BASE_URL ?>propinas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
                                 <span class="menu-icon">
-                                <i class="fa-solid fa-coins"></i>
+                                <i class="fa-solid fa-dollar-sign"></i>
                                 </span>
                                 <span class="menu-title">Propinas</span>
                             </a>

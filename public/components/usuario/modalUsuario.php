@@ -52,7 +52,6 @@
                                         id="apellido" name="apellido" placeholder="Apellidos" />
                                 </div>
                                
-
                             </div>
                             <div class="col-5 mt-12">
                                 <small class="text-gray-700 d-block text-center m-1"><b>Foto</b></small>

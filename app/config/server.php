@@ -19,7 +19,7 @@ try {
             )
         ),
         $port,
-        '0.0.0.0'  // Esto permite conexiones desde cualquier IP
+        '0.0.0.0'
     );
 
     echo "Servidor WebSocket iniciado en el puerto {$port}\n";

@@ -41,10 +41,10 @@ async function createCaja(e) {
   try {
     const response = await axios.post(url, datos, config);
     const data = response.data;
-    console.log(data);
     if (data.estado === "ok" && data.codigo === 201) {
-      toast("Caja abierta correctamente", "success");
       $("#ModalApertura").modal("hide");
+      getCajas();
+      return toast("Caja abierta correctamente", "success");
     }
   } catch (error) {
     resultado = error.response.data;
@@ -53,8 +53,6 @@ async function createCaja(e) {
     }
   }
 }
-
-
 
 async function cerrarCaja(id) {
   const result = await Swal.fire({
@@ -82,12 +80,12 @@ async function cerrarCaja(id) {
       const resp = await axios.get(url, config);
       const data = resp.data;
       if (data.estado === "ok" && data.codigo === 201) {
-        toast("Caja cerrada correctamente", "success");
         getCajas();
+        return toast("Caja cerrada correctamente", "success");
       }
     } catch (error) {
-      resultado = error.response.data;
-      if (resultado.codigo === 500 && resultado.estado === "error") {
+      result = error.response.data;
+      if (result.codigo === 500 && result.estado === "error") {
         return toast("Error al cerrar la caja, intente nuevamente", "warning");
       }
     }

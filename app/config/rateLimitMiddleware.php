@@ -70,8 +70,8 @@ class rateLimitMiddleware {
     private function getMaxAttemptsByRoute($route) {
         $sensitiveRoutes = [
             '/login' => 5,         
-            '/register' => 5,   
-            '/reset-password' => 3 
+/*             '/register' => 5,   
+            '/reset-password' => 3 */ 
         ];
         
         foreach ($sensitiveRoutes as $pattern => $limit) {

@@ -20,14 +20,13 @@
                         <small class="text-gray-700 d-block m-1"><b>Nombre del Rol</b></small>
                         <div class="input-group input-group-solid mb-3">
                             <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-address-card"></i></span>
-                            <input type="text" class="form-control form-control-sm form-control-solid" id="nombre_r" name="nombre_r" placeholder="Nombre del Rol" aria-label="nombre" aria-describedby="basic-addon1" />
+                            <input type="text" class="form-control form-control-sm form-control-solid" id="nombre"  placeholder="Nombre del Rol" />
                         </div>
                     </div>
                 </div>
                 <div class="row text-center">
                     <div class="col-6 text-center"><button type="button" class="btn btn-light-dark btn-sm hover-elevate-up" onclick="createRol(event)"><i class="fa fa-save"></i> Guardar</button></div>
                     <div class="col-6 text-center"><button type="button" class="btn btn-light-dark btn-sm hover-elevate-up" data-bs-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button></div>
-
                 </div>
             </form>
             <br>

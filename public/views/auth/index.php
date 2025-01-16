@@ -15,6 +15,7 @@
     <style>
         img {
             image-rendering: crisp-edges;
+            filter: contrast(110%);
             -webkit-filter: contrast(110%);
         }
     </style>

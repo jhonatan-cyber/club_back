@@ -16,9 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   ) {
     getPedidosTotal();
   }
-
   getToken();
-  setInterval(getToken, 7200000);
 });
 
 async function getToken() {
@@ -26,7 +24,8 @@ async function getToken() {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    console.warn("No hay token almacenado.");
+    localStorage.clear();
+    window.location.href = `${BASE_URL}`;
     return;
   }
 
@@ -39,7 +38,6 @@ async function getToken() {
   try {
     const resp = await axios.post(url, {}, config);
     const data = resp.data;
-
     if (data.estado === "ok" && data.codigo === 200) {
       if (data.data.newToken && data.data.tokenRefreshed === true) {
         localStorage.setItem("token", data.data.newToken);
@@ -52,8 +50,12 @@ async function getToken() {
       error.response?.data || error.message
     );
 
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem("token");
+    if (
+      error.response?.status === 401 ||
+      error.response?.status === 403 ||
+      error.response?.status === 500
+    ) {
+      localStorage.clear();
       window.location.href = `${BASE_URL}`;
     }
   }
@@ -76,6 +78,7 @@ if (document.documentElement) {
   }
   document.documentElement.setAttribute("data-bs-theme", themeMode);
 }
+
 const TOKEN = localStorage.getItem("token");
 const DISPLAY_LENGTH = 5;
 const config = {
@@ -146,6 +149,7 @@ function formatNumber(num) {
 
 const boton = document.getElementById("mod");
 const modo_movil = document.querySelectorAll(".mobile-hide");
+
 function ajustes() {
   if (boton) {
     if (window.innerWidth >= 900) {
@@ -177,6 +181,7 @@ function mostrarPassword(idInput, idIcono) {
     icono.classList.add("fa-eye");
   }
 }
+
 function preview(event) {
   const input = event.target;
   if (!input.files || !input.files[0]) {
@@ -404,6 +409,7 @@ async function showTiempoTerminadoAlert(nombrePieza, mensajeAdicional = "") {
     color: "var(--bs-body-color)",
   });
 }
+
 function generarCodigoAleatorio(length) {
   const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   return Array.from({ length }, () =>
@@ -420,15 +426,15 @@ async function getCajas() {
     if (data.estado !== "ok" && data.codigo !== 200) {
       if (document.getElementById("btn_nuevo_caja")) {
         document.getElementById("btn_nuevo_caja").hidden = false;
+        toast("No se encontraron cajas registradas", "info");
       }
 
       if (document.getElementById("btn_nuevo_venta")) {
         document.getElementById("btn_nuevo_venta").hidden = true;
       }
-
-      return;
+      return 
     }
-
+    
     if (data.estado === "ok" && data.codigo === 200) {
       const cajas = Array.isArray(data.data) ? data.data : [data.data];
 
@@ -503,6 +509,10 @@ async function getCajas() {
       }
     }
   } catch (error) {
-    console.error("Error al obtener cajas:", error);
+    result = error.response.data;
+    if (result.codigo === 500 && result.estado === "error") {
+      return  toast("Error al obtener cajas, intente nuevamente", "warning");
+    }
+   
   }
 }

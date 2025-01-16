@@ -52,10 +52,10 @@ async function getClientes() {
                           <button title="Eliminar cliente" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_cliente}" onclick="deleteCliente('${row.id_cliente}')">
                             <i class="fas fa-trash"></i>
                           </button>`;
-              }else{
+              } else {
                 return `<button title="Activar cliente" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_cliente}" onclick="highCliente('${row.id_cliente}')">
                             <i class="fa-solid fa-check-to-slot"></i>
-                          </button>`
+                          </button>`;
               }
             },
           },
@@ -65,7 +65,10 @@ async function getClientes() {
       toast("No se encontraron clientes registrados", "info");
     }
   } catch (error) {
-    console.log(error);
+    result = error.response.data;
+    if (result.codigo === 500 && result.estado === "error") {
+      return toast("Error al obtener los clientes, intente nuevamente", "warning");
+    }
   }
 }
 
@@ -74,7 +77,6 @@ function Mcliente(e) {
   document.getElementById("id_cliente").value = "";
   document.getElementById("tituloCliente").innerHTML = "Nuevo cliente";
   document.getElementById("frmCliente").reset();
-
   $("#Modalcliente").modal("show");
   $("#Modalcliente").on("shown.bs.modal", () => {
     document.getElementById("run").focus();
@@ -88,20 +90,7 @@ async function createCliente(e) {
   const nombre = document.getElementById("nombre_cl").value;
   const apellido = document.getElementById("apellido_cl").value;
   const telefono = document.getElementById("telefono_cl").value;
-
-  if (!run) {
-    return toast("El documento del cliente es obligatorio", "info");
-  }
-  if (!nombre) {
-    return toast("El nombre del cliente es obligatorio", "info");
-  }
-  if (!apellido) {
-    return toast("El apellido del cliente es obligatorio", "info");
-  }
-  if (!telefono) {
-    return toast("El teléfono del cliente es obligatorio", "info");
-  }
-
+  validations(run, nombre, apellido, telefono);
   try {
     const data = {
       run: run,
@@ -113,7 +102,6 @@ async function createCliente(e) {
     const url = `${BASE_URL}createCliente`;
     const resp = await axios.post(url, data, config);
     const result = resp.data;
-    console.log(result);
     if (result.estado === "ok" && result.codigo === 201) {
       $("#Modalcliente").modal("hide");
       getClientes();
@@ -124,7 +112,7 @@ async function createCliente(e) {
       const resultado = error.response.data;
 
       if (resultado.codigo === 409 && resultado.estado === "error") {
-        return toast("El cliente ingresado ya existe", "info");
+        return toast("El cliente ingresado ya existe", "warning");
       }
 
       if (resultado.codigo === 500 && resultado.estado === "error") {
@@ -134,8 +122,7 @@ async function createCliente(e) {
         );
       }
     } else {
-      console.error(error);
-      return toast("Error inesperado, por favor intente nuevamente", "error");
+      return toast("Error inesperado, por favor intente nuevamente", "warning");
     }
   }
 }
@@ -150,7 +137,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (run.value === "") {
-        return toast("El documento del cliente es obligatorio", "info");
+       validations();
         run.focus();
         return;
       }
@@ -163,7 +150,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (nombre.value === "") {
-        toast("El nombre del cliente es obligatorio", "info");
+        validations(run);
         nombre.focus();
         return;
       }
@@ -176,7 +163,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (apellido.value === "") {
-        toast("El apellido del cliente es obligatorio", "info");
+        validations(run,nombre);
         apellido.focus();
         return;
       }
@@ -189,7 +176,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (telefono.value === "") {
-        toast("El telefono del cliente es obligatorio", "info");
+        validations(run,nombre,apellido);
         telefono.focus();
         return;
       }
@@ -213,7 +200,13 @@ async function getCliente(id) {
       $("#Modalcliente").modal("show");
     }
   } catch (error) {
-    console.log(error);
+    result = error.response.data;
+    if (result.codigo === 500 && result.estado === "error") {
+      return toast(
+        "Error al obtener el cliente, intente nuevamente",
+        "warning"
+      );
+    }
   }
 }
 
@@ -243,12 +236,12 @@ async function deleteCliente(id) {
       const resp = await axios.get(url, config);
       const data = resp.data;
       if (data.estado === "ok" && data.codigo === 200) {
-        toast("Cliente eliminado correctamente", "success");
         getClientes();
+        toast("Cliente eliminado correctamente", "success");
       }
     } catch (error) {
-      resultado = error.response.data;
-      if (resultado.codigo === 500 && resultado.estado === "error") {
+      result = error.response.data;
+      if (result.codigo === 500 && result.estado === "error") {
         return toast(
           "Error al eliminar el cliente, intente nuevamente",
           "warning"
@@ -288,7 +281,28 @@ async function highCliente(id) {
         getClientes();
       }
     } catch (error) {
-      console.log(error);
+      result = error.response.data;
+      if (result.codigo === 500 && result.estado === "error") {
+        return toast(
+          "Error al activar el cliente, intente nuevamente",
+          "warning"
+        );
+      }
     }
+  }
+}
+
+function validations(run, nombre, apellido, telefono) {
+  if (!run) {
+    return toast("El documento del cliente es obligatorio", "info");
+  }
+  if (!nombre) {
+    return toast("El nombre del cliente es obligatorio", "info");
+  }
+  if (!apellido) {
+    return toast("El apellido del cliente es obligatorio", "info");
+  }
+  if (!telefono) {
+    return toast("El teléfono del cliente es obligatorio", "info");
   }
 }

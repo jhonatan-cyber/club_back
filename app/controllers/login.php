@@ -97,6 +97,7 @@ class login extends controller
                 }
             }
         } catch (Exception $e) {
+            $_SESSION=[];
             return $this->response(response::estado500($e));
         }
     }
@@ -154,12 +155,14 @@ class login extends controller
                 return $this->response(response::estado200('Ya registraste tu asistencia hoy'));
             }
             if ($asistencia === 'error') {
+                $_SESSION=[];
                 return $this->response(response::estado500('No se pudo crear la asistencia'));
             }
             if ($asistencia === 'ok') {
                 return $this->response(response::estado200('Codigo validado y asistencia registrada'));
             }
         } catch (Exception $e) {
+            $_SESSION=[];
             return $this->response(response::estado500($e));
         }
     }

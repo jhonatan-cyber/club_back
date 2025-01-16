@@ -20,7 +20,6 @@
 <script src="<?php echo BASE_URL ?>public/assets/js/plugins.bundle.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/scripts.bundle.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/datatables.bundle.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/vis-timeline.bundle.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/jquery.dataTables.min.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/dataTables.bootstrap4.min.js"></script>
 <script src="<?php echo BASE_URL ?>public/assets/js/dataTables.responsive.min.js"></script>

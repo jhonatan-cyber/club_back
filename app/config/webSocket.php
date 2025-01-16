@@ -17,7 +17,6 @@ class websocket implements MessageComponentInterface
         $this->messageFile = __DIR__ . '/../../tmp/websocket_message.txt';
         echo "Servidor WebSocket iniciado\n";
 
-        // Crear directorio tmp si no existe
         if (!file_exists(__DIR__ . '/../../tmp')) {
             mkdir(__DIR__ . '/../../tmp', 0777, true);
         }
@@ -36,8 +35,6 @@ class websocket implements MessageComponentInterface
             if (!isset($data['tipo'])) {
                 throw new \Exception("Mensaje no válido");
             }
-
-            // Broadcast del mensaje a todos los clientes
             foreach ($this->clients as $client) {
                 $client->send($msg);
             }
@@ -50,7 +47,6 @@ class websocket implements MessageComponentInterface
             ]));
         }
 
-        // Verificar si hay mensajes nuevos
         $this->checkNewMessages();
     }
 
@@ -76,11 +72,9 @@ class websocket implements MessageComponentInterface
         if ($currentTime > $this->lastCheck) {
             $message = file_get_contents($this->messageFile);
             if ($message) {
-                // Broadcast el mensaje a todos los clientes
                 foreach ($this->clients as $client) {
                     $client->send($message);
                 }
-                // Limpiar el archivo
                 unlink($this->messageFile);
                 $this->lastCheck = time();
             }

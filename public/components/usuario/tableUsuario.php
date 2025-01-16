@@ -12,7 +12,7 @@
                     <th>Estado<br>Civil</th>
                     <th>Sueldo</th>
                     <th>Aporte</th>
-                    <th>Institucion<br>Aporte</th>
+                    <th>Institucion<br>de Aporte</th>
                     <th>Direccion</th>
                     <th>Telefono</th>
                     <th>Rol</th>

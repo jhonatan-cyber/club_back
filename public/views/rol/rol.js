@@ -2,15 +2,14 @@ let tbRol;
 
 document.addEventListener("DOMContentLoaded", () => {
   getRoles();
-  const nombre = document.getElementById("nombre_r");
-  document.getElementById("nombre_r").focus();
+  const nombre = document.getElementById("nombre");
+  document.getElementById("nombre").focus();
   nombre.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       if (nombre.value === "") {
-        toast("El nombre del rol es requerido", "info");
         nombre.focus();
-        return;
+        return toast("El nombre del rol es requerido", "info");
       }
       nombre.value = capitalizarPalabras(nombre.value);
       createRol(e);
@@ -25,7 +24,7 @@ function MRol(e) {
   document.getElementById("frmRol").reset();
   $("#ModalRol").modal("show");
   $("#ModalRol").on("shown.bs.modal", () => {
-    document.getElementById("nombre_r").focus();
+    document.getElementById("nombre").focus();
   });
 }
 
@@ -34,7 +33,9 @@ async function getRoles() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron roles registrados", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       tbRol = $("#tbRol").DataTable({
         data: data.data,
@@ -84,11 +85,12 @@ async function getRoles() {
           },
         ],
       });
-    } else {
-      return toast("No se encontraron datos", "info");
     }
   } catch (e) {
-    console.log(e);
+    result = error.response.data;
+    if (result.codigo === 500 && result.estado === "error") {
+      return toast("Error al obtener los roles, intente nuevamente", "warning");
+    }
   }
 }
 
@@ -97,27 +99,32 @@ async function getRol(id) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron datos del rol", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById("id_rol").value = data.data.id_rol;
-      document.getElementById("nombre_r").value = data.data.nombre;
+      document.getElementById("nombre").value = data.data.nombre;
       document.getElementById("tituloRol").innerHTML = "Editar Rol";
       $("#ModalRol").modal("show");
       $("#ModalRol").on("shown.bs.modal", () => {
-        document.getElementById("nombre_r").focus();
+        document.getElementById("nombre").focus();
       });
     }
   } catch (e) {
-    console.log(e);
+    result = error.response.data;
+    if (result.codigo === 500 && result.estado === "error") {
+      return toast("Error al obtener el rol, intente nuevamente", "warning");
+    }
   }
 }
 
 async function createRol(e) {
   e.preventDefault();
   const id_rol = document.getElementById("id_rol").value;
-  const nombre = document.getElementById("nombre_r").value;
-
+  const nombre = document.getElementById("nombre").value;
   if (!nombre) {
-    return toast("El nombre del rol es obligatorio", "warning");
+    return toast("El nombre del rol es requerido", "info");
   }
 
   try {
@@ -129,15 +136,13 @@ async function createRol(e) {
     const resp = await axios.post(url, data, config);
     const result = resp.data;
     if (result.estado === "ok" && result.codigo === 201) {
-      toast("Rol registrado correctamente", "success");
       $("#ModalRol").modal("hide");
       sendWebSocketMessage("rol", "createRol", data);
-
       getRoles();
+      return toast("Rol registrado correctamente", "success");
     }
   } catch (error) {
     resultado = error.response.data;
-    console.log(error);
     if (resultado.codigo === 409 && resultado.estado === "error") {
       return toast("El rol ingresado ya existe", "info");
     }
@@ -173,12 +178,10 @@ async function deleteRol(id) {
       const resp = await axios.get(url, config);
       const data = resp.data;
       if (data.estado === "ok" && data.codigo === 200) {
-        toast("Rol eliminado correctamente", "success");
-
-        // Notificar a través de WebSocket
         sendWebSocketMessage("rol", "eliminar", { id_rol: id });
-
         getRoles();
+
+        return toast("Rol eliminado correctamente", "success");
       }
     } catch (error) {
       resultado = error.response.data;
@@ -215,8 +218,8 @@ async function highRol(id) {
       const resp = await axios.get(url, config);
       const data = resp.data;
       if (data.estado === "ok" && data.codigo === 200) {
-        toast("Rol activado correctamente", "success");
         getRoles();
+        return toast("Rol activado correctamente", "success");
       }
     } catch (error) {
       resultado = error.response.data;
