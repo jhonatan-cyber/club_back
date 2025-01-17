@@ -1,4 +1,5 @@
 <?php
+namespace app\config;
 class layout
 {
     protected $title = 'Las Muñecas de Ramón';

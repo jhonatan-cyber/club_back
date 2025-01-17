@@ -5,7 +5,7 @@ namespace app\config;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
-class websocket implements MessageComponentInterface
+class webSocket implements MessageComponentInterface
 {
     protected $clients;
     private $messageFile;

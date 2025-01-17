@@ -6,11 +6,11 @@ header("Access-Control-Allow-Origin: *");
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
-use app\config\websocket;
+use app\config\webSocket;
 
 try {
     $port = 8888;
-    $websocket = new websocket();
+    $websocket = new webSocket();
     
     $server = IoServer::factory(
         new HttpServer(

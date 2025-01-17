@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\config\controller;
 use app\config\guard;
 use app\config\response;
-use app\Config\view;
+use app\config\view;
 use app\models\loginModel;
 use Exception;
 
