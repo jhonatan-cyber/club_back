@@ -1,7 +1,8 @@
 <?php
-require_once 'app/config/layout.php';
+use app\config\layout;
 
-layout()
+$Layout = (new layout())
+    ->layout()
     ->setTitle('Gestión de Ventas')
     ->setPageTitle('Ventas', 'fa-solid fa-store')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')

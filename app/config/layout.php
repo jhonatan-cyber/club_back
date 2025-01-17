@@ -2,6 +2,7 @@
 namespace app\config;
 class layout
 {
+    
     protected $title = 'Las Muñecas de Ramón';
     protected $styles = [];
     protected $scripts = [];
@@ -118,6 +119,10 @@ class layout
         </body>
         </html>
         <?php
+    }
+
+    public function layout(){
+        return $this;
     }
 }
 

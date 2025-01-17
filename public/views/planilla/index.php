@@ -1,7 +1,8 @@
 <?php
-require_once 'app/config/layout.php';
+use app\config\layout;
 
-layout()
+$Layout = (new layout())
+    ->layout()
     ->setTitle('Gestión de Planillas')
     ->setPageTitle('Planillas', 'fa-solid fa-calendar-check')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')

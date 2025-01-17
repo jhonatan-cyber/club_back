@@ -1,7 +1,8 @@
 <?php
-require_once 'app/config/layout.php';
+use app\config\layout;
 
-layout()
+$Layout = (new layout())
+    ->layout()
     ->setTitle('Gestión de Inicio')
     ->setPageTitle('Dashboard', 'fa-solid fa-house-crack')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')
@@ -77,6 +78,5 @@ layout()
     </div>
 
 <?php
-        include_once 'public/components/home/modalPlanilla.php';
     })
     ->render();

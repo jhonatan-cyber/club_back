@@ -1,7 +1,8 @@
 <?php
-require_once 'app/config/layout.php';
+use app\config\layout;
 
-layout()
+$Layout = (new layout())
+    ->layout()
     ->setTitle('Gestión de Habitaciones')
     ->setPageTitle('Habitaciones', 'fa-solid fa-house-user')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')

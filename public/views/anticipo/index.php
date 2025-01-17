@@ -1,7 +1,9 @@
 <?php
-require_once 'app/config/layout.php';
 
-layout()
+use app\config\layout;
+
+$Layout = (new layout())
+    ->layout()
     ->setTitle('Gestión de Anticipos')
     ->setPageTitle('Anticipos', 'fa-solid fa-money-bill-transfe')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')
