@@ -111,17 +111,19 @@ class rol extends controller
             } else {
                 $rol = $this->model->updateRol($this->data);
             }
-            switch ($rol) {
-                case 'ok':
-                    http_response_code(201);
-                    return $this->response(response::estado201());
-                case 'existe':
-                    http_response_code(409);
-                    return $this->response(response::estado409());
-                case 'error':
-                    http_response_code(500);
-                    return $this->response(response::estado500());
+
+            
+            if($rol ==='ok'){
+                return $this->response(response::estado201());
             }
+
+            if($rol === 'existe'){
+                return $this->response(response::estado409());
+            }
+
+            return $this->response(response::estado500('No se pudo crear el rol'));
+
+
         } catch (Exception $e) {
             http_response_code(500);
             return $this->response(response::estado500($e));

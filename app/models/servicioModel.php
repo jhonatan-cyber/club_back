@@ -38,7 +38,7 @@ class servicioModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -84,7 +84,7 @@ class servicioModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -139,7 +139,7 @@ class servicioModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
 
             return response::estado500($e);
@@ -147,20 +147,20 @@ class servicioModel extends query
     }
     public function updatePieza(int $id_pieza)
     {
-        $sqlSelect = "SELECT estado FROM piezas WHERE id_pieza = :id_pieza";
+        $sqlSelect = "SELECT estado FROM piezas WHERE id_pieza = :id_pieza AND estado IN (1,2)";
         $params = [
             ":id_pieza" => $id_pieza
         ];
         try {
             $currentEstado = $this->select($sqlSelect, $params);
-            $nuevoEstado = ($currentEstado['estado'] == 1) ? 0 : 1;
+            $nuevoEstado = 3 - $currentEstado['estado'];
             $sqlUpdate = "UPDATE piezas SET estado = :nuevo_estado WHERE id_pieza = :id_pieza";
             $paramsUpdate = [
                 ":nuevo_estado" => $nuevoEstado,
                 ":id_pieza" => $id_pieza
             ];
-            $resp = $this->save($sqlUpdate, $paramsUpdate);
-            return $resp == 1 ? "ok" : "error";
+            $result = $this->save($sqlUpdate, $paramsUpdate);
+            return $result === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -185,8 +185,8 @@ class servicioModel extends query
             ':total' => $data['total']
         ];
         try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? "ok" : "error";
+            $result = $this->save($sql, $params);
+            return $result === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -216,7 +216,7 @@ class servicioModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
 
             error_log("Error en createDetalleCuenta: " . $e->getMessage());
@@ -249,7 +249,7 @@ class servicioModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log($e->getMessage());
             return response::estado500($e);
@@ -273,7 +273,7 @@ class servicioModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log("Error en createComision: " . $e->getMessage());
             return response::estado500("Error al crear la comisión. Por favor, intenta de nuevo.");
@@ -299,7 +299,7 @@ class servicioModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log("Error en createDetalleServicio: " . $e->getMessage());
             return response::estado500("Error al crear el detalle del servicio. Por favor, intenta de nuevo.");
@@ -369,7 +369,7 @@ class servicioModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

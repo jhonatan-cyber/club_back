@@ -389,7 +389,7 @@ async function createUsuario(e) {
   const fotoInput = document.getElementById("foto");
   const foto = fotoInput.files[0];
   const imagen_anterior = document.getElementById("imagen_anterior");
-  validarDatos(
+  validateData(
     id_usuario,
     run,
     nick,
@@ -436,7 +436,6 @@ async function createUsuario(e) {
     });
 
     const data = resp.data;
-    console.log(data);
     if (data.estado === "ok" && data.codigo === 201) {
       toast("Usuario registrado correctamente", "info");
       $("#ModalUsuario").modal("hide");
@@ -533,7 +532,7 @@ async function getUsuario(id) {
   }
 }
 
-function validarDatos(
+function validateData(
   id_usuario,
   run,
   nick,

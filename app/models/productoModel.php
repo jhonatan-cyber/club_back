@@ -82,7 +82,7 @@ class productoModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log('ProductoModel::createProducto() -> ' . $e);
             return response::estado500($e);
@@ -126,7 +126,7 @@ class productoModel extends query
             ];
             try {
                 $resp = $this->save($sql, $params);
-                return $resp == 1 ? "ok" : "error";
+                return $resp === true ? "ok" : "error";
             } catch (Exception $e) {
                 error_log('ProductoModel::updateProducto() -> ' . $e);
                 return response::estado500($e);
@@ -142,7 +142,7 @@ class productoModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('ProductoModel::deleteProducto() -> ' . $e);
             return response::estado500($e);

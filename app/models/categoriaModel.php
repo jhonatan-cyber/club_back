@@ -50,7 +50,7 @@ class categoriaModel extends query
                     ':descripcion' => $categoria['descripcion'],
                 ];
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -77,7 +77,7 @@ class categoriaModel extends query
                     ':descripcion' => $categoria['descripcion'],
                 ];
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return Response::estado500($e);
             }
@@ -94,7 +94,7 @@ class categoriaModel extends query
         try {
             $this->save($sqlProductos, $params);
             $data = $this->save($sqlCategoria, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return Response::estado500($e);
         }
@@ -110,7 +110,7 @@ class categoriaModel extends query
         try {
             $this->save($sqlProductos, $params);
             $data = $this->save($sqlCategoria, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return Response::estado500($e);
         }

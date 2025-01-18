@@ -80,7 +80,7 @@ class loginModel extends query
                     ':usuario_id' => $usuario_id
                 ];
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             }
         } catch (Exception $e) {
             return response::estado500($e);
@@ -119,7 +119,7 @@ class loginModel extends query
             $sql = 'UPDATE logins SET estado = 1 WHERE usuario_id = :usuario_id AND estado = 0';
             try {
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -127,7 +127,7 @@ class loginModel extends query
             $sql = 'INSERT INTO logins (usuario_id) VALUES (:usuario_id)';
             try {
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -142,7 +142,7 @@ class loginModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

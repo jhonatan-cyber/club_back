@@ -146,7 +146,7 @@ async function login(e) {
     });
 
     const result = await response.json();
-
+console.log(result);
     if (result.estado === "ok" && result.codigo === 200) {
       const token = desencriptarToken(result.data.token);
       const { id_usuario, run, nombre, apellido, rol, correo, foto } =

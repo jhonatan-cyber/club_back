@@ -55,7 +55,7 @@ class clienteModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? "ok" : "error";
+            return $result === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500();
         }
@@ -88,7 +88,7 @@ class clienteModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? "ok" : "error";
+            return $result === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500();
         }
@@ -99,7 +99,7 @@ class clienteModel extends query
         $params = [':id_cliente' => $id];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? "ok" : "error";
+            return $data === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log('clienteModel::deleteCliente() -> ' . $e);
             return response::estado500($e);
@@ -111,7 +111,7 @@ class clienteModel extends query
         $params = [':id_cliente' => $id_cliente];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

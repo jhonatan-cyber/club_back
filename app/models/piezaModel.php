@@ -24,11 +24,11 @@ class piezaModel extends query
 
     }
 
-    public function getPieza(int $id)
+    public function getPieza(int $id_pieza)
     {
-        $sql = "SELECT * FROM piezas WHERE id_pieza = :id";
+        $sql = "SELECT * FROM piezas WHERE id_pieza = :id_pieza";
         $params = [
-            ':id' => $id
+            ':id_pieza' => $id_pieza
         ];
         try {
             return $this->select($sql, $params);
@@ -56,7 +56,7 @@ class piezaModel extends query
             ];
             try {
                 $resp = $this->save($sql, $params);
-                return $resp == 1 ? "ok" : "error";
+                return $resp === true ? "ok" : "error";
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -75,7 +75,7 @@ class piezaModel extends query
         if (!empty($existe)) {
             return 'existe';
         } else {
-            $sql = "UPDATE piezas SET nombre = :nombre, precio = :precio, estado = :estado WHERE id_pieza = :id_pieza";
+            $sql = "UPDATE piezas SET nombre = :nombre, precio = :precio, estado = :estado WHERE id_pieza= :id_pieza";
             $params = [
                 ':nombre' => $data['nombre'],
                 ':precio' => $data['precio'],
@@ -84,7 +84,7 @@ class piezaModel extends query
             ];
             try {
                 $resp = $this->save($sql, $params);
-                return $resp == 1 ? "ok" : "error";
+                return $resp === true ? "ok" : "error";
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -92,20 +92,21 @@ class piezaModel extends query
 
     }
 
-    public function deletePieza(int $id)
+    public function deletePieza(int $id_pieza)
     {
 
-        $sql = "DELETE FROM piezas WHERE id_pieza = :id_pieza";
+        $sql = "UPDATE piezas SET estado = 0 ,fecha_mod = now() WHERE id_pieza = :id_pieza";
         $params = [
-            ":id_pieza" => $id,
+            ":id_pieza" => $id_pieza,
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
+
     public function getPiezasLibres()
     {
 
@@ -116,6 +117,16 @@ class piezaModel extends query
             return response::estado500($e);
         }
 
+    }
+    public function highPieza(int $id_pieza){
+        $sql = "UPDATE piezas SET estado = 1 , fecha_mod = now() WHERE id_pieza= :id_pieza";
+        $params = [':id_pieza' => $id_pieza];
+        try {
+            $data = $this->save($sql, $params);
+            return $data === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
     }
 
 }

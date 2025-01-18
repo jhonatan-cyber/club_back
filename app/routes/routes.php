@@ -127,6 +127,7 @@ $router->post('createPieza', [$pieza, 'createPieza']);
 $router->get('getPieza/(\d+)', [$pieza, 'getPieza']);
 $router->get('deletePieza/(\d+)', [$pieza, 'deletePieza']);
 $router->get('getPiezasLibres', [$pieza, 'getPiezasLibres']);
+$router->get('highPieza/(\d+)', [$pieza, 'highPieza']);
 
 /* Servicios */
 $router->get('servicios', [$servicio, 'index']);

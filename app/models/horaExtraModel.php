@@ -44,7 +44,7 @@ class horaExtraModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

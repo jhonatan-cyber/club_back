@@ -45,7 +45,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -72,7 +72,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -86,7 +86,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -100,7 +100,7 @@ class devolucionModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -127,7 +127,7 @@ class devolucionModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log($e->getMessage());
             return response::estado500($e);
@@ -182,7 +182,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -246,7 +246,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -262,7 +262,7 @@ class devolucionModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return $e->getMessage();
         }

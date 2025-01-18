@@ -73,7 +73,7 @@ class usuarioModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('usuarioModel::createUsuario() -> ' . $e);
             return response::estado500();
@@ -136,7 +136,7 @@ class usuarioModel extends query
 
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('usuarioModel::updateUsuario() -> ' . $e);
             return response::estado500();
@@ -149,7 +149,7 @@ class usuarioModel extends query
         $params = [':id_usuario' => $id_usuario];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -172,7 +172,7 @@ class usuarioModel extends query
         $params = [':id_usuario' => $id_usuario];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

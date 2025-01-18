@@ -47,8 +47,9 @@ async function createCaja(e) {
       return toast("Caja abierta correctamente", "success");
     }
   } catch (error) {
-    resultado = error.response.data;
-    if (resultado.codigo === 500 && resultado.estado === "error") {
+    result = error.response.data;
+    console.log(result)
+    if (result.codigo === 500 && result.estado === "error") {
       return toast("Error al abrir la caja", "error");
     }
   }

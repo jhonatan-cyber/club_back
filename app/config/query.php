@@ -59,7 +59,6 @@ class query extends conexion
             $stmt = $this->con->prepare($sql);
             $this->bindParams($stmt, $datos);
             $result = $stmt->execute();
-
             $this->con->commit();
             return $result;
         } catch (PDOException $e) {

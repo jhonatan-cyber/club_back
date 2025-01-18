@@ -44,7 +44,7 @@ class rolModel extends query
             try {
                 $sql = 'INSERT INTO roles (nombre) VALUES (:nombre)';
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return response::estado500($e);
             }
@@ -63,7 +63,7 @@ class rolModel extends query
             $params = [':nombre' => $rol['nombre'], ':id_rol' => $rol['id_rol']];
             try {
                 $data = $this->save($sql, $params);
-                return $data == 1 ? 'ok' : 'error';
+                return $data === true ? 'ok' : 'error';
             } catch (Exception $e) {
                 return Response::estado500($e);
             }
@@ -81,7 +81,7 @@ class rolModel extends query
             $paramsRol = [':id_rol' => $id_rol];
             $data = $this->save($sqlRol, $paramsRol);
 
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return Response::estado500($e);
         }
@@ -98,7 +98,7 @@ class rolModel extends query
             $paramsRol = [':id_rol' => $id_rol];
             $data = $this->save($sqlRol, $paramsRol);
 
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return Response::estado500($e);
         }

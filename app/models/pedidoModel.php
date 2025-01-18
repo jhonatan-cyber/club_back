@@ -52,7 +52,7 @@ class pedidoModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log('PedidoModel::createPedido() -> ' . $e);
             return response::estado500("asdasd");
@@ -80,7 +80,7 @@ class pedidoModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             error_log("PedidoModel::createDetallePedido() -> " . $e);
             return response::estado500($e);

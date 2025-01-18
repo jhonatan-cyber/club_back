@@ -48,16 +48,19 @@ class caja extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
-        try {
-            $this->data['usuario_id_apertura'] = $_SESSION['id_usuario'];
+        $this->data['usuario_id_apertura'] = $_SESSION['id_usuario'];
+     
+         try {
+            
             $res = $this->model->createCaja($this->data);
-            if ($res !== 'ok') {
+ 
+         if ($res !== 'ok') {
                 return $this->response(response::estado500('No se pudo crear la caja'));
             }
-            return $this->response(response::estado201());
+            return $this->response(response::estado201()); 
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
-        }
+        } 
     }
 
     public function getCajas()

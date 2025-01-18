@@ -61,14 +61,22 @@ async function getPiezas() {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Disponible</span>`;
               }
-              return `<span class="badge badge-sm badge-danger">Ocupado</span>`;
+              if(row.estado === 2){
+                return `<span class="badge badge-sm badge-info">Ocupado</span>`;
+              }
+              return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
             },
           },
           {
             data: null,
-            render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pieza}" onclick="getPieza('${row.id_pieza}')"><i class="fas fa-edit"></i></button>
-               <button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pieza}" onclick="deletePieza('${row.id_pieza}')"><i class="fas fa-trash"></i></button>`,
+            render: (data, type, row) =>{
+              if(row.estado === 0){
+                return `<button title="Activar pieza" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pieza}" onclick="highPieza('${row.id_pieza}')"><i class="fa-solid fa-check-to-slot"></i></button>`
+              }
+              return`<button title="Editar pieza" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pieza}" onclick="getPieza('${row.id_pieza}')"><i class="fas fa-edit"></i></button>
+               <button title="Eliminar pieza" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pieza}" onclick="deletePieza('${row.id_pieza}')"><i class="fas fa-trash"></i></button>`
+            }
+              
           },
         ],
       });
@@ -187,6 +195,47 @@ async function deletePieza(id) {
       if (resultado.codigo === 500 && resultado.estado === "error") {
         return toast(
           "Error al eliminar la habitacion, intente nuevamente",
+          "warning"
+        );
+      }
+    }
+  }
+}
+
+async function highPieza(id){
+  const result = await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: "¿Está seguro de activar la habitacion ?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Si, activar",
+    cancelButtonText: "No, cancelar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container"
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
+  if (result.isConfirmed) {
+    const url = `${BASE_URL}highPieza/${id}`;
+    try {
+      const resp = await axios.get(url, config);
+      const data = resp.data;
+      if (data.estado === "ok" && data.codigo === 200) {
+        toast("Habitacion activada correctamente", "success");
+        getPiezas();
+      }
+    } catch (error) {
+      resultado = error.response.data;
+      if (resultado.codigo === 500 && resultado.estado === "error") {
+        return toast(
+          "Error al activar la habitacion, intente nuevamente",
           "warning"
         );
       }

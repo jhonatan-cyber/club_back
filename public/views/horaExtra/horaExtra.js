@@ -11,6 +11,7 @@ function Mhora(e) {
   getMesero();
   document.getElementById("id_hora_extra").value = "";
   document.getElementById("hora").value = "";
+  document.getElementById("monto").value = "";
   function actualizarFechaHora() {
     const fecha = new Date();
     const dia = String(fecha.getDate()).padStart(2, "0");
@@ -85,6 +86,7 @@ async function createHoraExtra(e) {
     console.error(error);
   }
 }
+
 async function getHorasExtras() {
   const url = `${BASE_URL}getHorasExtras`;
   try {
@@ -130,6 +132,7 @@ async function getHorasExtras() {
     console.error(error);
   }
 }
+
 async function gethoraExtra(id) {
   const url = `${BASE_URL}getHoraExtra/${id}`;
   try {

@@ -40,7 +40,7 @@ class anticipoModel extends query
                 ':monto' => $data['monto']
             ];
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -54,7 +54,7 @@ class anticipoModel extends query
                 ':id_anticipo' => $id_anticipo
             ];
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -82,7 +82,7 @@ class anticipoModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log($e->getMessage());
             return response::estado500($e);
@@ -112,7 +112,7 @@ class anticipoModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

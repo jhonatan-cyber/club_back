@@ -101,7 +101,7 @@ class pieza extends controller
 
             if (!$piezas) {
                 $piezas = $this->model->getPiezas();
-                cache::set($cacheKey, $piezas, 600);
+                cache::set($cacheKey, $piezas, 0);
             }
 
             if (empty($piezas)) {
@@ -138,7 +138,6 @@ class pieza extends controller
     public function deletePieza(int $id)
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -158,20 +157,32 @@ class pieza extends controller
     public function getPiezasLibres()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
             $piezas = $this->model->getPiezasLibres();
             if (empty($piezas)) {
-                http_response_code(204);
                 return $this->response(response::estado204());
             }
-            http_response_code(200);
             return $this->response(response::estado200($piezas));
         } catch (Exception $e) {
-            http_response_code(500);
+            return $this->response(response::estado500($e));
+        }
+    }
+
+    public function highPieza(int $id_pieza){
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $pieza = $this->model->highPieza($id_pieza);
+           if($pieza !== 'ok'){
+               return $this->response(response::estado500('No se pudo activar la pieza'));
+           }
+            return $this->response(response::estado200('ok'));
+        } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }
     }

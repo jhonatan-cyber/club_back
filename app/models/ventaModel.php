@@ -47,7 +47,7 @@ class ventaModel extends query
                 ':total_comision' => $venta['total_comision']
             ];
             $res = $this->save($sql, $params);
-            return $res == 1 ? 'ok' : 'error';
+            return $res === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('VentaModel::createVenta() -> ' . $e);
             return response::estado500($e);
@@ -83,7 +83,7 @@ class ventaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('VentaModel::createDetalleVenta() -> ' . $e);
             return response::estado500($e);
@@ -98,7 +98,7 @@ class ventaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('PedidoModel::updatePedido() -> ' . $e);
             return response::estado500($e);
@@ -140,7 +140,7 @@ class ventaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('UsuarioVentaModel::createUsuarioVenta() -> ' . $e);
             return response::estado500($e);
@@ -166,7 +166,7 @@ class ventaModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('Error en createComision: ' . $e->getMessage());
             return response::estado500('Error al crear la comisión. Por favor, intenta de nuevo.');
@@ -193,7 +193,7 @@ class ventaModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('Error en createDetalleServicio: ' . $e->getMessage());
             return response::estado500('Error al crear el detalle del servicio. Por favor, intenta de nuevo.');
@@ -244,7 +244,7 @@ class ventaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -262,14 +262,14 @@ class ventaModel extends query
                     ':propina' => $propina
                 ];
                 $resp = $this->save($sql2, $params);
-                return $resp == 1 ? 'ok' : 'error';
+                return $resp === true ? 'ok' : 'error';
             } else {
                 $sql3 = 'INSERT INTO propinas (propina, fecha) VALUES (:propina, CURDATE())';
                 $params = [
                     ':propina' => $propina
                 ];
                 $resp = $this->save($sql3, $params);
-                return $resp == 1 ? 'ok' : 'error';
+                return $resp === true ? 'ok' : 'error';
             }
         } catch (Exception $e) {
             return response::estado500($e);
@@ -285,7 +285,7 @@ class ventaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -331,7 +331,7 @@ class ventaModel extends query
                 $resp = $this->save($insertSql, $insertParams);
             }
 
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

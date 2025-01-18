@@ -102,7 +102,6 @@ async function createCliente(e) {
     const url = `${BASE_URL}createCliente`;
     const resp = await axios.post(url, data, config);
     const result = resp.data;
-    console.log(result);
     if (result.estado === "ok" && result.codigo === 201) {
       $("#Modalcliente").modal("hide");
       getClientes();

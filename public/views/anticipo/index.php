@@ -10,7 +10,7 @@ $Layout = (new layout())
     ->addBreadcrumb('Anticipos')
     ->addScripts(BASE_URL . 'public/views/anticipo/anticipo.js')
     ->content(function () {
-?>
+?> 
     <div class="row">
         <div class="col-xl-4 mb-xl-10 d-none d-xl-block">
             <div class="card shadow-sm">

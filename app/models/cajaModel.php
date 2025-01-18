@@ -15,14 +15,20 @@ class cajaModel extends query
 
     public function createCaja(array $data)
     {
-        $sql = 'INSERT INTO cajas (monto_apertura,usuario_id_apertura) VALUES (:monto_apertura,:usuario_id_apertura)';
+         $required = ['monto_apertura', 'usuario_id_apertura'];
+        foreach ($required as $value) {
+            if (!isset($data[$value])) {
+                return response::estado400('El campo ' . $value . ' es requerido');
+            }
+        }
+        $sql = "INSERT INTO cajas (usuario_id_apertura, monto_apertura) VALUES (:usuario_id_apertura, :monto_apertura)";
         $params = [
+            ':usuario_id_apertura' => $data['usuario_id_apertura'],
             ':monto_apertura' => $data['monto_apertura'],
-            ':usuario_id_apertura' => $data['usuario_id_apertura']
         ];
         try {
-            $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            $result = $this->save($sql, $params);
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -32,14 +38,14 @@ class cajaModel extends query
     {
         $sql = 'SELECT * FROM cajas';
         try {
-            return $this->select($sql);
+            return $this->selectAll($sql);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
     public function cerrarCaja(array $data)
     {
-        $sql = 'UPDATE cajas SET estado = 0,monto_cierre = monto_cierre + monto_apertura, usuario_id_cierre = :usuario_id_cierre,
+        $sql = 'UPDATE cajas SET estado = 0, monto_cierre = monto_cierre + monto_apertura, usuario_id_cierre = :usuario_id_cierre,
         fecha_cierre = now() WHERE id_caja = :id_caja';
         $params = [
             ':id_caja'=> $data['id_caja'],
@@ -47,7 +53,7 @@ class cajaModel extends query
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

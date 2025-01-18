@@ -51,7 +51,7 @@ class cuentaModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -95,7 +95,7 @@ class cuentaModel extends query
         ];
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -126,7 +126,7 @@ class cuentaModel extends query
 
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             error_log('Error en createDetalleCuenta: ' . $e->getMessage());
             return response::estado500('Error al crear el detalle de la cuenta. Por favor, intenta de nuevo.');
@@ -150,7 +150,7 @@ class cuentaModel extends query
 
         try {
             $result = $this->save($sql, $params);
-            return $result == 1 ? 'ok' : 'error';
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -164,7 +164,7 @@ class cuentaModel extends query
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? 'ok' : 'error';
+            return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

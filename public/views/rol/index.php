@@ -31,7 +31,7 @@ $Layout = (new layout())
                         <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo defined('TITLE') ? TITLE : 'Roles'; ?></b></small>
                         <h5 class="h3 mb-0">Lista de Roles</h5>
                     </div>
-                    <button class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MCategoria(event);">
+                    <button class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MRol(event);">
                         <i class="fa fa-plus"></i> Nuevo
                     </button>
                 </div>

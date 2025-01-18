@@ -105,7 +105,7 @@ ORDER BY total DESC;';
         ];
         try {
             $resp = $this->save($sql, $params);
-            return $resp == 1 ? "ok" : "error";
+            return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -119,7 +119,7 @@ ORDER BY total DESC;';
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -164,7 +164,7 @@ ORDER BY total DESC;';
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -177,7 +177,7 @@ ORDER BY total DESC;';
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -204,7 +204,7 @@ ORDER BY total DESC;';
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -217,7 +217,7 @@ ORDER BY total DESC;';
         ];
         try {
             $data = $this->save($sql, $params);
-            return $data == 1 ? 'ok' : 'error';
+            return $data === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }
