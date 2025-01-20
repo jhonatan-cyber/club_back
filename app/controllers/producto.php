@@ -25,7 +25,9 @@ class producto extends controller
         if ($this->method !== 'GET') {
             $this->response(response::estado405());
         }
-
+        if ($_SESSION['rol'] !== "Administrador") {
+            return $this->response(response::estado403());
+        }
         try {
             $view = new view();
             session_regenerate_id(true);
@@ -75,7 +77,7 @@ class producto extends controller
 
             if (!$productos) {
                 $productos = $this->model->getProductos();
-                cache::set($cacheKey, $productos, 600);
+                cache::set($cacheKey, $productos, 0);
             }
 
             if (empty($productos)) {

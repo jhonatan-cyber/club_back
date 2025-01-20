@@ -25,7 +25,9 @@ class venta extends controller
         if ($this->method !== 'GET') {
             $this->response(Response::estado405());
         }
-
+        if ($_SESSION['rol'] !== "Administrador" && $_SESSION['rol'] !== "Cajero") {
+            return $this->response(response::estado403());
+        }
         try {
             $view = new view();
             session_regenerate_id(true);
@@ -56,15 +58,15 @@ class venta extends controller
         $total_comision = $this->data['total_comision'] ?? 0;
 
         try {
-            // 1. Create the sale and its details
+        
             $venta = $this->model->createVenta($this->data);
             if ($venta !== 'ok') {
                 return $this->response(response::estado500('Error al crear la venta'));
             }
 
             $id_venta = $this->model->getLastVenta();
-            
-            // 2. Create sale details for each product
+
+       
             foreach ($productos as $value) {
                 $detalle = [
                     'venta_id' => $id_venta['id_venta'],
@@ -80,15 +82,15 @@ class venta extends controller
                 }
             }
 
-            // 3. Handle commissions if any
+        
             if (!empty($chicas)) {
                 $numUsuarios = is_array($chicas) ? count($chicas) : 1;
                 $comisionPorUsuario = $total_comision / $numUsuarios;
-                
+
                 $usuarios = !is_array($chicas) ? [$chicas] : $chicas;
                 foreach ($usuarios as $usuario_id) {
                     if ($usuario_id > 0) {
-                        // Create commission record
+                  
                         $data_comision = [
                             'venta_id' => $id_venta['id_venta'],
                             'monto' => $total_comision,
@@ -97,8 +99,6 @@ class venta extends controller
                         if ($comision !== 'ok') {
                             return $this->response(response::estado500('Error al crear la comision'));
                         }
-
-                        // Get commission ID and create details
                         $id_comision = $this->model->getLastComision();
                         $detalle_comision = [
                             'comision_id' => $id_comision['comision_id'],
@@ -110,7 +110,6 @@ class venta extends controller
                             return $this->response(response::estado500('Error al crear el detalle de la comision'));
                         }
 
-                        // Create user-sale relationship
                         $detalleUsuario = [
                             'venta_id' => $id_venta['id_venta'],
                             'usuario_id' => $usuario_id,
@@ -120,7 +119,6 @@ class venta extends controller
                             return $this->response(response::estado500('Error al crear el detalle de la venta'));
                         }
 
-                        // Handle advances
                         $anticipos = $this->model->getAnticipoUsuario($usuario_id);
                         if (!empty($anticipos) && is_array($anticipos)) {
                             foreach ($anticipos as $anticipo) {
@@ -137,16 +135,13 @@ class venta extends controller
                 }
             }
 
-            // 4. Handle tips if any
-       
+
             if ($this->data['propina'] > 0) {
-                // Create tip record
                 $propina = $this->model->createPropina($this->data['propina']);
                 if ($propina !== 'ok') {
                     return $this->response(response::estado500('Error al crear la propina'));
                 }
 
-                // Get staff and tip ID
                 $personal = $this->model->getMeserosCajera();
                 if (empty($personal)) {
                     return $this->response(Response::estado204('No se encontraron meseros y cajeras disponibles'));

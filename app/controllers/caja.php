@@ -28,7 +28,9 @@ class caja extends controller
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
-
+        if ($_SESSION['rol'] !== "Administrador" && $_SESSION['rol'] !== "Cajero") {
+            return $this->response(response::estado403());
+        }
         try {
             $view = new view();
             session_regenerate_id(true);

@@ -1,11 +1,15 @@
 let tbUsuario;
 document.addEventListener("DOMContentLoaded", () => {
+  perfil();
   getUsuarios();
   getRoles();
-  $("#rol_id").select2({
-    placeholder: "Seleccionar Rol",
-    dropdownParent: $("#ModalUsuario .modal-body"),
-  });
+  if (document.getElementById("rol_id")) {
+    $("#rol_id").select2({
+      placeholder: "Seleccionar Rol",
+      dropdownParent: $("#ModalUsuario .modal-body"),
+    });
+  }
+
   const input = document.getElementById("foto");
   if (input) {
     input.addEventListener("change", preview);
@@ -19,13 +23,15 @@ async function getRoles() {
     const response = await axios.get(url, config);
     const datos = response.data;
     if (datos.estado === "ok" && datos.codigo === 200) {
-      const select = document.getElementById("rol_id");
-      for (let i = 0; i < datos.data.length; i++) {
-        const rol = datos.data[i];
-        const option = document.createElement("option");
-        option.value = rol.id_rol;
-        option.text = rol.nombre;
-        select.appendChild(option);
+      if (document.getElementById("rol_id")) {
+        const select = document.getElementById("rol_id");
+        for (let i = 0; i < datos.data.length; i++) {
+          const rol = datos.data[i];
+          const option = document.createElement("option");
+          option.value = rol.id_rol;
+          option.text = rol.nombre;
+          select.appendChild(option);
+        }
       }
     }
   } catch (error) {
@@ -34,202 +40,206 @@ async function getRoles() {
 }
 
 function enterKey() {
-  const run = document.getElementById("run");
-  const nick = document.getElementById("nick");
-  const nombre = document.getElementById("nombre");
-  const apellido = document.getElementById("apellido");
-  const direccion = document.getElementById("direccion");
-  const telefono = document.getElementById("telefono");
-  const estado_civil = document.getElementById("estado_civil");
-  const afp = document.getElementById("afp");
-  const sueldo = document.getElementById("sueldo");
-  const aporte = document.getElementById("aporte");
-  const correo = document.getElementById("correo");
-  const password = document.getElementById("password");
-  const repetir = document.getElementById("repetir");
-  const rol_id = document.getElementById("rol_id");
+  if (document.getElementById("run")) {
+    const run = document.getElementById("run");
+    const nick = document.getElementById("nick");
+    const nombre = document.getElementById("nombre");
+    const apellido = document.getElementById("apellido");
+    const direccion = document.getElementById("direccion");
+    const telefono = document.getElementById("telefono");
+    const estado_civil = document.getElementById("estado_civil");
+    const afp = document.getElementById("afp");
+    const sueldo = document.getElementById("sueldo");
+    const aporte = document.getElementById("aporte");
+    const correo = document.getElementById("correo");
+    const password = document.getElementById("password");
+    const repetir = document.getElementById("repetir");
+    const rol_id = document.getElementById("rol_id");
 
-  run.focus();
-  run.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (run.value === "") {
-        toast("La cedula de identidad es requerida", "info");
-        run.focus();
-        return;
-      }
-      nick.setAttribute("placeholder", "");
-      document.getElementById("txt_nick").innerHTML = "<b>Nick</b>";
-      nick.focus();
-    }
-  });
-  nick.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (nick.value === "") {
-        toast("El nick es requerida", "info");
+    run.focus();
+    run.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (run.value === "") {
+          toast("La cedula de identidad es requerida", "info");
+          run.focus();
+          return;
+        }
+        nick.setAttribute("placeholder", "");
+        document.getElementById("txt_nick").innerHTML = "<b>Nick</b>";
         nick.focus();
-        return;
       }
-      nick.value = capitalizarPalabras(nick.value);
-      nombre.setAttribute("placeholder", "");
-      document.getElementById("txt_nombre").innerHTML = "<b>Nombre(s)</b>";
-      nombre.focus();
-    }
-  });
-  nombre.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (nombre.value === "") {
-        toast("El nombre es requerido", "info");
+    });
+    nick.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (nick.value === "") {
+          toast("El nick es requerida", "info");
+          nick.focus();
+          return;
+        }
+        nick.value = capitalizarPalabras(nick.value);
+        nombre.setAttribute("placeholder", "");
+        document.getElementById("txt_nombre").innerHTML = "<b>Nombre(s)</b>";
         nombre.focus();
-        return;
       }
-      nombre.value = capitalizarPalabras(nombre.value);
-      apellido.setAttribute("placeholder", "");
-      document.getElementById("txt_apellido").innerHTML = "<b>Apellido(s)</b>";
-      apellido.focus();
-    }
-  });
-  apellido.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (apellido.value === "") {
-        toast("El apellido es requerido", "info");
+    });
+    nombre.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (nombre.value === "") {
+          toast("El nombre es requerido", "info");
+          nombre.focus();
+          return;
+        }
+        nombre.value = capitalizarPalabras(nombre.value);
+        apellido.setAttribute("placeholder", "");
+        document.getElementById("txt_apellido").innerHTML =
+          "<b>Apellido(s)</b>";
         apellido.focus();
-        return;
       }
-      apellido.value = capitalizarPalabras(apellido.value);
-      direccion.setAttribute("placeholder", "");
-      document.getElementById("txt_direccion").innerHTML = "<b>Direccion</b>";
-      direccion.focus();
-    }
-  });
-  direccion.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (direccion.value === "") {
-        direccion.value = "SN";
+    });
+    apellido.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (apellido.value === "") {
+          toast("El apellido es requerido", "info");
+          apellido.focus();
+          return;
+        }
+        apellido.value = capitalizarPalabras(apellido.value);
+        direccion.setAttribute("placeholder", "");
+        document.getElementById("txt_direccion").innerHTML = "<b>Direccion</b>";
+        direccion.focus();
       }
-      direccion.value = capitalizarPalabras(direccion.value);
-      telefono.setAttribute("placeholder", "");
-      document.getElementById("txt_telefono").innerHTML = "<b>Telefono</b>";
-      telefono.focus();
-    }
-  });
-  telefono.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (telefono.value === "") {
-        toast("El telefono es requerido", "info");
+    });
+    direccion.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (direccion.value === "") {
+          direccion.value = "SN";
+        }
+        direccion.value = capitalizarPalabras(direccion.value);
+        telefono.setAttribute("placeholder", "");
+        document.getElementById("txt_telefono").innerHTML = "<b>Telefono</b>";
         telefono.focus();
-        return;
       }
-      estado_civil.setAttribute("placeholder", "");
-      document.getElementById("txt_estado").innerHTML = "<b>Estado Civil</b>";
-      estado_civil.focus();
-    }
-  });
-  estado_civil.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (estado_civil.value === "") {
-        toast("El estado civil es requerido", "info");
+    });
+    telefono.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (telefono.value === "") {
+          toast("El telefono es requerido", "info");
+          telefono.focus();
+          return;
+        }
+        estado_civil.setAttribute("placeholder", "");
+        document.getElementById("txt_estado").innerHTML = "<b>Estado Civil</b>";
         estado_civil.focus();
-        return;
       }
-      estado_civil.value = capitalizarPalabras(estado_civil.value);
-      afp.setAttribute("placeholder", "");
-      document.getElementById("txt_afp").innerHTML =
-        "<b>Establecimiento (AFP)</b>";
-      afp.focus();
-    }
-  });
-  afp.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (afp.value === "") {
-        toast("El establecimiento AFP es requerido", "info");
+    });
+    estado_civil.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (estado_civil.value === "") {
+          toast("El estado civil es requerido", "info");
+          estado_civil.focus();
+          return;
+        }
+        estado_civil.value = capitalizarPalabras(estado_civil.value);
+        afp.setAttribute("placeholder", "");
+        document.getElementById("txt_afp").innerHTML =
+          "<b>Establecimiento (AFP)</b>";
         afp.focus();
-        return;
       }
-      afp.value = capitalizarPalabras(afp.value);
-      sueldo.setAttribute("placeholder", "");
-      document.getElementById("txt_sueldo").innerHTML = "<b>Sueldo</b>";
-      sueldo.focus();
-    }
-  });
-  sueldo.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (sueldo.value === "") {
-        toast("El sueldo es requerido", "info");
+    });
+    afp.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (afp.value === "") {
+          toast("El establecimiento AFP es requerido", "info");
+          afp.focus();
+          return;
+        }
+        afp.value = capitalizarPalabras(afp.value);
+        sueldo.setAttribute("placeholder", "");
+        document.getElementById("txt_sueldo").innerHTML = "<b>Sueldo</b>";
         sueldo.focus();
-        return;
       }
-      aporte.setAttribute("placeholder", "");
-      document.getElementById("txt_aporte").innerHTML = "<b>Aporte a AFP</b>";
-      aporte.focus();
-    }
-  });
-  aporte.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (aporte.value === "") {
-        toast("El aporte es requerido", "info");
+    });
+    sueldo.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (sueldo.value === "") {
+          toast("El sueldo es requerido", "info");
+          sueldo.focus();
+          return;
+        }
+        aporte.setAttribute("placeholder", "");
+        document.getElementById("txt_aporte").innerHTML = "<b>Aporte a AFP</b>";
         aporte.focus();
-        return;
       }
-      correo.setAttribute("placeholder", "");
-      document.getElementById("txt_correo").innerHTML =
-        "<b>Correo Electronico</b>";
-      correo.focus();
-    }
-  });
-  correo.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (correo.value === "") {
-        toast("El correo electronico es requerido", "info");
+    });
+    aporte.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (aporte.value === "") {
+          toast("El aporte es requerido", "info");
+          aporte.focus();
+          return;
+        }
+        correo.setAttribute("placeholder", "");
+        document.getElementById("txt_correo").innerHTML =
+          "<b>Correo Electronico</b>";
         correo.focus();
-        return;
       }
-      password.setAttribute("placeholder", "");
-      document.getElementById("txt_contraseña").innerHTML = "<b>Contraseña</b>";
-      password.focus();
-    }
-  });
-  password.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (password.value === "") {
-        toast("La contraseña es requerida", "info");
+    });
+    correo.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (correo.value === "") {
+          toast("El correo electronico es requerido", "info");
+          correo.focus();
+          return;
+        }
+        password.setAttribute("placeholder", "");
+        document.getElementById("txt_contraseña").innerHTML =
+          "<b>Contraseña</b>";
         password.focus();
-        return;
       }
-      repetir.setAttribute("placeholder", "");
-      document.getElementById("txt_confirmar").innerHTML =
-        "<b>Repetir contraseña</b>";
-      repetir.focus();
-    }
-  });
-  repetir.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (repetir.value === "") {
-        toast("Confirmar la contraseña", "info");
+    });
+    password.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (password.value === "") {
+          toast("La contraseña es requerida", "info");
+          password.focus();
+          return;
+        }
+        repetir.setAttribute("placeholder", "");
+        document.getElementById("txt_confirmar").innerHTML =
+          "<b>Repetir contraseña</b>";
         repetir.focus();
-        return;
       }
-      rol_id.focus();
-    }
-  });
-  rol_id.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      createUsuario(e);
-    }
-  });
+    });
+    repetir.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (repetir.value === "") {
+          toast("Confirmar la contraseña", "info");
+          repetir.focus();
+          return;
+        }
+        rol_id.focus();
+      }
+    });
+    rol_id.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        createUsuario(e);
+      }
+    });
+  }
 }
 
 function Musuario(e) {
@@ -289,20 +299,19 @@ async function getUsuarios() {
           { data: "direccion" },
           { data: "telefono" },
           { data: "rol" },
-          { data: null,
+          {
+            data: null,
             render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Activo</span>`;
               } else {
                 return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
               }
-            }
-           },
+            },
+          },
           {
             data: null,
-            render: (data, type, row) =>{
-
-
+            render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<button title="Editar usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="getUsuario('${row.id_usuario}')">
                           <i class="fas fa-edit"></i>
@@ -315,7 +324,6 @@ async function getUsuarios() {
                                 <i class="fa-solid fa-check-to-slot"></i>
                             </button>`;
               }
-
             },
           },
         ],
@@ -341,7 +349,7 @@ async function deleteUsuario(id) {
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
@@ -664,7 +672,7 @@ function validateData(
   }
 }
 
-async function highUsuario(id){
+async function highUsuario(id) {
   const result = await Swal.fire({
     title: "Las Muñecas de Ramón",
     text: "¿Está seguro de activar el usuario ?",
@@ -677,7 +685,7 @@ async function highUsuario(id){
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
@@ -699,5 +707,37 @@ async function highUsuario(id){
         return toast("Error al activar el usuario, intente nuevamente", "info");
       }
     }
+  }
+}
+
+async function perfil() {
+  const user = JSON.parse(localStorage.getItem("usuario"));
+  const url = `${BASE_URL}getUsuario/${user.id_usuario}`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    console.log(data);
+    if (data.estado === "ok" && data.codigo === 200) {
+      document.getElementById(
+        "imgperfil"
+      ).innerHTML = `<img alt="imagen" src="${BASE_URL}public/assets/img/usuarios/${data.data.foto}" /><div class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px"></div>`;
+      document.getElementById("nomapes").innerHTML =
+        data.data.nombre + " " + data.data.apellido;
+      document.getElementById("eci").innerHTML = "RUN: " + data.data.run;
+      document.getElementById("mail").innerHTML = data.data.correo;
+      document.getElementById("dir").innerHTML = data.data.direccion;
+      document.getElementById("tel").innerHTML = data.data.telefono;
+      document.getElementById("id_usuario_perfil").value = data.data.id_usuario;
+      document.getElementById("rol_id_perfil").value = data.data.rol_id;
+
+      /*       
+     
+
+
+    
+       document.getElementById("cord").innerHTML = data.data.correo; */
+    }
+  } catch (error) {
+    console.error(error.response.data);
   }
 }

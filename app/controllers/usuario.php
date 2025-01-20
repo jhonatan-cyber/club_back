@@ -25,7 +25,9 @@ class usuario extends controller
         if ($this->method !== 'GET') {
             return $this->response(Response::estado405());
         }
-
+        if ($_SESSION['rol'] !== "Administrador") {
+            return $this->response(response::estado403());
+        }
         try {
             $view = new view();
             session_regenerate_id(true);
@@ -36,7 +38,26 @@ class usuario extends controller
                 echo $view->render('auth', 'index');
             }
         } catch (Exception $e) {
-       
+
+            $this->response(Response::estado404($e));
+        }
+    }
+    public function perfil()
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(Response::estado405());
+        }
+        try {
+            $view = new view();
+            session_regenerate_id(true);
+
+            if (!empty($_SESSION['activo'])) {
+                echo $view->render('usuario', 'perfil');
+            } else {
+                echo $view->render('auth', 'index');
+            }
+        } catch (Exception $e) {
+
             $this->response(Response::estado404($e));
         }
     }
@@ -87,7 +108,7 @@ class usuario extends controller
     public function createUsuario()
     {
         if ($this->method !== 'POST') {
-      
+
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -148,7 +169,7 @@ class usuario extends controller
             $this->data['nombre'] = ucwords($this->data['nombre']);
             $this->data['apellido'] = ucwords($this->data['apellido']);
             $this->data['nick'] = ucwords($this->data['nick']);
-    
+
             if (empty($this->data['id_usuario']) || $this->data['id_usuario'] == null) {
                 $usuario = $this->model->createUsuario($this->data);
             } else {
@@ -174,6 +195,7 @@ class usuario extends controller
             return $this->response(response::estado500($e));
         }
     }
+
     private function convertToWebP($sourcePath, $destinationPath, $extension)
     {
 
@@ -226,6 +248,7 @@ class usuario extends controller
             imagedestroy($image);
         }
     }
+
     public function deleteUsuario(int $id)
     {
         if ($this->method !== 'GET') {
@@ -250,7 +273,7 @@ class usuario extends controller
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
-            $res = $this->model->getChicas(); 
+            $res = $this->model->getChicas();
             if (empty($res)) {
                 return $this->response(response::estado204());
             }
@@ -260,13 +283,14 @@ class usuario extends controller
         }
     }
 
-    public function highUsuario(int $id){
+    public function highUsuario(int $id)
+    {
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
         try {
-            $res = $this->model->highUsuario($id); 
+            $res = $this->model->highUsuario($id);
             if ($res === 'ok') {
                 return $this->response(response::estado200('Usuario activado correctamente'));
             }

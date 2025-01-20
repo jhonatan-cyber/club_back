@@ -28,6 +28,9 @@ class anticipo extends controller
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
+        if ($_SESSION['rol'] !== "Administrador") {
+            return $this->response(response::estado403());
+        }
 
         try {
             $view = new view();
@@ -50,7 +53,7 @@ class anticipo extends controller
 
         guard::validateToken($this->header, guard::secretKey());
 
-        try {           
+        try {
             $anticipos = $this->model->getAnticipos();
             if (empty($anticipos)) {
                 return $this->response(response::estado204('No se encontraron anticipos'));
@@ -155,7 +158,7 @@ class anticipo extends controller
                     return $this->response(response::estado500('Error al actualizar comision'));
                 }
             }
-            
+
             $anticipo = $this->model->updateAnticipo($id_anticipo);
             if ($anticipo !== 'ok') {
                 return $this->response(response::estado500('error al actualizar anticipo'));
@@ -188,7 +191,8 @@ class anticipo extends controller
             return $this->response(response::estado500($e));
         }
     }
-    public function getAnticipoUsuario(int $id){
+    public function getAnticipoUsuario(int $id)
+    {
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }

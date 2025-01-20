@@ -75,6 +75,7 @@ $router->get('getUsuario/(\d+)', [$usuario, 'getUsuario']);
 $router->get('deleteUsuario/(\d+)', [$usuario, 'deleteUsuario']);
 $router->get('getChicas', [$usuario, 'getChicas']);
 $router->get('highUsuario/(\d+)', [$usuario, 'highUsuario']);
+$router->get('perfil', [$usuario, 'perfil']);
 
 /* Clientes */
 $router->get('clientes', [$cliente, 'index']);

@@ -21,8 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
-
- 
 });
 
 function vistas(user) {
