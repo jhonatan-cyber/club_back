@@ -1,4 +1,5 @@
 <?php
+
 use app\config\layout;
 
 $Layout = (new layout())
@@ -22,6 +23,10 @@ $Layout = (new layout())
                         </div>
                     </div>
                     <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                        <a id="btn_home" href="<?php echo BASE_URL ?>home"
+                            class="btn btn-light-dark btn-sm text-center hover-scale" hidden>
+                            <i class="fa-solid fa-arrow-left"></i> Atrás
+                        </a>
                         <button class="btn btn-light-dark btn-sm text-center hover-scale"
                             onclick="nuevoPedido(event);"><i class="fa-solid fa-plus"></i>
                             Nuevo</button>

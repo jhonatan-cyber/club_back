@@ -29,6 +29,10 @@ class asistencia extends controller
             return $this->response(response::estado405());
         }
 
+        if ($_SESSION['rol_id'] !== "Administrador") {
+            return $this->response(response::estado403());
+        }
+
         try {
             $view = new view();
             session_regenerate_id(true);
@@ -75,6 +79,4 @@ class asistencia extends controller
             return $this->response(response::estado404($e));
         }
     }
-
-    
 }

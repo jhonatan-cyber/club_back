@@ -42,7 +42,8 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
-                        <div class="menu-item mb-3">
+                        
+                        <div id="navCajas" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>cajas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -52,12 +53,14 @@
                                 <span class="menu-title">Cajas</span>
                             </a>
                         </div>
+
                         <div class="menu-item">
                             <div class="menu-content">
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
-                        <div class="menu-item mb-3">
+
+                        <div id="navClientes" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>clientes" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -67,7 +70,7 @@
                                 <span class="menu-title">Clientes</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navRoles" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>roles" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -78,7 +81,7 @@
                             </a>
                         </div>
 
-                        <div class="menu-item mb-3">
+                        <div id="navUsuarios" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>usuarios" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -88,7 +91,7 @@
                                 <span class="menu-title">Usuarios</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navAsistencias" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>asistencias" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -98,7 +101,7 @@
                                 <span class="menu-title">Asistencias</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navHoras" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>horasExtras" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -113,7 +116,7 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navCategorias" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>categorias" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -123,7 +126,7 @@
                                 <span class="menu-title">Categorias</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navProductos" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>productos" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -138,7 +141,7 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navPedidos" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>pedidos" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -148,7 +151,7 @@
                                 <span class="menu-title">Pedidos</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navVentas" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>ventas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -158,7 +161,7 @@
                                 <span class="menu-title">Ventas</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navCuentas" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>cuentas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -173,7 +176,7 @@
                                 <div class="separator mx-1 my-1"></div>
                             </div>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navHabitaciones" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>habitaciones" data-bs-toggle="tooltip"
                                 data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
@@ -183,7 +186,7 @@
                                 <span class="menu-title">Habitaciones</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navServicios" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>servicios" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -199,7 +202,7 @@
                             </div>
                         </div>
                       
-                        <div class="menu-item mb-3">
+                        <div id="navPropinas" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>propinas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -219,7 +222,7 @@
                                 <span class="menu-title">Comisiones</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navAnticipos" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>anticipos" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">
@@ -229,7 +232,7 @@
                                 <span class="menu-title">Anticipos</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navDevoluciones" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>devoluciones" data-bs-toggle="tooltip"
                                 data-bs-trigger="hover" data-bs-dismiss="click" data-bs-placement="right">
@@ -239,7 +242,7 @@
                                 <span class="menu-title">Devoluciones</span>
                             </a>
                         </div>
-                        <div class="menu-item mb-3">
+                        <div id="navPlanillas" class="menu-item mb-3">
                             <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
                                 href="<?php echo BASE_URL ?>planillas" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                 data-bs-dismiss="click" data-bs-placement="right">

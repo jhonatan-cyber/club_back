@@ -8,8 +8,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   usuarioAvatar();
 
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-  getCajas();
+  if(usuario.rol === "Mesero" ||  usuario.rol === "Chica"){
+    document.getElementById("btn_menu").hidden = true;
+  }
 
+  if (usuario.rol === "Mesero") {
+ 
+    if (document.getElementById("btn_home")) {
+      document.getElementById("btn_home").hidden = false;
+    }
+  }
+  
+  getCajas();
+  permisos(usuario);
   if (
     usuario &&
     (usuario.rol === "Administrador" || usuario.rol === "Cajero")
@@ -432,9 +443,9 @@ async function getCajas() {
       if (document.getElementById("btn_nuevo_venta")) {
         document.getElementById("btn_nuevo_venta").hidden = true;
       }
-      return 
+      return;
     }
-    
+
     if (data.estado === "ok" && data.codigo === 200) {
       const cajas = Array.isArray(data.data) ? data.data : [data.data];
 
@@ -511,8 +522,34 @@ async function getCajas() {
   } catch (error) {
     result = error.response.data;
     if (result.codigo === 500 && result.estado === "error") {
-      return  toast("Error al obtener cajas, intente nuevamente", "warning");
+      return toast("Error al obtener cajas, intente nuevamente", "warning");
     }
-   
+  }
+}
+
+function permisos(usuario) {
+  if (usuario.rol === "Chica") {
+    const elementosOcultar = [
+      "navCajas",
+      "navVentas",
+      "navClientes",
+      "navUsuarios",
+      "navRoles",
+      "naCategorias",
+      "navProductos",
+      "navPedidos",
+      "navCuentas",
+      "navHabitaciones",
+      "navPropinas",
+      "navPlanillas",
+      "bell"
+    ];
+
+    elementosOcultar.forEach((id) => {
+      const elemento = document.getElementById(id);
+      if (elemento) {
+        elemento.hidden = true;
+      }
+    });
   }
 }

@@ -17,6 +17,7 @@ async function getPedidos() {
     const resp = await axios.get(url, config);
     const data = resp.data;
     if (data.codigo === 200 && data.estado === "ok") {
+      console.log(usuario.rol);
       tbPedido = $("#tbPedido").DataTable({
         data: data.data,
         language: LENGUAJE,

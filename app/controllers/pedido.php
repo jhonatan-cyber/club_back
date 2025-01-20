@@ -28,18 +28,21 @@ class pedido extends controller
         if ($this->method !== 'GET') {
             $this->response(response::estado405());
         }
-
-        try {
-            $view = new view();
-            session_regenerate_id(true);
-            if (!empty($_SESSION['activo'])) {
-                echo $view->render('pedido', 'index');
-            } else {
-                echo $view->render('auth', 'index');
+        if ($_SESSION['rol'] == "Administrador" || $_SESSION['rol'] == "Cajero" || $_SESSION['rol'] == "Mesero") {
+            try {
+                $view = new view();
+                session_regenerate_id(true);
+                if (!empty($_SESSION['activo'])) {
+                    echo $view->render('pedido', 'index');
+                } else {
+                    echo $view->render('auth', 'index');
+                }
+            } catch (Exception $e) {
+                http_response_code(404);
+                $this->response(response::estado404($e));
             }
-        } catch (Exception $e) {
-            http_response_code(404);
-            $this->response(response::estado404($e));
+        }else{
+            $this->response(response::estado403());
         }
     }
 

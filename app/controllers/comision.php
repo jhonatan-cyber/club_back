@@ -12,7 +12,6 @@ use Exception;
 class comision extends controller
 {
     private $model;
-    private static $valdiate_number = '/^[0-9]+$/';
 
     public function __construct()
     {
@@ -46,7 +45,7 @@ class comision extends controller
     public function getComisionUsuario()
     {
         if ($this->method !== 'GET') {
-            http_response_code(405);
+
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
@@ -73,18 +72,31 @@ class comision extends controller
         guard::validateToken($this->header, guard::secretKey());
 
         try {
-           
+
             $comisiones = $this->model->getComisiones();
             if (!empty($comisiones)) {
                 return $this->response(response::estado200($comisiones));
-                
             }
             return $this->response(response::estado204('No se encontraron comisiones'));
-           
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }
     }
-   
 
+    public function getComisionesUsuario(int $usuario_id)
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $comisiones = $this->model->getComisionesUsuario($usuario_id);
+            if (!empty($comisiones)) {
+                return $this->response(response::estado200($comisiones));
+            }
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
 }

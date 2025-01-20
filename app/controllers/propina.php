@@ -61,4 +61,21 @@ class propina extends controller
             return $this->response(response::estado500($e));
         }
     }
+    public function getPropina($id)
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $propina = $this->model->getPropina($id);
+            if (!empty($propina)) {
+                return $this->response(response::estado200($propina));
+            }
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
 }

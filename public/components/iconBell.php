@@ -1,5 +1,5 @@
-<div class="d-flex align-items-center ms-1 ms-lg-3">
-    <div class="btn btn-icon btn-active-light-primary position-relative w-30px h-30px w-md-40px h-md-40px menu-trigger"
+<div  class="d-flex align-items-center ms-1 ms-lg-3">
+    <div id="bell" class="btn btn-icon btn-active-light-primary position-relative w-30px h-30px w-md-40px h-md-40px menu-trigger"
         data-kt-menu-trigger="{default:'click', lg: 'hover'}" data-kt-menu-attach="parent"
         data-kt-menu-placement="bottom-end">
         <span class="svg-icon svg-icon-1">

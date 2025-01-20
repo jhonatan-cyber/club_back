@@ -240,7 +240,7 @@ class servicio extends controller
                                 'chica_id' => $usuario_id,
                                 'comision' => $comisionPorUsuario
                             ];
-                            $detalle_comi=$this->model->cretaeDetalleComision($detalle_comision);
+                            $detalle_comi = $this->model->cretaeDetalleComision($detalle_comision);
                             if ($detalle_comi !== 'ok') {
                                 return $this->response(response::estado500('Error al crear el detalle de la comisión.'));
                             }
@@ -310,6 +310,7 @@ class servicio extends controller
             return $this->response(response::estado500($e->getMessage()));
         }
     }
+
     public function getCuentaServicio(int $servicio_id)
     {
         if ($this->method !== 'GET') {
@@ -327,5 +328,22 @@ class servicio extends controller
             $this->response(response::estado500($e));
         }
     }
+    public function getServicioUsuario(int $id_usuario)
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $servicios = $this->model->getServicioUsuario($id_usuario);
+   
+            if (!empty($servicios)) {
+                return $this->response(response::estado200($servicios));
+            }
+
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            $this->response(response::estado500($e));
+        }
+    }
 }
- 

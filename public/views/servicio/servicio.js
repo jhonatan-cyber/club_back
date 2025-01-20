@@ -38,15 +38,15 @@ function validaciones() {
   document.getElementById("iva").addEventListener("input", validarIva);
 }
 
-function nuevoServicio(e) {
+async function nuevoServicio(e) {
   e.preventDefault();
   document.getElementById("nuevo_servicio").hidden = false;
   document.getElementById("lista_servicio").hidden = true;
   document.getElementById("btn-registrar").hidden = false;
   document.getElementById("btn-generar").hidden = true;
-  getClientes();
-  getChicas();
-  getPiezas();
+  await getClientes();
+  await getChicas();
+  await getPiezas();
 }
 
 function atras() {
@@ -266,7 +266,7 @@ async function confirmar() {
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
@@ -300,7 +300,6 @@ async function getServicios() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron servicios", "info");
     }

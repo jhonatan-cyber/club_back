@@ -188,4 +188,19 @@ class anticipo extends controller
             return $this->response(response::estado500($e));
         }
     }
+    public function getAnticipoUsuario(int $id){
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        try {
+            $anticipo = $this->model->getAnticipoUsuario($id);
+            if (empty($anticipo)) {
+                return $this->response(response::estado204());
+            }
+            return $this->response(response::estado200($anticipo));
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
 }

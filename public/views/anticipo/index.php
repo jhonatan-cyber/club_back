@@ -5,12 +5,12 @@ use app\config\layout;
 $Layout = (new layout())
     ->layout()
     ->setTitle('Gestión de Anticipos')
-    ->setPageTitle('Anticipos', 'fa-solid fa-money-bill-transfe')
+    ->setPageTitle('Anticipos', 'fa-solid fa-money-bill-transfer')
     ->addBreadcrumb('Dashboard', BASE_URL . 'home')
     ->addBreadcrumb('Anticipos')
     ->addScripts(BASE_URL . 'public/views/anticipo/anticipo.js')
     ->content(function () {
-?> 
+?>
     <div class="row">
         <div class="col-xl-4 mb-xl-10 d-none d-xl-block">
             <div class="card shadow-sm">

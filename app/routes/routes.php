@@ -119,6 +119,7 @@ $router->get('getVenta/(\d+)', [$venta, 'getVenta']);
 $router->get('comisiones', [$comision, 'index']);
 $router->get('getComisionUsuario', [$comision, 'getComisionUsuario']);
 $router->get('getComisiones', [$comision, 'getComisiones']);
+$router->get('getComisionesUsuario/(\d+)', [$comision, 'getComisionesUsuario']);
 
 /* Piezas */
 $router->get('habitaciones', [$pieza, 'index']);
@@ -141,6 +142,7 @@ $router->get('getDetalleCuenta/(\d+)', [$servicio, 'getDetalleCuenta']);
 $router->get('getServicio/(\w+)', [$servicio, 'getServicio']);
 $router->post('updateCuenta', [$servicio, 'updateCuenta']);
 $router->get('getCuentaServicio/(\d+)', [$servicio, 'getCuentaServicio']);
+$router->get('getServicioUsuario/(\d+)', [$servicio, 'getServicioUsuario']);
 
 /* Cuentas */
 $router->get('cuentas', [$cuenta, 'index']);
@@ -157,6 +159,7 @@ $router->get('getAnticipos', [$anticipo, 'getAnticipos']);
 $router->post('createAnticipo', [$anticipo, 'createAnticipo']);
 $router->get('getAnticipo/(\d+)', [$anticipo, 'getAnticipo']);
 $router->post('updateAnticipo', [$anticipo, 'updateAnticipo']);
+$router->get('getAnticipoUsuario/(\d+)', [$anticipo, 'getAnticipoUsuario']);
 
 /* Devoluciones */
 $router->get('devoluciones', [$devolucion, 'index']);
@@ -176,6 +179,7 @@ $router->get('pagarPlanilla/(\d+)', [$planilla, 'pagarPlanilla']);
 /* Propinas */
 $router->get('propinas', [$propina, 'index']);
 $router->get('getPropinas', [$propina, 'getPropinas']);
+$router->get('getPropina/(\d+)', [$propina, 'getPropina']);
 
 /* Asistencias */
 $router->get('asistencias', [$asistencia, 'index']);

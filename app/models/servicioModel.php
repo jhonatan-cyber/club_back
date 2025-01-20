@@ -42,7 +42,7 @@ class servicioModel extends query
         } catch (Exception $e) {
             return response::estado500($e);
         }
-    } 
+    }
 
     public function getServicioCodigo(string $codigo)
     {
@@ -88,7 +88,6 @@ class servicioModel extends query
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
     public function getDetalleServicio(int $servicio_id)
     {
@@ -167,7 +166,7 @@ class servicioModel extends query
     }
     public function createCuenta(array $data)
     {
-        $requiredFields = ['codigo','cliente_id', 'servicio_id',  'total_comision', 'total'];
+        $requiredFields = ['codigo', 'cliente_id', 'servicio_id',  'total_comision', 'total'];
         foreach ($requiredFields as $requiredField) {
             if (!isset($data[$requiredField])) {
                 error_log('El campo ' . $requiredField . ' es requerido');
@@ -374,5 +373,35 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
-
+    public function getServicioUsuario(int $id_usuario)
+    {
+        $sql = "
+            SELECT 
+                DS.fecha_crea,
+                S.estado,
+                S.precio_servicio,
+                (SELECT SUM(S2.precio_servicio) 
+                 FROM detalle_servicios AS DS2
+                 INNER JOIN servicios AS S2 ON DS2.servicio_id = S2.id_servicio 
+                 WHERE DS2.usuario_id = :id_usuario
+                ) AS total
+            FROM 
+                detalle_servicios AS DS
+            INNER JOIN 
+                servicios AS S ON DS.servicio_id = S.id_servicio
+            WHERE 
+                DS.usuario_id = :id_usuario";
+        
+        $params = [
+            ":id_usuario" => $id_usuario
+        ];
+    
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+    
+    
 }

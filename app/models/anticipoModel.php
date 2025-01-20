@@ -21,6 +21,29 @@ class anticipoModel extends query
         return $data;
     }
 
+    public function getAnticipoUsuario(int $id_usuario)
+    {
+        $sql = 'SELECT 
+                    A.id_anticipo, 
+                    A.monto, 
+                    A.fecha_crea, 
+                    A.estado, 
+                    (SELECT SUM(monto) 
+                     FROM anticipos 
+                     WHERE usuario_id = :id_usuario) AS total
+                FROM anticipos AS A 
+                INNER JOIN usuarios AS U 
+                ON A.usuario_id = U.id_usuario 
+                WHERE A.usuario_id = :id_usuario 
+                ORDER BY A.fecha_crea DESC';
+        $params = [
+            ':id_usuario' => $id_usuario
+        ];
+        $data = $this->selectAll($sql, $params);
+        return $data;
+    }
+
+
     public function getAnticipo($id_anticipo)
     {
         $sql = 'SELECT * FROM anticipos  WHERE id_anticipo = :id_anticipo';

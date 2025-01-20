@@ -68,9 +68,10 @@ class login extends controller
             if ($res['estado'] === 'ok') {
                 if ($res['data']['estado'] === 0) {
                     return $this->response(response::estado400('El usuario no esta activo, contacte al administrador'));
-                }
+                } 
 
                 $_SESSION['id_usuario'] = $res['data']['id_usuario'];
+                $_SESSION['rol'] = $res['data']['rol'];
 
                 if ($res['data']['rol'] === 'Administrador' || $res['data']['rol'] === 'Cajero') {
                     if ($res['data']['rol'] === 'Cajero') {

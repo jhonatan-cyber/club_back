@@ -157,7 +157,7 @@ class usuarioModel extends query
 
     public function getChicas()
     {
-        $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chicas' AND L.estado = 1;";
+        $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chica' AND L.estado = 1;";
 
         try {
             return $this->selectAll($sql);

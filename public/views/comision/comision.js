@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (usuario.rol === "Administrador") {
     getComisiones();
   }
+  getComisiones();
 });
 
 async function getComisiones() {
@@ -11,6 +12,8 @@ async function getComisiones() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log("entra");
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
       tbComision = $("#tbComision").DataTable({
         data: data.data,

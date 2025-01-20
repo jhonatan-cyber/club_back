@@ -20,11 +20,9 @@ class comisionModel extends query
         ];
         try {
             return $this->selectAll($sql, $params);
-
         } catch (Exception $e) {
             return response::estado500($e);
         }
-
     }
     public function getComisiones()
     {
@@ -43,4 +41,19 @@ class comisionModel extends query
         }
     }
 
+    public function getComisionesUsuario(int $usuario_id)
+    {
+        $sql = 'SELECT DC.estado, D.fecha_crea, DC.comision, (SELECT SUM(DC1.comision) 
+                FROM detalle_comisiones AS DC1 
+                WHERE DC1.chica_id = DC.chica_id) AS total 
+                FROM detalle_comisiones AS DC
+                INNER JOIN comisiones AS D ON DC.comision_id = D.id_comision
+                WHERE DC.chica_id = :usuario_id';
+        $params = [':usuario_id' => $usuario_id];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }
