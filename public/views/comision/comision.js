@@ -32,22 +32,22 @@ async function getComisiones() {
           },
           { 
             data: "total_venta",
-            render: (data) => `${parseFloat(data)}`,
+            render: (data) => `${Number.parseFloat(data)}`,
             className: "text-center"
           },
           { 
             data: "total_servicio",
-            render: (data) => ` ${parseFloat(data)}`,
+            render: (data) => ` ${Number.parseFloat(data)}`,
             className: "text-center"
           },
           { 
             data: "anticipo",
-            render: (data) => ` ${parseFloat(data)}`,
+            render: (data) => ` ${Number.parseFloat(data)}`,
             className: "text-center"
           },
           { 
             data: "total",
-            render: (data) => `${parseFloat(data)}`,
+            render: (data) => `${Number.parseFloat(data)}`,
             className: "text-center fw-bold"
           },
           {

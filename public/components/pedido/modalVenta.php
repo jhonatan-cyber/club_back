@@ -19,7 +19,7 @@
                                 <small id="fecha"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
-                                <small id="codigo"
+                                <small id="codigo_pedido"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
                                 <small id="usuario"
@@ -55,6 +55,29 @@
                                         class="form-control form-control-sm form-control-solid" id="propina" placeholder="Propina" />
                                 </div>
 
+                                <div id="select_habitacion" class="mb-3" hidden>
+                                    <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Habitacion</b></small>
+                                    <div class="d-flex input-group input-group-solid mb-3">
+                                        <span class="input-group-text"><i class="fa-solid fa-child-dress"></i></span>
+                                        <div class="overflow-hidden flex-grow-1">
+                                            <select
+                                                class="form-select form-select-solid form-select-sm rounded-start-0 border-start"
+                                                id="habitacion_pedido" data-control="select2">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div id="select_tiempo" class="mb-3" hidden>
+                                    <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Tiempo</b></small>
+                                    <div class="d-flex input-group input-group-solid">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="fa-solid fa-stopwatch-20"></i></span>
+                                        <input type="number" min="0" class="form-control form-control-sm form-control-solid"
+                                            id="tiempo_pedido" placeholder="Tiempo de servicio" />
+                                    </div>
+                                </div>
                                 <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Total
                                         Comision</b></small>
                                 <div class="d-flex input-group input-group-solid mb-3">
@@ -64,6 +87,9 @@
                                         class="form-control form-control-sm form-control-solid" id="total_comision"
                                         disabled />
                                 </div>
+
+
+
                                 <input type="hidden" class="form-control" id="total_a pagar" />
 
                             </div>

@@ -8,8 +8,7 @@
             <label class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
                 <i class="fa-solid fa-dollar-sign fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
-                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Propinas por cobrar : <b id="propinas_usuario"></b></span>
-                    <span class="text-gray-400 fw-bold fs-6">Vista de las propinas obtenidas</span>
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Propinas : <b id="propinas_usuario"></b></span>
                 </span>
             </label>
         </div>
@@ -19,7 +18,7 @@
                 <i class="fa-solid fa-calendar-check fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
                     <span class="text-dark fw-bolder d-block fs-4 mb-2">Asistencias</span>
-                    <span class="text-gray-400 fw-bold fs-6">Vista de asistencias</span>
+                    <span class="text-gray-400 fw-bold fs-6">Ver detalles</span>
                 </span>
             </label>
         </div>
@@ -28,8 +27,8 @@
             <label id="btnServicios" class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
                 <i class="fa-solid fa-mars-and-venus fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
-                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Servicios </span>
-                    <span class="text-gray-400 fw-bold fs-6">Vista de servicios realizados</span>
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Servicios</span>
+                    <span class="text-gray-400 fw-bold fs-6">Ver detalles</span>
                 </span>
             </label>
         </div>
@@ -38,8 +37,8 @@
             <label id="btnAnticipos" class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
                 <i class="fa-solid fa-money-bill-transfer fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
-                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Anticipos </span>
-                    <span class="text-gray-400 fw-bold fs-6">Vista de los anticipos obtenidos</span>
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Anticipos</span>
+                    <span class="text-gray-400 fw-bold fs-6">Ver detalles</span>
                 </span>
             </label>
         </div>
@@ -48,8 +47,8 @@
             <label id="btnComisiones" class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
                 <i class="fa-solid fa-hand-holding-dollar fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
-                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Comisiones </span>
-                    <span class="text-gray-400 fw-bold fs-6">Vista de las comisiones obtenidas por las ventas</span>
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Comisiones</span>
+                    <span class="text-gray-400 fw-bold fs-6">Ver detalles</span>
                 </span>
             </label>
         </div>
@@ -64,10 +63,21 @@
                 </span>
             </label>
         </a>
+        <a id="cHoraExtra" class="col-lg-3 col-md-3 col-sm-6 mt-3">
+            <input type="radio" class="btn-check" value="corporate" id="kt_create_account_form_account_type_corporate">
+            <label  id="btnHorasExtra" class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
+            <i class="fa-solid fa-hourglass-half fs-2x me-5"></i>
+                <span class="d-block fw-bold text-start">
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Horas Extras </span>
+                    <span class="text-gray-400 fw-bold fs-6">Ver detalles</span>
+                </span>
+            </label>
+        </a>
     </div>
 </div>
 
 <?php include_once 'public/components/asistencia/modalAsistencia.php';
 include_once 'public/components/home/modalAnticipo.php'; 
 include_once 'public/components/home/modalComision.php';
-include_once 'public/components/home/modalServicio.php';?>
+include_once 'public/components/home/modalServicio.php';
+include_once 'public/components/horaExtra/modalDetalleHoraExtra.php';?>

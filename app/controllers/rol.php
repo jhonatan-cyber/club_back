@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers;
 
 use app\config\cache;
@@ -23,7 +25,7 @@ class rol extends controller
     public function index()
     {
         if ($this->method !== 'GET') {
-            $this->response(Response::estado405());
+            return $this->response(Response::estado405());
         }
         if ($_SESSION['rol'] !== "Administrador") {
             return $this->response(response::estado403());
@@ -31,14 +33,10 @@ class rol extends controller
         try {
             $view = new view();
             session_regenerate_id(true);
-            if (!empty($_SESSION['activo'])) {
-                echo $view->render('rol', 'index');
-            } else {
-                echo $view->render('auth', 'index');
-            }
+            $template = !empty($_SESSION['activo']) ? 'rol' : 'auth';
+            echo $view->render($template, 'index');
         } catch (Exception $e) {
-            http_response_code(404);
-            $this->response(Response::estado404($e));
+            return $this->response(Response::estado404($e));
         }
     }
 
@@ -76,6 +74,15 @@ class rol extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero.'));
+        }
+
+        if ($id <= 0) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero positivo.'));
+        }
+
         try {
             $rol = $this->model->getRol($id);
             if (empty($rol)) {
@@ -98,12 +105,10 @@ class rol extends controller
         }
         guard::validateToken($this->header, guard::secretKey());
         if ($this->data === null) {
-            http_response_code(400);
-            return $this->response(Response::estado400('Datos JSON no válidos.'));
+            return $this->response(response::estado400('No se recibieron datos'));
         }
 
         if (empty($this->data['nombre'])) {
-            http_response_code(400);
             return $this->response(Response::estado400('El nombre es requerido.'));
         }
         $this->data['nombre'] = ucwords($this->data['nombre']);
@@ -114,20 +119,17 @@ class rol extends controller
                 $rol = $this->model->updateRol($this->data);
             }
 
-            
-            if($rol ==='ok'){
+
+            if ($rol === 'ok') {
                 return $this->response(response::estado201());
             }
 
-            if($rol === 'existe'){
+            if ($rol === 'existe') {
                 return $this->response(response::estado409());
             }
 
             return $this->response(response::estado500('No se pudo crear el rol'));
-
-
         } catch (Exception $e) {
-            http_response_code(500);
             return $this->response(response::estado500($e));
         }
     }
@@ -138,6 +140,13 @@ class rol extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero.'));
+        }
+
+        if ($id <= 0) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero positivo.'));
+        }
         try {
             $rol = $this->model->deleteRol($id);
             if ($rol === 'ok') {
@@ -155,6 +164,14 @@ class rol extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero.'));
+        }
+
+        if ($id <= 0) {
+            return $this->response(response::estado400('El id del rol debe ser un numero entero positivo.'));
+        }
         try {
             $rol = $this->model->highRol($id);
             if ($rol === 'ok') {

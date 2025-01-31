@@ -32,9 +32,12 @@ $Layout = (new layout())
                         <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo defined('TITLE') ? TITLE : 'Anticipo'; ?></b></small>
                         <h5 class="h3 mb-0">Lista de Anticipos</h5>
                     </div>
-                    <button class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MAnticipo(event);">
+                    <button
+                        class="btn btn-light-dark btn-sm hover-elevate-up d-block d-xl-none"
+                        onclick="MAnticipo(event);">
                         <i class="fa fa-plus"></i> Nuevo
                     </button>
+
                 </div>
                 <div class="card-body">
                     <?php include 'public/components/anticipo/tableAnticipo.php'; ?>

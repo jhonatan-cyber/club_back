@@ -52,7 +52,7 @@ class usuario extends controller
             session_regenerate_id(true);
 
             if (!empty($_SESSION['activo'])) {
-                echo $view->render('usuario', 'perfil');
+                echo $view->render('perfil', 'index');
             } else {
                 echo $view->render('auth', 'index');
             }

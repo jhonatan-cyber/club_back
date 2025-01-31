@@ -130,11 +130,9 @@ async function login(e) {
   e.preventDefault();
   const correo = document.getElementById("correo").value;
   const password = document.getElementById("password").value;
-
   validate(correo, password);
   const data = { correo, password };
   const url = `${BASE_URL}login`;
-
   try {
     const response = await fetch(url, {
       method: "POST",
@@ -144,9 +142,7 @@ async function login(e) {
       },
       body: JSON.stringify(data),
     });
-
     const result = await response.json();
-console.log(result);
     if (result.estado === "ok" && result.codigo === 200) {
       const token = desencriptarToken(result.data.token);
       const { id_usuario, run, nombre, apellido, rol, correo, foto } =
@@ -162,7 +158,6 @@ console.log(result);
         foto: foto,
       };
       localStorage.setItem("usuario", JSON.stringify(usuario));
-
       if (rol === "Administrador" || rol === "Cajero") {
         toast(`Bienvenido ${usuario.nombre} ${usuario.apellido}`, "success");
         setTimeout(() => {
@@ -187,8 +182,8 @@ console.log(result);
       );
     }
   } catch (e) {
-    console.error(e);
-    if (e.response.status === 500) {
+    const error = e;
+    if (error.response.status === 500) {
       toast("Error al iniciar sesión. Intenta nuevamente.", "error");
     }
   }

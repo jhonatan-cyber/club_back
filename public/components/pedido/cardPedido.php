@@ -42,17 +42,19 @@
                         </div>
                     </div>
                     <div class="col-xl-4 col-md-4 col-sm-6 mt-3">
-                        <small for="cliente_id" class="form-label ls-1 mb-1"><b>Dama acompañante</b></small>
+                        <small for="chica_id" class="form-label ls-1 mb-1"><b>Anfitriona</b></small>
                         <div class="input-group input-group-solid flex-nowrap">
                             <span class="input-group-text"><i class="fa-solid fa-child-dress"></i></span>
                             <div class="overflow-hidden flex-grow-1">
                                 <select
                                     class="form-select form-select-solid form-select-sm rounded-start-0 border-start"
-                                    id="chica_id" data-control="select2">
+                                    id="chica_id" data-allow-clear="true" multiple="multiple" data-placeholder="Seleccione acompañante"
+                                    data-control="select2">
                                 </select>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-xl-4 col-md-4 col-sm-6 mt-3">
                         <div class="col-12">
                             <div class="form-group mb-3 text-center">
@@ -70,13 +72,13 @@
 
                     </div>
                 </div>
-               
+
                 <div class="row m-5" id="precio_bebidas">
                 </div>
-               
+
                 <div id="kt_ecommerce_products_table_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                     <small class="text-muted text-center d-block mb-3">Detalles Producto</small>
-                 
+
                     <div class="table-responsive">
                         <table class="table table-striped gy-5 gs-7 border rounded w-100  align-middle table-row-dashed fs-6 gy-5 dataTable no-footer"
                             id="tbCarritoPedido">

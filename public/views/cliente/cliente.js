@@ -37,9 +37,8 @@ async function getClientes() {
             render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Activo</span>`;
-              } else {
-                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
               }
+              return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
             },
           },
           {
@@ -52,11 +51,10 @@ async function getClientes() {
                           <button title="Eliminar cliente" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_cliente}" onclick="deleteCliente('${row.id_cliente}')">
                             <i class="fas fa-trash"></i>
                           </button>`;
-              } else {
-                return `<button title="Activar cliente" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_cliente}" onclick="highCliente('${row.id_cliente}')">
+              }
+              return `<button title="Activar cliente" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_cliente}" onclick="highCliente('${row.id_cliente}')">
                             <i class="fa-solid fa-check-to-slot"></i>
                           </button>`;
-              }
             },
           },
         ],
@@ -67,7 +65,10 @@ async function getClientes() {
   } catch (error) {
     result = error.response.data;
     if (result.codigo === 500 && result.estado === "error") {
-      return toast("Error al obtener los clientes, intente nuevamente", "warning");
+      return toast(
+        "Error al obtener los clientes, intente nuevamente",
+        "warning"
+      );
     }
   }
 }
@@ -137,7 +138,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (run.value === "") {
-       validations();
+        validations();
         run.focus();
         return;
       }
@@ -163,7 +164,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (apellido.value === "") {
-        validations(run,nombre);
+        validations(run, nombre);
         apellido.focus();
         return;
       }
@@ -176,7 +177,7 @@ function enterKey() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (telefono.value === "") {
-        validations(run,nombre,apellido);
+        validations(run, nombre, apellido);
         telefono.focus();
         return;
       }
@@ -240,8 +241,8 @@ async function deleteCliente(id) {
         toast("Cliente eliminado correctamente", "success");
       }
     } catch (error) {
-      result = error.response.data;
-      if (result.codigo === 500 && result.estado === "error") {
+      const resp = error.response.data;
+      if (resp.codigo === 500 && resp.estado === "error") {
         return toast(
           "Error al eliminar el cliente, intente nuevamente",
           "warning"
@@ -281,8 +282,8 @@ async function highCliente(id) {
         getClientes();
       }
     } catch (error) {
-      result = error.response.data;
-      if (result.codigo === 500 && result.estado === "error") {
+      const resp = error.response.data;
+      if (resp.codigo === 500 && resp.estado === "error") {
         return toast(
           "Error al activar el cliente, intente nuevamente",
           "warning"

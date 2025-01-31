@@ -13,8 +13,13 @@ class usuarioModel extends query
     {
         parent::__construct();
     }
+    /**
+     * Obtiene todos los usuarios de la base de datos
+     * 
+     * @return array
+     */
 
-    public function getUsuarios()
+    public function getUsuarios(): array
     {
         $sql = 'SELECT U.*, R.nombre AS rol
                 FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol';
@@ -25,18 +30,30 @@ class usuarioModel extends query
         }
     }
 
-    public function getUsuario(int $id)
+    /**
+     * Obtine un usuario especifico de la base de datos
+     *
+     * @param integer $id
+     * @return array
+     */
+    public function getUsuario(int $id): array
     {
         $sql = "SELECT * FROM usuarios WHERE id_usuario =$id AND estado = 1";
         try {
             return $this->select($sql);
         } catch (Exception $e) {
-            error_log('UsuarioModel::getUsuario() -> ' . $e);
             return response::estado500($e);
         }
     }
 
-    public function createUsuario(array $usuario)
+    /**
+     * Crea un nuevo usuario en la base de datos
+     *
+     * @param array $usuario
+     * @return string
+     */
+
+    public function createUsuario(array $usuario): string
     {
         $requiredFields = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'correo', 'password', 'rol_id'];
         foreach ($requiredFields as $field) {
@@ -80,7 +97,13 @@ class usuarioModel extends query
         }
     }
 
-    public function updateUsuario(array $usuario)
+    /**
+     * Actualiza un usuario en la base de datos
+     *
+     * @param array $usuario
+     * @return string
+     */
+    public function updateUsuario(array $usuario): string
     {
         $requiredFields = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'rol_id', 'id_usuario'];
         foreach ($requiredFields as $field) {
@@ -143,7 +166,13 @@ class usuarioModel extends query
         }
     }
 
-    public function deleteUsuario(int $id_usuario)
+    /**
+     * Elimina (desactiva) un usuario de la base de datos
+     *
+     * @param integer $id_usuario
+     * @return string
+     */
+    public function deleteUsuario(int $id_usuario): string
     {
         $sql = 'UPDATE usuarios SET estado = 0, fecha_baja = now() WHERE id_usuario = :id_usuario';
         $params = [':id_usuario' => $id_usuario];
@@ -155,9 +184,14 @@ class usuarioModel extends query
         }
     }
 
-    public function getChicas()
+    /**
+     * Obtiene los usuarios de la base de datos que tengan el rol de 'Chica'
+     *
+     * @return array
+     */
+    public function getChicas(): array
     {
-        $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chica' AND L.estado = 1;";
+        $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chica' AND L.estado = 1";
 
         try {
             return $this->selectAll($sql);
@@ -166,7 +200,13 @@ class usuarioModel extends query
         }
     }
 
-    public function highUsuario(int $id_usuario)
+    /**
+     * Restaura (reactiva) un usuario de la base de datos
+     *
+     * @param integer $id_usuario
+     * @return string
+     */
+    public function highUsuario(int $id_usuario): string
     {
         $sql = 'UPDATE usuarios SET estado = 1 , fecha_mod = now() WHERE id_usuario = :id_usuario';
         $params = [':id_usuario' => $id_usuario];
@@ -177,4 +217,6 @@ class usuarioModel extends query
             return response::estado500($e);
         }
     }
+
+
 }

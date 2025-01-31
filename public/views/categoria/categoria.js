@@ -85,9 +85,8 @@ async function getCategorias() {
             render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Activo</span>`;
-              } else {
-                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
               }
+              return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
             },
           },
           {
@@ -96,9 +95,8 @@ async function getCategorias() {
               if (row.estado === 1) {
                 return `<button title="Editar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="getCategoria(\'${row.id_categoria}\')"><i class="fas fa-edit"></i></button> 
                 <button title="Eliminar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="deleteCategoria(\'${row.id_categoria}\')"><i class="fas fa-trash"></i></button>`;
-              } else {
-                return `<button title="Activar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="highCategoria('${row.id_categoria}')"><i class="fa-solid fa-check-to-slot"></i></button>`;
               }
+              return `<button title="Activar categoria" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_categoria}" onclick="highCategoria('${row.id_categoria}')"><i class="fa-solid fa-check-to-slot"></i></button>`;
             },
           },
         ],
@@ -227,7 +225,7 @@ async function highCategoria(id) {
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
@@ -246,7 +244,10 @@ async function highCategoria(id) {
     } catch (error) {
       resultado = error.response.data;
       if (resultado.codigo === 500 && resultado.estado === "error") {
-        return toast("Error al activar la categoria, intente nuevamente", "info");
+        return toast(
+          "Error al activar la categoria, intente nuevamente",
+          "info"
+        );
       }
     }
   }

@@ -61,9 +61,8 @@ async function getRoles() {
             render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Activo</span>`;
-              } else {
-                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
               }
+              return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
             },
           },
           {
@@ -76,11 +75,10 @@ async function getRoles() {
                             <button title="Eliminar rol" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_rol}" onclick="deleteRol('${row.id_rol}')">
                                 <i class="fas fa-trash"></i>
                             </button>`;
-              } else {
-                return `<button title="Activar rol" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_rol}" onclick="highRol('${row.id_rol}')">
+              }
+              return `<button title="Activar rol" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_rol}" onclick="highRol('${row.id_rol}')">
                                 <i class="fa-solid fa-check-to-slot"></i>
                             </button>`;
-              }
             },
           },
         ],

@@ -11,7 +11,7 @@ $Layout = (new layout())
     ->content(function () {
 ?>
     <div class="row">
-        <div class="col-xl-4 mb-xl-10 mobile-hide">
+        <div class="col-xl-4 mb-xl-10 d-none d-xl-block">
             <div class="card shadow-sm">
                 <div class="card-body p-0">
                     <div class="card-p mb-10 text-center">
@@ -39,7 +39,7 @@ $Layout = (new layout())
                         </div>
                     </div>
                     <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                        <button id="mod" class="btn btn-light-dark btn-sm hover-elevate-up"
+                        <button class="btn btn-light-dark btn-sm hover-elevate-up d-block d-xl-none"
                             onclick="MPieza(event);"><i class="fa fa-plus"></i> Nuevo</button>
                     </div>
                 </div>

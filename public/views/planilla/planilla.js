@@ -45,40 +45,40 @@ async function getPlanillas() {
 }
 
 async function pagarPlanilla(id) {
-  /*   const result = await Swal.fire({
-      title: "Las Muñecas de Ramón",
-      text: "¿Está seguro de realizar el pago ?",
-      icon: "info",
-      showCancelButton: true,
-      confirmButtonText: "Si, pagar",
-      cancelButtonText: "No, cancelar",
-      customClass: {
-        confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
-        cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
-        popup: "swal2-dark",
-        title: "swal2-title",
-        htmlContainer: "swal2-html-container"
-      },
-      buttonsStyling: false,
-      confirmButtonColor: "#dc3545",
-      background: "var(--bs-body-bg)",
-      color: "var(--bs-body-color)",
-    });
-    if (result.isConfirmed) {
-      console.log(id)
-    } */
+  const result = await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: "¿Está seguro de realizar el pago ?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Si, pagar",
+    cancelButtonText: "No, cancelar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container",
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
+  if (result.isConfirmed) {
+    const url = `${BASE_URL}pagarPlanilla/${id}`;
 
-  const url = `${BASE_URL}pagarPlanilla/${id}`;
-
-  try {
-    const resp = await axios.get(url, config);
-    const data = resp.data;
-    if (resp.status === 204) {
-      console.log("No hay recursos que mostrar.");
-      return;
+    try {
+      const resp = await axios.get(url, config);
+      const data = resp.data;
+      console.log(data);
+      if (data.estado === "ok" && data.codigo === 201) {
+        toast("Planilla pagada exitosamente", "success");
+        getPlanillas();
+      }
+    } catch (error) {
+      console.error("Error al pagar planilla:", error);
     }
-    console.log(data);
-  } catch (error) {
-    console.error("Error al pagar planilla:", error);
   }
+
+  
 }

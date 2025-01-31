@@ -13,7 +13,14 @@ class rolModel extends query
         parent::__construct();
     }
 
-    public function getRoles()
+   
+
+    /**
+     * Obtiene todos los roles de la base de datos
+     *
+     * @return array
+     */
+    public function getRoles(): array
     {
         $sql = 'SELECT * FROM roles';
         try {
@@ -23,7 +30,14 @@ class rolModel extends query
         }
     }
 
-    public function getRol(int $id_rol)
+    /**
+     * Obtiene un rol específico de la base de datos
+     *
+     * @param int $id_rol
+     * @return array
+     */
+
+    public function getRol(int $id_rol): ?array
     {
         $sql = "SELECT * FROM roles WHERE id_rol = $id_rol";
         try {
@@ -33,7 +47,13 @@ class rolModel extends query
         }
     }
 
-    public function createRol(string $nombre)
+    /**
+     * Crea un nuevo rol en la base de datos
+     *
+     * @param string $nombre
+     * @return string
+     */
+    public function createRol(string $nombre): string
     {
         $sql = 'SELECT nombre FROM roles WHERE nombre = :nombre';
         $params = [':nombre' => $nombre];
@@ -51,7 +71,13 @@ class rolModel extends query
         }
     }
 
-    public function updateRol(array $rol)
+    /**
+     * Actualiza un rol en la base de datos
+     *
+     * @param array $rol
+     * @return string
+     */
+    public function updateRol(array $rol): string
     {
         $sql = 'SELECT nombre FROM roles WHERE nombre = :nombre AND estado = 1';
         $params = [':nombre' => $rol['nombre']];
@@ -70,7 +96,13 @@ class rolModel extends query
         }
     }
 
-    public function deleteRol(int $id_rol)
+    /**
+     * Elimina (desactiva) un rol de la base de datos
+     *
+     * @param int $id_rol
+     * @return string
+     */
+    public function deleteRol(int $id_rol): string
     {
         try {
             $sqlUsuarios = 'UPDATE usuarios SET estado = 0 WHERE rol_id = :rol_id';
@@ -87,7 +119,13 @@ class rolModel extends query
         }
     }
 
-    public function highRol(int $id_rol)
+    /**
+     * Restaura (activa) un rol en la base de datos
+     *
+     * @param int $id_rol
+     * @return string
+     */
+    public function highRol(int $id_rol): string
     {
         try {
             $sqlUsuarios = 'UPDATE usuarios SET estado = 1 WHERE rol_id = :rol_id';

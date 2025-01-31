@@ -13,9 +13,15 @@ class cajaModel extends query
         parent::__construct();
     }
 
-    public function createCaja(array $data)
+    /**
+     * Registro de caja 
+     *
+     * @param array $data
+     * @return string
+     */
+    public function createCaja(array $data): string
     {
-         $required = ['monto_apertura', 'usuario_id_apertura'];
+        $required = ['monto_apertura', 'usuario_id_apertura'];
         foreach ($required as $value) {
             if (!isset($data[$value])) {
                 return response::estado400('El campo ' . $value . ' es requerido');
@@ -34,26 +40,55 @@ class cajaModel extends query
         }
     }
 
-    public function getCajas()
+    /**
+     * Obtiene todas las cajas de la base de datos
+     *
+     * @return array
+     */
+    public function getCajas(): array
     {
-        $sql = 'SELECT * FROM cajas';
+        $sql = 'SELECT * FROM cajas ORDER BY fecha_apertura DESC';
         try {
             return $this->selectAll($sql);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
-    public function cerrarCaja(array $data)
+
+    /**
+     * Cierra la caja abierta
+     *
+     * @param array $data
+     * @return string
+     */
+    public function cerrarCaja(array $caja): string
     {
         $sql = 'UPDATE cajas SET estado = 0, monto_cierre = monto_cierre + monto_apertura, usuario_id_cierre = :usuario_id_cierre,
         fecha_cierre = now() WHERE id_caja = :id_caja';
         $params = [
-            ':id_caja'=> $data['id_caja'],
-            ':usuario_id_cierre'=> $data['usuario_id_cierre']
+            ':id_caja' => $caja['id_caja'],
+            ':usuario_id_cierre' => $caja['usuario_id_cierre']
         ];
         try {
             $data = $this->save($sql, $params);
             return $data === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    /**
+     * Obtiene una caja en especifico
+     *
+     * @param integer $id_caja
+     * @return array
+     */
+    public function getDetalleCaja(int $id_caja): array
+    {
+        $sql = 'SELECT * FROM cajas WHERE id_caja = :id_caja';
+        $params = [':id_caja' => $id_caja];
+        try {
+            return $this->select($sql, $params);
         } catch (Exception $e) {
             return response::estado500($e);
         }

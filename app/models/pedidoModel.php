@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\config\query;
@@ -12,39 +13,21 @@ class pedidoModel extends query
         parent::__construct();
     }
 
-    public function getChicasActivas()
-    {
-        $sql = "SELECT U.id_usuario, U.nombre, U.apellido, MAX(A.fercha_asistencia) AS fercha_asistencia, R.nombre AS rol
-                FROM usuarios AS U
-                LEFT JOIN asistencia AS A ON U.id_usuario = A.chica_id
-                LEFT JOIN roles AS R ON U.rol_id = R.id_rol
-                WHERE R.nombre = 'Chicas'
-                AND DATE(A.fercha_asistencia) IN (CURDATE(), DATE_SUB(CURDATE(), INTERVAL 1 DAY))
-                AND TIME(A.fercha_asistencia) <= '23:00:00'
-                GROUP BY U.id_usuario, U.nombre, U.apellido, R.nombre";
-        try {
-            return $this->selectAll($sql);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
 
-    }
 
     public function createPedido(array $data)
     {
-        $requiredFields = ['mesero_id', 'chica_id', 'subtotal', 'total', 'codigo'];
+        $requiredFields = ['mesero_id', 'subtotal', 'total', 'codigo'];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field])) {
                 return response::estado400('El campo ' . $field . ' es requerido');
             }
-
         }
-        $sql = "INSERT INTO pedidos (codigo,mesero_id, chica_id, cliente_id, subtotal, total,total_comision) 
-        VALUES (:codigo,:mesero_id, :chica_id, :cliente_id, :subtotal, :total, :total_comision)";
+        $sql = 'INSERT INTO pedidos (codigo, mesero_id, cliente_id, subtotal, total, total_comision) 
+        VALUES (:codigo, :mesero_id, :cliente_id, :subtotal, :total, :total_comision)';
         $params = [
             ':codigo' => $data['codigo'],
             ':mesero_id' => $data['mesero_id'],
-            ':chica_id' => $data['chica_id'],
             ':cliente_id' => $data['cliente_id'],
             ':subtotal' => $data['subtotal'],
             ':total' => $data['total'],
@@ -54,22 +37,21 @@ class pedidoModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
-            error_log('PedidoModel::createPedido() -> ' . $e);
+    
             return response::estado500("asdasd");
         }
-
     }
 
     public function createDetallePedido(array $data)
     {
-        $requiredFields = ["pedido_id", "producto_id", "precio", "cantidad", 'comision', "subtotal"];
+        $requiredFields = ["pedido_id", "producto_id", "precio", "cantidad", "comision", "subtotal"];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field])) {
                 return response::estado400("El campo $field es requerido");
-
             }
         }
-        $sql = "INSERT INTO detalle_pedidos (pedido_id, producto_id, precio, comision, cantidad, subtotal) VALUES (:pedido_id, :producto_id, :precio, :comision, :cantidad, :subtotal)";
+        $sql = 'INSERT INTO detalle_pedidos (pedido_id, producto_id, precio, comision, cantidad, subtotal)
+                VALUES (:pedido_id, :producto_id, :precio, :comision, :cantidad, :subtotal)';
         $params = [
             ':pedido_id' => $data['pedido_id'],
             ':producto_id' => $data['producto_id'],
@@ -82,10 +64,8 @@ class pedidoModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
-            error_log("PedidoModel::createDetallePedido() -> " . $e);
             return response::estado500($e);
         }
-
     }
     public function getLastPedido()
     {
@@ -93,7 +73,6 @@ class pedidoModel extends query
         try {
             return $this->select($sql);
         } catch (Exception $e) {
-            error_log("PedidoModel::getLastPedido() -> " . $e);
             return response::estado500("asdasd");
         }
     }
@@ -109,7 +88,6 @@ class pedidoModel extends query
          WHERE P.estado = 1";
         try {
             return $this->selectAll($sql);
-
         } catch (Exception $e) {
             error_log("PedidoModel::getPedidos() -> " . $e);
             return response::estado500($e);
@@ -139,9 +117,19 @@ class pedidoModel extends query
             error_log("PedidoModel::getDetallePedido() -> " . $e);
             return response::estado500($e);
         }
-
     }
-    
-
-
+    public function createPedidoUsuario(array $datos)
+    {
+        $sql = 'INSERT INTO pedidos_usuarios (usuario_id,pedido_id) VALUES (:usuario_id,:pedido_id)';
+        $params = [
+            ':usuario_id' => $datos['usuario_id'],
+            ':pedido_id' => $datos['pedido_id']
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

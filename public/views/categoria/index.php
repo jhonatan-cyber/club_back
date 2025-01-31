@@ -31,7 +31,7 @@ $Layout = (new layout())
                         <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo defined('TITLE') ? TITLE : 'Categorias'; ?></b></small>
                         <h5 class="h3 mb-0">Lista de Categorias</h5>
                     </div>
-                    <button class="btn btn-light-dark btn-sm hover-elevate-up" onclick="MCategoria(event);">
+                    <button class="btn btn-light-dark btn-sm hover-elevate-up d-block d-xl-none" onclick="MCategoria(event);">
                         <i class="fa fa-plus"></i> Nuevo
                     </button>
                 </div>

@@ -1,6 +1,5 @@
 let tbUsuario;
 document.addEventListener("DOMContentLoaded", () => {
-  perfil();
   getUsuarios();
   getRoles();
   if (document.getElementById("rol_id")) {
@@ -304,9 +303,8 @@ async function getUsuarios() {
             render: (data, type, row) => {
               if (row.estado === 1) {
                 return `<span class="badge badge-sm badge-success">Activo</span>`;
-              } else {
-                return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
               }
+              return `<span class="badge badge-sm badge-danger">Inactivo</span>`;
             },
           },
           {
@@ -319,11 +317,10 @@ async function getUsuarios() {
                         <button title="Eliminar usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="deleteUsuario('${row.id_usuario}')">
                           <i class="fas fa-trash"></i>
                         </button>`;
-              } else {
-                return `<button title="Activar Usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="highUsuario('${row.id_usuario}')">
+              }
+              return `<button title="Activar Usuario" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_usuario}" onclick="highUsuario('${row.id_usuario}')">
                                 <i class="fa-solid fa-check-to-slot"></i>
                             </button>`;
-              }
             },
           },
         ],
@@ -707,37 +704,5 @@ async function highUsuario(id) {
         return toast("Error al activar el usuario, intente nuevamente", "info");
       }
     }
-  }
-}
-
-async function perfil() {
-  const user = JSON.parse(localStorage.getItem("usuario"));
-  const url = `${BASE_URL}getUsuario/${user.id_usuario}`;
-  try {
-    const resp = await axios.get(url, config);
-    const data = resp.data;
-    console.log(data);
-    if (data.estado === "ok" && data.codigo === 200) {
-      document.getElementById(
-        "imgperfil"
-      ).innerHTML = `<img alt="imagen" src="${BASE_URL}public/assets/img/usuarios/${data.data.foto}" /><div class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px"></div>`;
-      document.getElementById("nomapes").innerHTML =
-        data.data.nombre + " " + data.data.apellido;
-      document.getElementById("eci").innerHTML = "RUN: " + data.data.run;
-      document.getElementById("mail").innerHTML = data.data.correo;
-      document.getElementById("dir").innerHTML = data.data.direccion;
-      document.getElementById("tel").innerHTML = data.data.telefono;
-      document.getElementById("id_usuario_perfil").value = data.data.id_usuario;
-      document.getElementById("rol_id_perfil").value = data.data.rol_id;
-
-      /*       
-     
-
-
-    
-       document.getElementById("cord").innerHTML = data.data.correo; */
-    }
-  } catch (error) {
-    console.error(error.response.data);
   }
 }

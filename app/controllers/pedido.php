@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\config\cache;
 use app\config\controller;
 use app\config\guard;
 use app\config\response;
@@ -26,109 +25,103 @@ class pedido extends controller
     public function index()
     {
         if ($this->method !== 'GET') {
-            $this->response(response::estado405());
+            return $this->response(response::estado405());
         }
-        if ($_SESSION['rol'] == "Administrador" || $_SESSION['rol'] == "Cajero" || $_SESSION['rol'] == "Mesero") {
-            try {
-                $view = new view();
-                session_regenerate_id(true);
-                if (!empty($_SESSION['activo'])) {
-                    echo $view->render('pedido', 'index');
-                } else {
-                    echo $view->render('auth', 'index');
-                }
-            } catch (Exception $e) {
-                http_response_code(404);
-                $this->response(response::estado404($e));
+        if ($_SESSION['rol'] !== "Administrador" && $_SESSION['rol'] !== "Cajero" && $_SESSION['rol'] !== "Mesero") {
+            return $this->response(response::estado403());
+        }
+        try {
+            $view = new view();
+            session_regenerate_id(true);
+            if (!empty($_SESSION['activo'])) {
+                echo $view->render('pedido', 'index');
+            } else {
+                echo $view->render('auth', 'index');
             }
-        }else{
-            $this->response(response::estado403());
+        } catch (Exception $e) {
+
+            return response::estado404($e);
         }
     }
 
-    public function getChicasActivas()
-    {
-        if ($this->method !== 'GET') {
-            http_response_code(405);
-            return $this->response(response::estado405());
-        }
-        guard::validateToken($this->header, guard::secretKey());
-        try {
-            $chicas = $this->model->getChicasActivas();
-            if (empty($chicas)) {
-                http_response_code(204);
-                return $this->response(response::estado204());
-            }
-            http_response_code(200);
-            return $this->response(response::estado200($chicas));
-        } catch (Exception $e) {
-            http_response_code(500);
-            return $this->response(response::estado400($e));
-        }
-    }
+
 
     public function createPedido()
     {
         if ($this->method !== 'POST') {
-            http_response_code(405);
             return $this->response(response::estado405());
         }
+
+        guard::validateToken($this->header, guard::secretKey());
+
+
+        $productos = $this->data['productos'];
+        $chicas = $this->data['chica_id'];
+
+
+        if ($this->data['cliente_id'] == 0) {
+            $this->data['cliente_id'] = 1;
+        }
+
+        $this->data['mesero_id'] = $_SESSION['id_usuario'];
+        $this->data['codigo'] = $this->generarCodigoAleatorio(8);
+
+        $minChica = 120000;
+        $maxChica = max(1, floor(($this->data['total'] - $minChica) / 40000) + 2);
+        if (count($productos) === 0) {
+
+            $this->response(response::estado400('Selecione productos para realizar el pedido.'));
+        }
+
+        if ($this->data['total'] < $minChica) {
+            if (count($chicas) > $maxChica) {
+
+                $this->response(response::estado400('Solo puede seleccionar ' . $maxChica . ' anfitriona(s).'));
+            }
+        }
+
+        if (count($chicas) === 0) {
+            $this->data['total_comision'] = 0;
+            $chicas = [];
+        }
+
         try {
-            $json = file_get_contents('php://input');
-            $data = json_decode($json, true);
-
-            if (empty($data)) {
-                return $this->response(response::estado400());
+            $pedido = $this->model->createPedido($this->data);
+            if ($pedido !== 'ok') {
+                return $this->response(response::estado500('Error al creal el pedido'));
             }
-
-            $required = ['chica_id', 'subtotal', 'total'];
-            foreach ($required as $field) {
-                if (empty($data[$field])) {
-                    http_response_code(400);
-                    return $this->response(response::estado400("El campo $field es obligatorio"));
+            $id_pedido = $this->model->getLastPedido();
+            foreach ($productos as $value) {
+                $detalle = [
+                    'pedido_id' => $id_pedido['id_pedido'],
+                    'producto_id' => $value['id_producto'],
+                    'precio' => $value['precio'],
+                    'cantidad' => $value['cantidad'],
+                    'subtotal' => $value['subtotal'],
+                    'comision' => $value['comision'],
+                ];
+                $detalle_pedido = $this->model->createDetallePedido($detalle);
+                if ($detalle_pedido !== 'ok') {
+                    return $this->response(response::estado500('Error al creal el detalle del pedido'));
                 }
             }
 
-            if (isset($data['productos']) && is_string($data['productos'])) {
-                $productos = json_decode($data['productos'], true);
-
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    return $this->response(response::estado400(['Error al decodificar productos: ' . json_last_error_msg()]));
+            if (!empty($chicas)) {
+                $usuarios = !is_array($chicas) ? [$chicas] : $chicas;
+                foreach ($usuarios as $usuario_id) {
+                    if ($usuario_id > 0) {
+                        $detalle = [
+                            'pedido_id' => $id_pedido['id_pedido'],
+                            'usuario_id' => $usuario_id,
+                        ];
+                        $pedido_usuario = $this->model->createPedidoUsuario($detalle);
+                        if ($pedido_usuario !== 'ok') {
+                            return $this->response(response::estado500('Error al creal el pedido con los usuarios'));
+                        }
+                    }
                 }
-            } else {
-                return $this->response(response::estado400(['El campo productos debe ser una cadena JSON.']));
             }
-
-            $data['mesero_id'] = $_SESSION['id_usuario'];
-            $data['codigo'] = $this->generarCodigoAleatorio(8);
-
-            $result = $this->model->createPedido($data);
-
-            if ($result) {
-                $id_pedido = $this->model->getLastPedido();
-                foreach ($productos as $value) {
-                    $detalle = [
-                        'pedido_id' => $id_pedido['id_pedido'],
-                        'producto_id' => $value['id_producto'],
-                        'precio' => $value['precio'],
-                        'cantidad' => $value['cantidad'],
-                        'subtotal' => $value['subtotal'],
-                        'comision' => $value['comision']
-                    ];
-                    $this->model->createDetallePedido($detalle);
-                }
-
-                $message = json_encode([
-                    'tipo' => 'pedido',
-                    'accion' => 'createPedido',
-                    'data' => $data
-                ]);
-                file_put_contents(__DIR__ . '/../../tmp/websocket_message.txt', $message);
-
-                return $this->response(response::estado201());
-            }
-
-            return $this->response(response::estado400());
+            return $this->response(response::estado201());
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }

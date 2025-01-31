@@ -23,20 +23,18 @@ async function getAsistencias() {
         fechas.primera_asistencia_global === null ||
         fechas.ultima_asistencia_global === null
       ) {
-        document.getElementById(
-          "txt_fecha"
-        ).innerHTML = `<b>No se encontraron asistencias</b>`;
+        document.getElementById("txt_fecha").innerHTML =
+          "<b>No se encontraron asistencias</b>";
       }
       if (
         fechas.primera_asistencia_global !== null ||
         fechas.ultima_asistencia_global !== null
-      ){
+      ) {
         document.getElementById(
           "txt_fecha"
         ).innerHTML = `<b>Desde : ${fechas.primera_asistencia_global} Hasta : ${fechas.ultima_asistencia_global}</b>`;
-  
       }
-      
+
       tbAsistencia = $("#tbAsistencia").DataTable({
         data: asistencias,
         language: LENGUAJE,
@@ -51,7 +49,7 @@ async function getAsistencias() {
           { data: "nombre_completo" },
           {
             data: "total_asistencias",
-            render: function (data, type, row) {
+            render: (data, type, row) => {
               return data === 1
                 ? `<span class="badge badge-sm badge-primary">${data} Día Asistido</span>`
                 : `<span class="badge badge-sm badge-primary">${data} Días Asistidos</span>`;
@@ -68,7 +66,7 @@ async function getAsistencias() {
           },
           {
             data: null,
-            render: function (data, type, row) {
+            render: (data, type, row) => {
               return `
                 <button class="btn btn-outline-dark btn-sm hover-scale" onclick="getAsistencia(${row.usuario_id})">
                   <i class="fas fa-eye"></i>
@@ -106,7 +104,6 @@ async function getAsistencia(id) {
         "total_aporte"
       ).innerHTML = `Aporte Total : ${totales.total_aportes}`;
 
-
       document.getElementById(
         "total_pagar"
       ).innerHTML = `Total a Pagar : ${totales.gran_total}`;
@@ -139,4 +136,3 @@ async function getAsistencia(id) {
     console.error("Error al obtener asistencias:", error);
   }
 }
-

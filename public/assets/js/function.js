@@ -2,8 +2,8 @@ const defaultThemeMode = "light";
 let themeMode;
 const MAX_PIEZAS = 50;
 document.addEventListener("DOMContentLoaded", async () => {
-  ajustes();
-  window.addEventListener("resize", ajustes);
+  /* ajustes();
+  window.addEventListener("resize", ajustes); */
   verificarTemporizadorActivo();
   usuarioAvatar();
 
@@ -38,6 +38,7 @@ async function getToken() {
 
   const config = {
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   };
@@ -154,25 +155,17 @@ function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
-const boton = document.getElementById("mod");
+/* const boton = document.getElementById("mod");
 const modo_movil = document.querySelectorAll(".mobile-hide");
 
 function ajustes() {
   if (boton) {
-    if (window.innerWidth >= 900) {
-      boton.style.display = "none";
-    } else {
-      boton.style.display = "block";
-    }
+    boton.style.display = window.innerWidth >= 900 ? "none" : "block";
   }
-  for (let i = 0; i < modo_movil.length; i++) {
-    if (window.innerWidth < 900) {
-      modo_movil[i].style.display = "none";
-    } else {
-      modo_movil[i].style.display = "block";
-    }
+  for (const elemento of modo_movil) {
+    elemento.style.display = window.innerWidth < 900 ? "none" : "block";
   }
-}
+} */
 
 function mostrarPassword(idInput, idIcono) {
   const tipoInput = document.getElementById(idInput).getAttribute("type");

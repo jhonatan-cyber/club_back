@@ -12,7 +12,6 @@ use Exception;
 class servicio extends controller
 {
     private $model;
-    private static $validar_numero = '/^[0-9]+$/';
 
     public function __construct()
     {
@@ -28,7 +27,7 @@ class servicio extends controller
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
-        if ($_SESSION['rol'] !== "Administrador" || $_SESSION['rol'] !== "Cajero") {
+        if ($_SESSION['rol'] !== "Administrador" && $_SESSION['rol'] !== "Cajero") {
             return $this->response(response::estado403());
         }
         try {

@@ -24,7 +24,7 @@ class home extends controller
     public function index()
     {
         if ($this->method !== 'GET') {
-            return $this->response(response::estado405());
+             $this->response(response::estado405());
         }
 
         try {
@@ -36,25 +36,25 @@ class home extends controller
                 echo $view->render('auth', 'index');
             }
         } catch (Exception $e) {
-            return $this->response(response::estado404($e));
+             $this->response(response::estado404($e));
         }
     }
     public function getCodigo(){
         if ($this->method !== 'GET') {
-            return $this->response(response::estado405());
+             $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
 
         try {
             $codigo = $this->model->getCodigo();
             if (!empty($codigo)) {
-                return $this->response(response::estado200($codigo));
+                 $this->response(response::estado200($codigo));
                
             }
-            return $this->response(response::estado204('No se pudo obtener el codigo'));
+             $this->response(response::estado204('No se pudo obtener el codigo'));
            
         } catch (Exception $e) {
-            return $this->response(response::estado500($e));
+             $this->response(response::estado500($e));
         }
     }
 

@@ -27,7 +27,9 @@
                                 <small id="total_aporte"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
-
+                                <small id="total_anticipo"
+                                    class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
+                                </small>
                                 <small id="total_pagar"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>

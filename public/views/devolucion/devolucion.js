@@ -1,7 +1,7 @@
 let tbServicios;
 let tbDevoluciones;
 let tbDevolucionesVenta;
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded",  () => {
   document.getElementById("cantidad").addEventListener("input", () => {
     const cantidad = Number($("#cantidad").val());
     const precio = document
@@ -427,10 +427,10 @@ async function createDevolucionVenta(e) {
     );
   const comision = Number(comisionInput) * cantidad;
 
-  if (cliente_id == 0 || cliente_id == null || cliente_id == "") {
+  if (cliente_id === 0 || cliente_id == null || cliente_id === "") {
     cliente_id = 1;
   }
-  if (producto_id == 0 || producto_id == null || producto_id == "") {
+  if (producto_id === 0 || producto_id == null || producto_id === "") {
     return toast("Seleccione un producto", "info");
   }
   if (monto === 0 || monto === null || monto === "") {

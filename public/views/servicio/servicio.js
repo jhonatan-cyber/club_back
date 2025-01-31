@@ -392,7 +392,7 @@ async function getBebidasPrecio(precio) {
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
-      carElement.innerHTML = ``;
+      carElement.innerHTML = "";
 
       const itemsHTML = data.data
         .map(
@@ -439,17 +439,17 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
       subtotal: 0,
     };
 
-    if (isNaN(producto.id_producto) || producto.id_producto <= 0) {
+    if (Number.isNaN(producto.id_producto) || producto.id_producto <= 0) {
       return toast("ID de producto inválido", "info");
     }
-    if (isNaN(producto.precio) || producto.precio < 0) {
+    if (Number.isNaN(producto.precio) || producto.precio < 0) {
       return toast("Precio inválido", "info");
     }
-    if (isNaN(producto.cantidad) || producto.cantidad <= 0) {
+    if (Number.isNaN(producto.cantidad) || producto.cantidad <= 0) {
       document.getElementById(`cantidad-${id_producto}`).focus();
       return toast("La cantidad debe ser mayor a cero", "info");
     }
-    if (isNaN(producto.comision) || producto.comision < 0) {
+    if (Number.isNaN(producto.comision) || producto.comision < 0) {
       return toast("Comisión inválida", "info");
     }
     producto.subtotal = producto.cantidad * producto.precio;
@@ -491,7 +491,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
 }
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoCuenta tbody");
-  tbody.innerHTML = ``;
+  tbody.innerHTML = "";
 
   const rows = carrito.map((item) => {
     const row = document.createElement("tr");
@@ -599,28 +599,6 @@ function reset() {
   document.getElementById("total").innerText = "0";
   document.getElementById("btn-registrar").hidden = false;
   document.getElementById("btn-generar").hidden = true;
-}
-
-async function cobrarCuenta(e, id_cuenta) {
-  e.preventDefault();
-  const metodo_pago = document.getElementById("metodo_pago_c").value;
-  const url = `${BASE_URL}updateCuenta`;
-
-  if (id_cuenta) {
-    const datos = {
-      id_cuenta: id_cuenta,
-      metodo_pago: metodo_pago,
-    };
-    try {
-      const resp = await axios.post(url, datos, config);
-      const data = resp.data;
-      if (data.estado === "ok" && data.codigo === 201) {
-        toast("Cuenta cobrada correctamente", "success");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
 }
 
 async function cortarServicio(codigo) {

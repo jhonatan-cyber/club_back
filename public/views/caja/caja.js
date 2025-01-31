@@ -47,9 +47,8 @@ async function createCaja(e) {
       return toast("Caja abierta correctamente", "success");
     }
   } catch (error) {
-    result = error.response.data;
-    console.log(result)
-    if (result.codigo === 500 && result.estado === "error") {
+   const resp = error.response.data;
+    if (resp.codigo === 500 && resp.estado === "error") {
       return toast("Error al abrir la caja", "error");
     }
   }
@@ -85,8 +84,8 @@ async function cerrarCaja(id) {
         return toast("Caja cerrada correctamente", "success");
       }
     } catch (error) {
-      result = error.response.data;
-      if (result.codigo === 500 && result.estado === "error") {
+      const resp = error.response.data;
+      if (resp.codigo === 500 && resp.estado === "error") {
         return toast("Error al cerrar la caja, intente nuevamente", "warning");
       }
     }

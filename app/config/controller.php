@@ -13,7 +13,7 @@ class controller
 
     public function __construct()
     {
-        $this->data = json_decode(file_get_contents('php://input'), true);
+        $this->data = json_decode(file_get_contents('php://input'), true) ?? [];
         $this->header = getallheaders();
         $this->method = $_SERVER['REQUEST_METHOD'];
     }
@@ -29,26 +29,31 @@ class controller
         try {
             $missingParams = $this->getMissingParams($params);
             if (!empty($missingParams)) {
-                $this->response(['Parametros faltantes: ' . implode(', ', $missingParams)]);;
+
+                 $this->response(response::estado400('Parámetros faltantes: ' . implode(', ', $missingParams)));
             }
             $this->validate();
             return true;
         } catch (Exception $e) {
-            $this->response(response::estado400());
+            response::estado400($e->getMessage());
         }
     }
+
     private function getMissingParams(array $params): array
     {
         return array_diff($params, array_keys($this->data));
     }
+
     private function validate(): void
     {
         $emptyParams = $this->getEmptyParams();
 
         if (!empty($emptyParams)) {
-            $this->response(response::estado400(implode(',', $emptyParams)));
+
+            $this->response(response::estado400('Parámetros vacíos: ' . implode(', ', $emptyParams)));
         }
     }
+
     private function getEmptyParams(): array
     {
         $emptyParams = [];

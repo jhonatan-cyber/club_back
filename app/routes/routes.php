@@ -105,7 +105,6 @@ $router->get('getBebidasPrecio/(\d+)', [$producto, 'getBebidasPrecio']);
 
 /* Pedidos */
 $router->get('pedidos', [$pedido, 'index']);
-$router->get('getChicasActivas', [$pedido, 'getChicasActivas']);
 $router->post('createPedido', [$pedido, 'createPedido']);
 $router->get('getPedidos', [$pedido, 'getPedidos']);
 $router->get('getDetallePedido/(\d+)', [$pedido, 'getDetallePedido']);

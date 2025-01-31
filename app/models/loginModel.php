@@ -63,30 +63,6 @@ class loginModel extends query
         }
     }
 
-    public function createAsistencia(int $usuario_id)
-    {
-        try {
-            $sql1 = 'SELECT id_asistencia FROM asistencia WHERE usuario_id = :usuario_id AND DATE(fercha_asistencia) = CURDATE() LIMIT 1';
-            $params1 = [
-                ':usuario_id' => $usuario_id
-            ];
-            $result = $this->select($sql1, $params1);
-
-            if (!empty($result)) {
-                return 'existe';
-            } else {
-                $sql = 'INSERT INTO asistencia (usuario_id, hora_asistencia, fercha_asistencia) VALUES (:usuario_id, CURTIME(), CURDATE())';
-                $params = [
-                    ':usuario_id' => $usuario_id
-                ];
-                $data = $this->save($sql, $params);
-                return $data === true ? 'ok' : 'error';
-            }
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
     public function validarCodigo(string $codigo)
     {
         try {

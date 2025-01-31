@@ -155,7 +155,7 @@ async function deleteProducto(id) {
       cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
       popup: "swal2-dark",
       title: "swal2-title",
-      htmlContainer: "swal2-html-container"
+      htmlContainer: "swal2-html-container",
     },
     buttonsStyling: false,
     confirmButtonColor: "#dc3545",
@@ -166,7 +166,7 @@ async function deleteProducto(id) {
     try {
       const url = `${BASE_URL}deleteProducto/${id}`;
       const resp = await axios.get(url, config);
-      if (resp.data.estado == "ok" && resp.data.codigo == 200) {
+      if (resp.data.estado === "ok" && resp.data.codigo === 200) {
         getProductoCategoria(
           localStorage.getItem("id_categoria"),
           localStorage.getItem("nombre_categoria")
@@ -272,9 +272,9 @@ function validarDatos(
     nombre.focus();
     return;
   }
-  
-  if (descripcion === "") {
-    descripcion = "Sin descripcion";
+  let descrip = descripcion;
+  if (descrip === "") {
+    descrip = "Sin descripcion";
   }
   if (precio === "") {
     toast("El precio es requerido", "info");
@@ -399,8 +399,12 @@ async function getProducto(id) {
       document.getElementById("codigo").value = data.data.codigo;
       document.getElementById("nombre").value = data.data.nombre;
       document.getElementById("descripcion").value = data.data.descripcion;
-      document.getElementById("precio").value = Number.parseInt(data.data.precio);
-      document.getElementById("comision").value = Number.parseInt(data.data.comision);
+      document.getElementById("precio").value = Number.parseInt(
+        data.data.precio
+      );
+      document.getElementById("comision").value = Number.parseInt(
+        data.data.comision
+      );
       document.getElementById("imagen_anterior").value = data.data.foto;
       const wrapper = document.querySelector("#imagen");
       if (data.data.foto !== "default.png") {

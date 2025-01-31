@@ -50,19 +50,20 @@ class caja extends controller
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+        if ($this->data === null) {
+            return $this->response(response::estado400('No se recibieron datos'));
+        }
         $this->data['usuario_id_apertura'] = $_SESSION['id_usuario'];
-     
-         try {
-            
+        try {
             $res = $this->model->createCaja($this->data);
- 
-         if ($res !== 'ok') {
+
+            if ($res !== 'ok') {
                 return $this->response(response::estado500('No se pudo crear la caja'));
             }
-            return $this->response(response::estado201()); 
+            return $this->response(response::estado201());
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
-        } 
+        }
     }
 
     public function getCajas()
@@ -82,22 +83,54 @@ class caja extends controller
         }
     }
 
-    public function cerrarCaja(int $id_caja)
+    public function cerrarCaja(int $id)
     {
         if ($this->method !== 'GET') {
             return $this->response(response::estado405());
         }
         guard::validateToken($this->header, guard::secretKey());
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->response(response::estado400('El id de la caja debe ser un numero entero.'));
+        }
+
+        if ($id <= 0) {
+            return $this->response(response::estado400('El id de la caja debe ser un numero entero positivo.'));
+        }
         try {
             $detalle = [
-                'id_caja' => $id_caja,
+                'id_caja' => $id,
                 'usuario_id_cierre' => $_SESSION['id_usuario']
             ];
             $res = $this->model->cerrarCaja($detalle);
             if ($res !== 'ok') {
-                return $this->response(response::estado500('No se pudo cerrar la caja'));
+                return $this->response(response::estado500('No se pudo cerrar la caja.'));
             }
-            return $this->response(response::estado201());
+            return $this->response(response::estado201('Caja cerrada exitosamente.'));
+        } catch (Exception $e) {
+            return $this->response(response::estado500($e));
+        }
+    }
+    public function getDetalleCaja(int $id)
+    {
+        if ($this->method !== 'GET') {
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->response(response::estado400('El id de la caja debe ser un numero entero.'));
+        }
+
+        if ($id <= 0) {
+            return $this->response(response::estado400('El id de la caja debe ser un numero entero positivo.'));
+        }
+        try {
+            $detalle = $this->model->getDetalleCaja($id);
+            if (empty($detalle)) {
+                return $this->response(response::estado204());
+            }
+            return $this->response(response::estado200($detalle));
         } catch (Exception $e) {
             return $this->response(response::estado500($e));
         }

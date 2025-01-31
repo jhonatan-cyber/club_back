@@ -5,11 +5,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   actualizarTablaCarrito(carrito);
-  
+
   document.getElementById("propina").addEventListener("input", () => {
     const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
-    const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
-    const propina = parseFloat(document.getElementById("propina").value) || 0;
+    const subtotal = carrito.reduce(
+      (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+      0
+    );
+    const propina =
+      Number.parseFloat(document.getElementById("propina").value) || 0;
     const total_a_pagar = subtotal + propina;
     document.getElementById("total").innerText = total_a_pagar;
   });
@@ -214,7 +218,7 @@ async function verVenta(id_venta) {
       }
 
       const detalleProductos = document.getElementById("detalle_productos");
-      detalleProductos.innerHTML = ``;
+      detalleProductos.innerHTML = "";
 
       for (const item of productosMap) {
         detalleProductos.innerHTML += `
@@ -251,7 +255,6 @@ function nuevoVenta(e) {
   getChicas();
   getProductosPrecio();
   getPiezas();
-
   verificarCategorias();
 }
 
@@ -310,7 +313,7 @@ async function getBebidasPrecio(precio) {
     console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
-      carElement.innerHTML = ``;
+      carElement.innerHTML = "";
 
       const itemsHTML = data.data
         .map(
@@ -377,9 +380,9 @@ function cargarCarrito(
   const total_comision = carrito.reduce((acc, item) => {
     return acc + (item.cantidad * item.comision || 0);
   }, 0);
-  
-  // Obtener la propina actual y calcular el total
-  const propina = parseFloat(document.getElementById("propina").value) || 0;
+
+  const propina =
+    Number.parseFloat(document.getElementById("propina").value) || 0;
   const total = subtotal_ + propina;
 
   const totales = {
@@ -387,7 +390,7 @@ function cargarCarrito(
     subtotal: subtotal_,
     total_comision: total_comision,
   };
-  
+
   localStorage.setItem("carrito_venta", JSON.stringify(carrito));
   localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
@@ -397,7 +400,7 @@ function cargarCarrito(
 
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoVenta tbody");
-  tbody.innerHTML = ``;
+  tbody.innerHTML = "";
 
   const rows = carrito.map((item) => {
     const row = document.createElement("tr");
@@ -406,7 +409,9 @@ function actualizarTablaCarrito(carrito) {
               <td>${item.cantidad}</td>
               <td>${item.precio || 0}</td>
               <td>${item.subtotal || 0}</td>
-              <td><button onclick="eliminarProducto(${item.id_producto})" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
+              <td><button onclick="eliminarProducto(${
+                item.id_producto
+              })" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
             `;
     return row;
   });
@@ -415,25 +420,36 @@ function actualizarTablaCarrito(carrito) {
     tbody.appendChild(row);
   }
 
-  const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
-  const propina = parseFloat(document.getElementById("propina").value) || 0;
+  const subtotal = carrito.reduce(
+    (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+    0
+  );
+  const propina =
+    Number.parseFloat(document.getElementById("propina").value) || 0;
   const total_a_pagar = subtotal + propina;
   document.getElementById("total").innerText = total_a_pagar;
 }
 
 function eliminarProducto(id_producto) {
   let carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
-  
+
   carrito = carrito.filter((item) => item.id_producto !== id_producto);
-  
-  const subtotal = carrito.reduce((acc, item) => acc + (parseFloat(item.subtotal) || 0), 0);
-  const propina = parseFloat(document.getElementById("propina").value) || 0;
+
+  const subtotal = carrito.reduce(
+    (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+    0
+  );
+  const propina =
+    Number.parseFloat(document.getElementById("propina").value) || 0;
   const total = subtotal + propina;
-  
+
   const totales = {
     total: total,
     subtotal: subtotal,
-    total_comision: carrito.reduce((acc, item) => acc + (item.cantidad * item.comision || 0), 0)
+    total_comision: carrito.reduce(
+      (acc, item) => acc + (item.cantidad * item.comision || 0),
+      0
+    ),
   };
 
   localStorage.setItem("carrito_venta", JSON.stringify(carrito));
@@ -484,7 +500,10 @@ async function getChicas() {
       });
     }
   } catch (error) {
-    console.log(error);
+    const resp = error.response.data;
+    if (resp.codigo === 500 && resp.estado === "error") {
+      return toast("Error al abrir la caja", "error");
+    }
   }
 }
 
@@ -497,7 +516,8 @@ async function createVenta(e) {
   let cliente_id = document.getElementById("cliente_id").value;
   const pieza_id = document.getElementById("pieza_id").value;
   const tiempo = document.getElementById("tiempo").value;
-  let propina = parseFloat(document.getElementById("propina").value) || 0;
+  let propina =
+    Number.parseFloat(document.getElementById("propina").value) || 0;
   if (propina === "") {
     propina = 0;
   }
@@ -547,7 +567,6 @@ async function createVenta(e) {
     usuario_id: usuario_id,
     pieza_id: pieza_id,
     productos: productos,
- 
     total_comision: totales.total_comision,
     subtotal: totales.subtotal || 0,
     metodo_pago: metodo_pago,

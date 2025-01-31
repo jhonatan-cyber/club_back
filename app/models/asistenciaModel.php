@@ -48,33 +48,32 @@ class asistenciaModel extends query
     public function getAsistencia(int $usuario_id)
     {
         try {
-            $sql_totales = "SELECT 
-                SUM(U.sueldo) as total_sueldos,
-                SUM(U.aporte) as total_aportes,
-                SUM(U.sueldo - U.aporte) as gran_total
-            FROM asistencia AS A 
-            INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario 
-            WHERE A.usuario_id = :usuario_id 
-            AND A.estado = 1
-            AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())";
+            $sql_totales = "SELECT SUM(U.sueldo) AS total_sueldos, SUM(U.aporte) AS total_aportes,
+                            COALESCE((SELECT SUM(AN.monto) FROM anticipos AS AN WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) AS total_anticipos,
+                            SUM(U.sueldo - U.aporte) - COALESCE((SELECT SUM(AN.monto) 
+                            FROM anticipos AS AN WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) AS gran_total
+                            FROM asistencia AS A INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario
+                            WHERE A.estado = 1 AND A.usuario_id = :usuario_id 
+                            AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())";
 
             $totales = $this->select($sql_totales, [':usuario_id' => $usuario_id]);
 
+            if (empty($totales)) {
+                return response::estado500("No se encontraron resultados para los totales.");
+            }
+
             $sql = "SELECT A.*, U.nombre, U.apellido, U.sueldo, U.aporte,
-                (U.sueldo) AS sueldo_total,
-                (U.aporte) AS aporte_total,
-                ((U.sueldo) - (U.aporte)) as total_final
-            FROM asistencia AS A 
-            INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario 
-            WHERE A.usuario_id = :usuario_id 
-            AND A.estado = 1
-            AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
-            ORDER BY A.fercha_asistencia DESC";
+                           (U.sueldo) AS sueldo_total,
+                           (U.aporte) AS aporte_total,
+                           ((U.sueldo) - (U.aporte)) as total_final
+                    FROM asistencia AS A
+                    INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario
+                    WHERE A.usuario_id = :usuario_id 
+                    AND A.estado = 1
+                    AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+                    ORDER BY A.fercha_asistencia DESC";
 
-            $paramas = [
-                ':usuario_id' => $usuario_id
-            ];
-
+            $paramas = [':usuario_id' => $usuario_id];
             $asistencias = $this->selectAll($sql, $paramas);
 
             return [
@@ -82,6 +81,7 @@ class asistenciaModel extends query
                 'totales' => [
                     'total_sueldos' => $totales['total_sueldos'],
                     'total_aportes' => $totales['total_aportes'],
+                    'total_anticipos' => $totales['total_anticipos'],  // Directamente usar el valor obtenido de la consulta
                     'gran_total' => $totales['gran_total']
                 ]
             ];
@@ -90,5 +90,24 @@ class asistenciaModel extends query
         }
     }
 
-  
+    public function createAsistencia(int $usuario_id)
+    {
+        $params = [
+            ':usuario_id' => $usuario_id
+        ];
+        try {
+            $sqlUpdateAnticipo = 'UPDATE anticipos SET estado = 0, fecha_mod = now() WHERE usuario_id = :usuario_id AND estado = 1';
+            $this->save($sqlUpdateAnticipo, $params);
+            $sqlSelectAsistencia = 'SELECT id_asistencia FROM asistencia WHERE usuario_id = :usuario_id AND DATE(fercha_asistencia) = CURDATE() LIMIT 1';
+            $resp = $this->select($sqlSelectAsistencia, $params);
+            if (!empty($resp)) {
+                return 'existe';
+            }
+            $sqlAddAsistencia = 'INSERT INTO asistencia (usuario_id, hora_asistencia, fercha_asistencia) VALUES (:usuario_id, CURTIME(), CURDATE())';
+            $result = $this->save($sqlAddAsistencia, $params);
+            return $result === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

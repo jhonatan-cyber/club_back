@@ -1,25 +1,24 @@
 const user = JSON.parse(localStorage.getItem("usuario"));
-let total_a_cobrar = 0;
 document.addEventListener("DOMContentLoaded", async () => {
   vistas(user);
   if (user.rol === "Mesero") {
     await getPropinas();
     const elementosMostrar = ["cServicios", "cComisiones"];
-    elementosMostrar.forEach((id) => {
+    for (const id of elementosMostrar) {
       const elemento = document.getElementById(id);
       if (elemento) {
         elemento.hidden = true;
       }
-    });
+    }
   }
   if (user.rol === "Chica") {
     const elementosMostrar = ["cPropinas", "cPedidos"];
-    elementosMostrar.forEach((id) => {
+    for (const id of elementosMostrar) {
       const elemento = document.getElementById(id);
       if (elemento) {
         elemento.hidden = true;
       }
-    });
+    }
   }
 });
 
@@ -27,8 +26,9 @@ function vistas(user) {
   if (user.rol === "Chica" || user.rol === "Mesero") {
     document.getElementById("cardAdmin").hidden = true;
     document.getElementById("cardEmpleado").hidden = false;
-    document.getElementById("nombreChica").innerHTML =
-      user.nombre + " " + user.apellido;
+    document.getElementById(
+      "nombreChica"
+    ).innerHTML = `${user.nombre} ${user.apellido}`;
   }
 
   if (user.rol === "Administrador" || user.rol === "Cajero") {
@@ -49,20 +49,30 @@ async function getAsistencia() {
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron asistencias", "info");
     }
+    if (
+      Array.isArray(data.data.asistencia) &&
+      data.data.asistencia.length === 0
+    ) {
+      return toast("No se encontraron asistencias", "info");
+    }
+
     if (data.estado === "ok" && data.codigo === 200) {
       const asistencias = data.data.asistencias;
       const totales = data.data.totales;
-      total_a_cobrar = total_a_cobrar + totales.gran_total;
 
       document.getElementById(
         "usuario"
       ).innerHTML = `Usuario : ${asistencias[0].nombre} ${asistencias[0].apellido}`;
       document.getElementById(
         "total_sueldo"
-      ).innerHTML = `Sueldo Total : ${totales.total_sueldos}`;
+      ).innerHTML = `Sueldos Total : ${totales.total_sueldos}`;
       document.getElementById(
         "total_aporte"
-      ).innerHTML = `Aporte Total : ${totales.total_aportes}`;
+      ).innerHTML = `Aportes Total : ${totales.total_aportes}`;
+      
+      document.getElementById(
+        "total_anticipo"
+      ).innerHTML = `Anticipos Total : ${totales.total_anticipos}`;
 
       document.getElementById(
         "total_pagar"
@@ -252,16 +262,61 @@ async function getPropinas() {
     const data = resp.data;
     console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
-      return toast("No se encontraron propinas", "info");
+      document.getElementById("propinas_usuario").innerHTML =
+        '<span class="badge badge-sm badge-info">Sin propinas</span>';
+      return;
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
       if (document.getElementById("propinas_usuario")) {
-        document.getElementById("propinas_usuario").innerHTML =
-          data.data.monto_total;
+        document.getElementById(
+          "propinas_usuario"
+        ).innerHTML = `<span class="badge badge-sm badge-success">${data.data.monto_total}</span>`;
       }
     }
   } catch (error) {
     console.error("Error al obtener propinas:", error);
+  }
+}
+document
+  .getElementById("btnHorasExtra")
+  .addEventListener("click", gethoraExtra);
+async function gethoraExtra() {
+  const url = `${BASE_URL}getHoraExtra/${user.id_usuario}`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    console.log(data)
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron horas extras", "info");
+    }
+    if (data.estado === "ok" && data.codigo === 200) {
+      document.getElementById(
+        "usuario_hora"
+      ).innerHTML = `Usuario : ${data.data.registros[0].nombre} ${data.data.registros[0].apellido}`;
+      document.getElementById(
+        "total_horas_extras"
+      ).innerHTML = `Total Horas : ${data.data.totales.total_horas}`;
+      document.getElementById(
+        "total_pagar_horas"
+      ).innerHTML = `Total Monto : ${data.data.totales.total_monto}`;
+
+      let html = "";
+      const detalle = data.data.registros.map((item) => {
+        return `
+            <tr>
+              <td>${item.fecha}</td>
+              <td>${item.hora}</td>
+              <td>${item.monto}</td>
+            </tr>
+          `;
+      });
+      html += detalle.join("");
+      document.getElementById("detalle_horas_extra").innerHTML = html;
+
+      $("#ModalDetalleHoraExtra").modal("show");
+    }
+  } catch (error) {
+    console.error(error);
   }
 }

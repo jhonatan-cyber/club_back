@@ -15,17 +15,17 @@
                                 <hr>
 
                                 </small>
-                                <small id="usuario"
+                                <small id="usuario_hora"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
                             </div>
                             <div class="col-6">
                                 <hr>
-                                <small id="total_horas"
+                                <small id="total_horas_extras"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
 
-                                <small id="total_pagar"
+                                <small id="total_pagar_horas"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
 

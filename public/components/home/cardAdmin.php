@@ -26,6 +26,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md-3 col-sm-6 mb-10">
                         <div class="bg-light bg-opacity-20 rounded-3 p-6 mx-md-5">
                             <div class="row justify-content-between text-center">
@@ -42,6 +43,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md-3 col-sm-6 mb-10">
                         <div class="bg-light bg-opacity-20 rounded-3 p-6 mx-md-5">
                             <div class="row justify-content-between text-center">
@@ -58,5 +60,6 @@
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>

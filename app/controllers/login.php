@@ -7,11 +7,13 @@ use app\config\guard;
 use app\config\response;
 use app\config\view;
 use app\models\loginModel;
+use app\models\asistenciaModel;
 use Exception;
 
 class login extends controller
 {
     private $model;
+    private $asistencia;
 
     public function __construct()
     {
@@ -20,6 +22,7 @@ class login extends controller
         }
         parent::__construct();
         $this->model = new loginModel();
+        $this->asistencia = new asistenciaModel();
     }
 
     public function index()
@@ -80,7 +83,7 @@ class login extends controller
                             return $this->response(response::estado500('No se pudo crear el login'));
                         }
 
-                        $asistencia = $this->model->createAsistencia($_SESSION['id_usuario']);
+                        $asistencia = $this->asistencia->createAsistencia($_SESSION['id_usuario']);
                         if ($asistencia === 'error') {
                             return $this->response(response::estado500('No se pudo crear la asistencia'));
                         }
@@ -150,7 +153,7 @@ class login extends controller
                 return $this->response(response::estado200('No se puede registrar asistencia después de las 11:00 PM'));
             }
 
-            $asistencia = $this->model->createAsistencia($usuario_id);
+            $asistencia = $this->asistencia->createAsistencia($usuario_id);
 
             if ($asistencia === 'existe') {
                 return $this->response(response::estado200('Ya registraste tu asistencia hoy'));

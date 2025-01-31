@@ -2,12 +2,15 @@
 <html lang="es">
 
 <head>
-    <title><?php echo TITLE ?> | Iniciar sesión</title>
+    <title><?php echo TITLE ?></title>
     <meta charset="utf-8" />
     <meta name="description" content="Las muñecas de Ramón" />
     <meta name="keywords" content="Las muñecas de Ramón" />
     <meta name="author" content="NuweSoft" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:locale" content="es_ES" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="shortcut icon" href="<?php echo BASE_URL ?>public/assets/img/sistema/favicon.ico" />
     <link href="<?php echo BASE_URL ?>public/assets/css/all.min.css" rel="stylesheet" type="text/css" />
     <link href="<?php echo BASE_URL ?>public/assets/css/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="<?php echo BASE_URL ?>public/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />

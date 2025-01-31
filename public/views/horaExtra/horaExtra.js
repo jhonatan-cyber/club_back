@@ -38,7 +38,7 @@ async function getMesero() {
       const select = document.getElementById("usuario_id");
       select.innerHTML = "";
       const usuariosFiltrados = datos.data.filter(
-        (usuario) => usuario.rol_id === 3 || usuario.rol_id === 2
+        (usuario) => usuario.rol_id !== 1 
       );
       for (const usuario of usuariosFiltrados) {
         const option = document.createElement("option");
@@ -143,13 +143,13 @@ async function gethoraExtra(id) {
     }
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById(
-        "usuario"
+        "usuario_hora"
       ).innerHTML = `Usuario : ${data.data.registros[0].nombre} ${data.data.registros[0].apellido}`;
       document.getElementById(
-        "total_horas"
+        "total_horas_extras"
       ).innerHTML = `Total Horas : ${data.data.totales.total_horas}`;
       document.getElementById(
-        "total_pagar"
+        "total_pagar_horas"
       ).innerHTML = `Total Monto : ${data.data.totales.total_monto}`;
 
       let html = "";

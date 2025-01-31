@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\config\query;
@@ -25,39 +26,21 @@ class planillaModel extends query
                     COALESCE(P.propina_total, 0) - COALESCE(COM.total_anticipo, 0) - 
                     COALESCE((U.aporte * COUNT(DISTINCT A.id_asistencia)), 0)
                 ) as total
-FROM usuarios U 
-LEFT JOIN asistencia A ON U.id_usuario = A.usuario_id 
-    AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), "%Y-%m-01") AND LAST_DAY(CURDATE())
-    AND A.estado = 1
-LEFT JOIN (SELECT D.chica_id, 
+                FROM usuarios U LEFT JOIN asistencia A ON U.id_usuario = A.usuario_id 
+                AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), "%Y-%m-01") AND LAST_DAY(CURDATE()) AND A.estado = 1
+                LEFT JOIN (SELECT D.chica_id, 
                   COALESCE(SUM(CASE WHEN C.venta_id != 0 THEN C.monto ELSE 0 END), 0) AS total_venta,
                   COALESCE(SUM(CASE WHEN C.servicio_id != 0 THEN C.monto ELSE 0 END), 0) AS total_servicio,
                   COALESCE(A.anticipo, 0) AS total_anticipo 
-           FROM comisiones C
-           INNER JOIN detalle_comisiones D ON C.id_comision = D.comision_id
-           LEFT JOIN (
-               SELECT usuario_id, SUM(monto) AS anticipo 
-               FROM anticipos 
-               WHERE estado = 0 
-               GROUP BY usuario_id
-           ) A ON D.chica_id = A.usuario_id
-           WHERE C.estado = 1
-           GROUP BY D.chica_id, A.anticipo
-    ) COM ON U.id_usuario = COM.chica_id
-LEFT JOIN (
-    SELECT DP.usuario_id, SUM(DP.monto) as propina_total
-    FROM detalle_propinas DP
-    INNER JOIN propinas P ON DP.propina_id = P.id_propina
-    WHERE P.estado = 1
-    GROUP BY DP.usuario_id
-) P ON U.id_usuario = P.usuario_id
-WHERE U.id_usuario != 1
-GROUP BY 
-    U.id_usuario, U.nombre, U.apellido, U.sueldo, U.aporte,
-    COM.total_venta, COM.total_servicio, COM.total_anticipo,
-    P.propina_total
-HAVING total > 0
-ORDER BY total DESC;';
+                FROM comisiones C INNER JOIN detalle_comisiones D ON C.id_comision = D.comision_id
+                LEFT JOIN (SELECT usuario_id, SUM(monto) AS anticipo FROM anticipos 
+                WHERE estado = 0 GROUP BY usuario_id) A ON D.chica_id = A.usuario_id
+                WHERE C.estado = 1 GROUP BY D.chica_id, A.anticipo) COM ON U.id_usuario = COM.chica_id
+                LEFT JOIN (SELECT DP.usuario_id, SUM(DP.monto) as propina_total
+                FROM detalle_propinas DP
+                INNER JOIN propinas P ON DP.propina_id = P.id_propina WHERE P.estado = 1 GROUP BY DP.usuario_id) P ON U.id_usuario = P.usuario_id
+                WHERE U.id_usuario != 1 GROUP BY U.id_usuario, U.nombre, U.apellido, U.sueldo, U.aporte, COM.total_venta, COM.total_servicio, COM.total_anticipo, P.propina_total
+                HAVING total > 0 ORDER BY total DESC;';
 
         try {
             $data = $this->selectAll($sql);

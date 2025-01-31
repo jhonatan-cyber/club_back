@@ -308,7 +308,7 @@ async function getBebidasPrecio(precio) {
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
-      carElement.innerHTML = ``;
+      carElement.innerHTML = '';
 
       const itemsHTML = data.data
         .map(
@@ -386,7 +386,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
 
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoCuenta tbody");
-  tbody.innerHTML = ``;
+  tbody.innerHTML = '';
 
   const rows = carrito.map((item) => {
     const row = document.createElement("tr");

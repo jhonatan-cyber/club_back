@@ -43,7 +43,6 @@ class anticipoModel extends query
         return $data;
     }
 
-
     public function getAnticipo($id_anticipo)
     {
         $sql = 'SELECT * FROM anticipos  WHERE id_anticipo = :id_anticipo';
@@ -83,86 +82,11 @@ class anticipoModel extends query
         }
     }
 
-    public function getDetatalleComisionUsuario(int $chica_id)
-    {
-        $sql = 'SELECT * FROM detalle_comisiones WHERE chica_id = :chica_id AND estado = 1';
-        $params = [
-            ':chica_id' => $chica_id
-        ];
-        try {
-            return $this->selectAll($sql, $params);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function updateDetalleComision(array $datos)
-    {
-        $sql = 'UPDATE detalle_comisiones  SET estado = :estado WHERE id_detalle_comision = :id_detalle_comision';
-        $params = [
-            ':id_detalle_comision' => $datos['id_detalle_comision'],
-            ':estado' => $datos['estado']
-        ];
-        try {
-            $data = $this->save($sql, $params);
-            return $data === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            error_log($e->getMessage());
-            return response::estado500($e);
-        }
-    }
-
-    public function getComision(int $id_comision)
-    {
-        $sql = 'SELECT * FROM comisiones WHERE id_comision = :id_comision';
-        $params = [
-            ':id_comision' => $id_comision
-        ];
-        try {
-            $data = $this->select($sql, $params);
-            return $data;
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function updateComision(array $datos)
-    {
-        $sql = 'UPDATE comisiones SET estado = :estado, fecha_mod = now() WHERE id_comision = :id_comision';
-        $params = [
-            ':id_comision' => $datos['id_comision'],
-            ':estado' => $datos['estado']
-        ];
-        try {
-            $data = $this->save($sql, $params);
-            return $data === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
     public function getLastAnticipo()
     {
         $sql = 'SELECT MAX(id_anticipo) AS id_anticipo FROM anticipos LIMIT 1';
         try {
             return $this->select($sql);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function getComisionUsuario(int $chica_id)
-    {
-        $sql = 'SELECT D.comision_id , C.monto
-                FROM detalle_comisiones AS D
-                INNER JOIN comisiones AS C ON 
-                D.comision_id = C.id_comision WHERE D.chica_id = :chica_id AND D.estado = 1 AND C.estado = 1';
-        $params = [
-            ':chica_id' => $chica_id
-        ];
-        try {
-            $data = $this->selectAll($sql, $params);
-            return $data;
         } catch (Exception $e) {
             return response::estado500($e);
         }
