@@ -69,7 +69,7 @@ async function getAsistencia() {
       document.getElementById(
         "total_aporte"
       ).innerHTML = `Aportes Total : ${totales.total_aportes}`;
-      
+
       document.getElementById(
         "total_anticipo"
       ).innerHTML = `Anticipos Total : ${totales.total_anticipos}`;
@@ -286,7 +286,7 @@ async function gethoraExtra() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data)
+    console.log(data);
     if (data.estado !== "ok" && data.codigo !== 200) {
       return toast("No se encontraron horas extras", "info");
     }

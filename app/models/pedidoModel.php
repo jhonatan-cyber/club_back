@@ -24,7 +24,7 @@ class pedidoModel extends query
             }
         }
         $sql = 'INSERT INTO pedidos (codigo, mesero_id, cliente_id, subtotal, total, total_comision) 
-        VALUES (:codigo, :mesero_id, :cliente_id, :subtotal, :total, :total_comision)';
+                VALUES (:codigo, :mesero_id, :cliente_id, :subtotal, :total, :total_comision)';
         $params = [
             ':codigo' => $data['codigo'],
             ':mesero_id' => $data['mesero_id'],

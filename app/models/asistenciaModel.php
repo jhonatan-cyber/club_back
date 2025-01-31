@@ -46,49 +46,56 @@ class asistenciaModel extends query
     }
 
     public function getAsistencia(int $usuario_id)
-    {
-        try {
-            $sql_totales = "SELECT SUM(U.sueldo) AS total_sueldos, SUM(U.aporte) AS total_aportes,
-                            COALESCE((SELECT SUM(AN.monto) FROM anticipos AS AN WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) AS total_anticipos,
-                            SUM(U.sueldo - U.aporte) - COALESCE((SELECT SUM(AN.monto) 
-                            FROM anticipos AS AN WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) AS gran_total
-                            FROM asistencia AS A INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario
-                            WHERE A.estado = 1 AND A.usuario_id = :usuario_id 
-                            AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())";
+{
+    try {
+        $sql_totales = "SELECT 
+                            CAST(SUM(U.sueldo) AS UNSIGNED) AS total_sueldos, 
+                            CAST(SUM(U.aporte) AS UNSIGNED) AS total_aportes,
+                            CAST(COALESCE((SELECT SUM(AN.monto) FROM anticipos AS AN 
+                            WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) AS UNSIGNED) AS total_anticipos,
+                            CAST(SUM(U.sueldo - U.aporte) - COALESCE((SELECT SUM(AN.monto) 
+                            FROM anticipos AS AN WHERE AN.usuario_id = A.usuario_id AND AN.estado = 0), 0) 
+                            AS UNSIGNED) AS gran_total 
+                        FROM asistencia AS A 
+                        INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario 
+                        WHERE A.estado = 1 
+                        AND A.usuario_id = :usuario_id 
+                        AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())";
 
-            $totales = $this->select($sql_totales, [':usuario_id' => $usuario_id]);
+        $totales = $this->select($sql_totales, [':usuario_id' => $usuario_id]);
 
-            if (empty($totales)) {
-                return response::estado500("No se encontraron resultados para los totales.");
-            }
-
-            $sql = "SELECT A.*, U.nombre, U.apellido, U.sueldo, U.aporte,
-                           (U.sueldo) AS sueldo_total,
-                           (U.aporte) AS aporte_total,
-                           ((U.sueldo) - (U.aporte)) as total_final
-                    FROM asistencia AS A
-                    INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario
-                    WHERE A.usuario_id = :usuario_id 
-                    AND A.estado = 1
-                    AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
-                    ORDER BY A.fercha_asistencia DESC";
-
-            $paramas = [':usuario_id' => $usuario_id];
-            $asistencias = $this->selectAll($sql, $paramas);
-
-            return [
-                'asistencias' => $asistencias,
-                'totales' => [
-                    'total_sueldos' => $totales['total_sueldos'],
-                    'total_aportes' => $totales['total_aportes'],
-                    'total_anticipos' => $totales['total_anticipos'],  // Directamente usar el valor obtenido de la consulta
-                    'gran_total' => $totales['gran_total']
-                ]
-            ];
-        } catch (Exception $e) {
-            return response::estado500($e->getMessage());
+        if (empty($totales)) {
+            return response::estado500("No se encontraron resultados para los totales.");
         }
+
+        $sql = "SELECT A.*, U.nombre, U.apellido, U.sueldo, U.aporte,
+                       CAST(U.sueldo AS UNSIGNED) AS sueldo_total,
+                       CAST(U.aporte AS UNSIGNED) AS aporte_total,
+                       CAST((U.sueldo - U.aporte) AS UNSIGNED) AS total_final
+                FROM asistencia AS A
+                INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario
+                WHERE A.usuario_id = :usuario_id 
+                AND A.estado = 1
+                AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
+                ORDER BY A.fercha_asistencia DESC";
+
+        $paramas = [':usuario_id' => $usuario_id];
+        $asistencias = $this->selectAll($sql, $paramas);
+
+        return [
+            'asistencias' => $asistencias,
+            'totales' => [
+                'total_sueldos' => (int) $totales['total_sueldos'],
+                'total_aportes' => (int) $totales['total_aportes'],
+                'total_anticipos' => (int) $totales['total_anticipos'],  
+                'gran_total' => (int) $totales['gran_total']
+            ]
+        ];
+    } catch (Exception $e) {
+        return response::estado500($e->getMessage());
     }
+}
+
 
     public function createAsistencia(int $usuario_id)
     {
