@@ -43,7 +43,7 @@ class comisionModel extends query
         }
     }
 
-    public function getComisionesUsuario(int $usuario_id)
+    public function getComisionesUsuario(int $usuario_id): array
     {
         $sql = 'SELECT DC.estado, D.fecha_crea, DC.comision, (SELECT SUM(DC1.comision) 
                 FROM detalle_comisiones AS DC1 
@@ -53,12 +53,20 @@ class comisionModel extends query
                 WHERE DC.chica_id = :usuario_id';
         $params = [':usuario_id' => $usuario_id];
         try {
-            return $this->selectAll($sql, $params);
+            $result = $this->selectAll($sql, $params);
+            return array_map(function ($row) {
+                return [
+                    'comision'    => (int) $row['comision'],
+                    'fecha_crea'  => (string) $row['fecha_crea'],
+                    'estado'      => (int) $row['estado'],
+                    'total'       => (int) $row['total'],
+                ];
+            }, $result);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
-    
+
     public function getDetatalleComisionUsuario(int $chica_id)
     {
         $sql = 'SELECT * FROM detalle_comisiones WHERE chica_id = :chica_id AND estado = 1';

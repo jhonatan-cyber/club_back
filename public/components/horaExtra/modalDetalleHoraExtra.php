@@ -42,6 +42,7 @@
                                                 <th>Fecha</th>
                                                 <th>Horas</th>
                                                 <th>Monto</th>
+                                                <th>Estado de Pago</th>
                                             </tr>
                                         </thead>
                                         <tbody class="fw-semibold text-gray-600" id="detalle_horas_extra"></tbody>

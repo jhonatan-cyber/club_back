@@ -29,6 +29,9 @@ function vistas(user) {
     document.getElementById(
       "nombreChica"
     ).innerHTML = `${user.nombre} ${user.apellido}`;
+    if (user.rol === "Chica") {
+      document.getElementById("cHoraExtra").hidden = true;
+    }
   }
 
   if (user.rol === "Administrador" || user.rol === "Cajero") {
@@ -112,19 +115,20 @@ async function getAnticipos() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron anticipos", "info");
     }
+
     if (data.estado === "ok" && data.codigo === 200) {
       const anticipos = data.data;
       document.getElementById(
-        "total_anticipo"
+        "anticipo_total"
       ).innerHTML = `Monto Total : ${anticipos[0].total}`;
       const anticipoHTML = await Promise.all(
         anticipos.map(async (anticipo) => {
           const fecha = moment(anticipo.fecha_crea).format("DD/MM/YYYY");
           const hora = moment(anticipo.fecha_crea).format("HH:mm");
-
           document.getElementById(
             "usuario_anticipo"
           ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
@@ -158,6 +162,7 @@ async function getServicios() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron servicios", "info");
     }
@@ -214,6 +219,7 @@ async function getComisiones() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron comisiones", "info");
     }
@@ -262,16 +268,16 @@ async function getPropinas() {
     const data = resp.data;
     console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
-      document.getElementById("propinas_usuario").innerHTML =
+      document.getElementById("propinas_garzon").innerHTML =
         '<span class="badge badge-sm badge-info">Sin propinas</span>';
       return;
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
-      if (document.getElementById("propinas_usuario")) {
+      if (document.getElementById("propinas_garzon")) {
         document.getElementById(
-          "propinas_usuario"
-        ).innerHTML = `<span class="badge badge-sm badge-success">${data.data.monto_total}</span>`;
+          "propinas_garzon"
+        ).innerHTML = `<span class="badge badge-sm badge-success">${data.data.total}</span>`;
       }
     }
   } catch (error) {
@@ -293,21 +299,25 @@ async function gethoraExtra() {
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById(
         "usuario_hora"
-      ).innerHTML = `Usuario : ${data.data.registros[0].nombre} ${data.data.registros[0].apellido}`;
+      ).innerHTML = `Usuario : ${user.nombre} ${user.apellido}`;
       document.getElementById(
         "total_horas_extras"
       ).innerHTML = `Total Horas : ${data.data.totales.total_horas}`;
       document.getElementById(
         "total_pagar_horas"
       ).innerHTML = `Total Monto : ${data.data.totales.total_monto}`;
-
       let html = "";
       const detalle = data.data.registros.map((item) => {
+        const estadoBadge =
+          item.estado === 0
+            ? '<span class="badge badge-sm badge-success">Pagado</span>'
+            : '<span class="badge badge-sm badge-info">Pendiente</span>';
         return `
             <tr>
               <td>${item.fecha}</td>
               <td>${item.hora}</td>
               <td>${item.monto}</td>
+              <td>${estadoBadge}</td> 
             </tr>
           `;
       });

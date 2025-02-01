@@ -56,6 +56,7 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
+
     public function getServicio(string $codigo)
     {
         $sql = "SELECT D.id_detalle_servicio,S.pieza_id, S.id_servicio, U.nombre AS nombre_u,U.apellido AS apellido_u,
@@ -373,35 +374,31 @@ class servicioModel extends query
             return response::estado500($e);
         }
     }
-    public function getServicioUsuario(int $id_usuario)
+    public function getServicioUsuario(int $id_usuario): array
     {
-        $sql = "
-            SELECT 
-                DS.fecha_crea,
-                S.estado,
-                S.precio_servicio,
-                (SELECT SUM(S2.precio_servicio) 
-                 FROM detalle_servicios AS DS2
-                 INNER JOIN servicios AS S2 ON DS2.servicio_id = S2.id_servicio 
-                 WHERE DS2.usuario_id = :id_usuario
-                ) AS total
-            FROM 
-                detalle_servicios AS DS
-            INNER JOIN 
-                servicios AS S ON DS.servicio_id = S.id_servicio
-            WHERE 
-                DS.usuario_id = :id_usuario";
-        
-        $params = [
-            ":id_usuario" => $id_usuario
-        ];
-    
+        $sql = "SELECT DS.fecha_crea, S.estado, CAST(S.precio_servicio AS UNSIGNED) AS precio_servicio,
+                CAST(COALESCE((SELECT SUM(S2.precio_servicio) FROM detalle_servicios AS DS2
+                INNER JOIN servicios AS S2 ON DS2.servicio_id = S2.id_servicio 
+                WHERE DS2.usuario_id = :id_usuario), 0) AS UNSIGNED) AS total
+                FROM detalle_servicios AS DS
+                INNER JOIN servicios AS S ON DS.servicio_id = S.id_servicio
+                WHERE DS.usuario_id = :id_usuario";
+
+        $params = [":id_usuario" => $id_usuario];
+
         try {
-            return $this->selectAll($sql, $params);
+            $result = $this->selectAll($sql, $params);
+
+            return array_map(function ($row) {
+                return [
+                    'fecha_crea'      => (string) $row['fecha_crea'],
+                    'estado'          => (int) $row['estado'],
+                    'precio_servicio' => (int) $row['precio_servicio'],
+                    'total'           => (int) $row['total'],
+                ];
+            }, $result);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
-    
-    
 }

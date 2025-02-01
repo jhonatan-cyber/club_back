@@ -8,7 +8,7 @@
             <label class="btn btn-outline btn-outline-dashed btn-outline-default p-7 d-flex align-items-center">
                 <i class="fa-solid fa-dollar-sign fs-2x me-5"></i>
                 <span class="d-block fw-bold text-start">
-                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Propinas : <b id="propinas_usuario"></b></span>
+                    <span class="text-dark fw-bolder d-block fs-4 mb-2">Propinas : <b id="propinas_garzon"></b></span>
                 </span>
             </label>
         </div>

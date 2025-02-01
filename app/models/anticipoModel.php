@@ -21,26 +21,31 @@ class anticipoModel extends query
         return $data;
     }
 
-    public function getAnticipoUsuario(int $id_usuario)
+    public function getAnticipoUsuario(int $id_usuario): array
     {
-        $sql = 'SELECT 
-                    A.id_anticipo, 
-                    A.monto, 
-                    A.fecha_crea, 
-                    A.estado, 
-                    (SELECT SUM(monto) 
-                     FROM anticipos 
-                     WHERE usuario_id = :id_usuario) AS total
-                FROM anticipos AS A 
-                INNER JOIN usuarios AS U 
-                ON A.usuario_id = U.id_usuario 
-                WHERE A.usuario_id = :id_usuario 
-                ORDER BY A.fecha_crea DESC';
+        $sql = 'SELECT A.id_anticipo, A.monto, A.fecha_crea, A.estado, (SELECT SUM(monto) 
+                FROM anticipos WHERE usuario_id = :id_usuario) AS total FROM anticipos AS A 
+                INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario 
+                WHERE A.usuario_id = :id_usuario ORDER BY A.fecha_crea DESC';
         $params = [
             ':id_usuario' => $id_usuario
         ];
-        $data = $this->selectAll($sql, $params);
-        return $data;
+        try {
+            $result = $this->selectAll($sql, $params);
+
+            return array_map(function ($row) {
+                return [
+                    'estado'          => (int) $row['estado'],
+                    'fecha_crea'      => (string) $row['fecha_crea'],
+                    'id_anticipo' => (int) $row['id_anticipo'],
+                    'total'           => (int) $row['total'],
+                    'monto'           => (int) $row['monto'],
+                ];
+            }, $result);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+        
     }
 
     public function getAnticipo($id_anticipo)
