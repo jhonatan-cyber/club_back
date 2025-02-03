@@ -5,10 +5,11 @@
                 <tr class="text-center text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                     <th>#</th>
                     <th>Codigo</th>
-                    <th>Mesero</th>
-                    <th>Acompañante</th>
+                    <th>Garzon</th>
+                    <th>Anfitriona(s)</th>
                     <th>Cliente</th>
                     <th>Total</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

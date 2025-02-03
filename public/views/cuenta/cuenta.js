@@ -11,53 +11,65 @@ async function getCuentas() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron cuentas", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
-      if (data.data.length > 0) {
-        tbCuenta = $("#tbCuenta").DataTable({
-          data: data.data,
-          language: LENGUAJE,
-          destroy: true,
-          responsive: true,
-          info: true,
-          lengthMenu: [DISPLAY_LENGTH, 10, 25, 50],
-          autoWidth: true,
-          paging: true,
-          searching: true,
-          columns: [
-            {
-              data: null,
-              render: (data, type, row, meta) =>
-                `<span class="badge badge-sm badge-primary">${formatNumber(
-                  meta.row + 1
-                )}</span>`,
-            },
-            { data: "codigo" },
+      if (data.data.length <= 0) {
+        return toast("No se encontraron cuentas", "info");
+      }
 
-            {
-              data: "cliente",
-            },
-            { data: "total" },
-            {
-              data: null,
-              render: (data, type, row) => {
-                const fecha = moment(row.fecha_crea, "YYYY-MM-DD HH:mm:ss");
+      tbCuenta = $("#tbCuenta").DataTable({
+        data: data.data,
+        language: LENGUAJE,
+        destroy: true,
+        responsive: true,
+        info: true,
+        lengthMenu: [DISPLAY_LENGTH, 10, 25, 50],
+        autoWidth: true,
+        paging: true,
+        searching: true,
+        columns: [
+          {
+            data: null,
+            render: (data, type, row, meta) =>
+              `<span class="badge badge-sm badge-primary">${formatNumber(
+                meta.row + 1
+              )}</span>`,
+          },
+          { data: "codigo" },
 
-                if (!fecha.isValid()) {
-                  return `<span class="badge badge-sm badge-danger">Fecha inválida</span>`;
-                }
-                const fechaFormateada = fecha.format("DD-MM-YYYY");
-                const horaFormateada = fecha.format("HH:mm:ss");
-                return `
+          {
+            data: "cliente",
+          },
+          { data: "total" },
+          {
+            data: null,
+            render: (data, type, row) => {
+              const fecha = moment(row.fecha_crea, "YYYY-MM-DD HH:mm:ss");
+
+              if (!fecha.isValid()) {
+                return `<span class="badge badge-sm badge-danger">Fecha inválida</span>`;
+              }
+              const fechaFormateada = fecha.format("DD-MM-YYYY");
+              const horaFormateada = fecha.format("HH:mm:ss");
+              return `
                       <span class="badge badge-sm badge-secondary">${fechaFormateada}</span><br/>
                       <span class="badge badge-sm badge-light">${horaFormateada}</span>
                   `;
-              },
             },
-            {
-              data: null,
-              render: (data, type, row) =>
-                `<div class="dropdown">
+          },
+          {
+            data: null,
+            render: (data, type, row) =>
+              row.estado === 1
+                ? `<span class="badge badge-sm badge-danger">Por cobrar</span>`
+                : `<span class="badge badge-sm badge-success">Pagado</span>`,
+          },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `<div class="dropdown">
                     <button class="btn btn-outline-dark btn-sm hover-scale dropdown-toggle" 
                             type="button" 
                             data-bs-toggle="dropdown" 
@@ -79,14 +91,9 @@ async function getCuentas() {
                         </li>
                     </ul>
                 </div>`,
-            },
-          ],
-        });
-      } else {
-        return toast("No se encontraron cuentas", "info");
-      }
-    } else {
-      return toast("No se encontraron cuentas", "info");
+          },
+        ],
+      });
     }
   } catch (error) {
     console.log(error);
@@ -100,59 +107,82 @@ async function getDetalleCuenta(id) {
     const data = resp.data;
     const metodo_pago = document.getElementById("metodo_pago");
     const cuenta = data.data;
-    console.log(cuenta);
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
-      const primerProducto = cuenta[0];
+      const datos_cuenta = cuenta.cuenta;
+      const datos_detalle = cuenta.detalle_cuenta;
 
-      const productoArray = cuenta.map((item) => ({
+      const productoArray = datos_detalle.map((item) => ({
         id_producto: item.id_producto,
         precio: item.precio,
         cantidad: item.cantidad,
         comision: item.comision,
         subtotal: item.subtotal,
       }));
+      const usuarios = datos_detalle.reduce(
+        (acc, item) => acc.concat(item.id_usuario),
+        []
+      );
+
       const datos = {
-        id_pedido: id,
-        codigo: primerProducto.codigo,
-        usuario_id: primerProducto.id_usuario,
-        cliente_id: primerProducto.cliente_id,
+        id_cuenta: datos_cuenta.id_cuenta,
+        codigo: datos_cuenta.codigo,
+        usuario_id: usuarios,
+        cliente_id: datos_cuenta.id_cliente,
         metodo_pago: document.getElementById("metodo_pago").value,
-        total: primerProducto.total,
-        total_comision: primerProducto.total_comision,
+        total: datos_cuenta.total,
+        total_comision: datos_cuenta.total_comision,
         productos: productoArray,
       };
 
-      localStorage.setItem("datos_venta_cuenta", JSON.stringify(datos));
-      const fechaMoment = moment(cuenta.fecha_crea);
+      /*    localStorage.setItem("datos_venta_cuenta", JSON.stringify(datos)); */
+      const fechaMoment = moment(datos_cuenta.fecha);
       document.getElementById(
         "fecha"
       ).innerHTML = `<b>Fecha : ${fechaMoment.format("DD-MM-YYYY")}</b>`;
+
       document.getElementById(
-        "hora"
-      ).innerHTML = `<b>Hora : ${fechaMoment.format("HH:mm:ss")}</b>`;
-      document.getElementById(
-        "codigo"
-      ).innerHTML = `<b>Codigo : ${cuenta[0].codigo}</b>`;
-      if (cuenta.usuario_id !== 0) {
+        "codigo_cuenta"
+      ).innerHTML = `<b>Codigo : ${datos_cuenta.codigo}</b>`;
+
+      const anfitrionas = [
+        ...new Set(
+          datos_detalle.flatMap((item) =>
+            item.anfitrionas.flatMap((nombre) =>
+              nombre.split(",").map((n) => n.trim().toLowerCase())
+            )
+          )
+        ),
+      ]
+        .map((nombre) =>
+          nombre
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        )
+        .join(", ");
+
+      if (anfitrionas.length > 0) {
         document.getElementById(
           "usuario"
-        ).innerHTML = `<b>Acompañante : ${cuenta[0].nombre_usuario} ${cuenta[0].apellido_usuario}</b>`;
+        ).innerHTML = `<b>Anfitriona(s): ${anfitrionas}</b>`;
       }
-      if (cuenta.cliente_id !== 0) {
+
+      if (datos_cuenta.id_cliente !== 0) {
         document.getElementById(
           "cliente"
-        ).innerHTML = `<b>Cliente : ${cuenta[0].nombre_cliente} ${cuenta[0].apellido_cliente}</b>`;
+        ).innerHTML = `<b>Cliente : ${datos_cuenta.cliente}</b>`;
       } else {
         document.getElementById("cliente").innerHTML =
           "<b>Cuenta creada en barra</b>";
       }
 
-      document.getElementById(
-        "comision"
-      ).innerHTML = `<b>Comision : $ ${cuenta[0].total_comision}</b>`;
-      document.getElementById(
-        "total"
-      ).innerHTML = `<b>Total : $ ${cuenta[0].total}</b>`;
+      document.getElementById("comision").innerHTML = `<b>Comision : $ ${Number(
+        datos_cuenta.total_comision
+      ).toLocaleString("es-ES")}</b>`;
+      document.getElementById("total").innerHTML = `<b>Total : $ ${Number(
+        datos_cuenta.total
+      ).toLocaleString("es-ES")}</b>`;
 
       const productos = cuenta
         .map((item) => {
@@ -308,7 +338,7 @@ async function getBebidasPrecio(precio) {
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
-      carElement.innerHTML = '';
+      carElement.innerHTML = "";
 
       const itemsHTML = data.data
         .map(
@@ -386,7 +416,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
 
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoCuenta tbody");
-  tbody.innerHTML = '';
+  tbody.innerHTML = "";
 
   const rows = carrito.map((item) => {
     const row = document.createElement("tr");

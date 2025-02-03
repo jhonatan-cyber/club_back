@@ -33,16 +33,18 @@ class ventaModel extends query
             }
 
             $venta['pieza_id'] = isset($venta['pieza_id']) ? $venta['pieza_id'] : 0;
+            $venta['iva'] = isset($venta['iva']) ? $venta['iva'] : 0;
         }
 
         try {
-            $sql = 'INSERT INTO ventas (codigo, cliente_id, pieza_id,  metodo_pago, total, total_comision) 
-            VALUES (:codigo, :cliente_id, :pieza_id, :metodo_pago, :total, :total_comision)';
+            $sql = 'INSERT INTO ventas (codigo, cliente_id, pieza_id, metodo_pago, iva, total, total_comision) 
+            VALUES (:codigo, :cliente_id, :pieza_id, :metodo_pago, :iva, :total, :total_comision)';
             $params = [
                 ':codigo' => $venta['codigo'],
                 ':cliente_id' => $venta['cliente_id'],
                 ':pieza_id' => $venta['pieza_id'],
                 ':metodo_pago' => $venta['metodo_pago'],
+                ':iva' => $venta['iva'],
                 ':total' => $venta['total'],
                 ':total_comision' => $venta['total_comision']
             ];
@@ -90,21 +92,6 @@ class ventaModel extends query
         }
     }
 
-    public function updatePedido(int $id_pedido)
-    {
-        $sql = 'UPDATE pedidos SET estado = 0 WHERE id_pedido = :id_pedido';
-        $params = [
-            ':id_pedido' => $id_pedido
-        ];
-        try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            error_log('PedidoModel::updatePedido() -> ' . $e);
-            return response::estado500($e);
-        }
-    }
-
     public function getVenta(int $id_venta)
     {
         $sql = 'SELECT D.id_detalle_venta, D.precio, D.comision, D.cantidad, D.sub_total,
@@ -147,150 +134,6 @@ class ventaModel extends query
         }
     }
 
-    public function createComision(array $data)
-    {
-        $requiredFields = ['monto'];
-        foreach ($requiredFields as $field) {
-            if (!isset($data[$field])) {
-                error_log("El campo $field es requerido");
-                return response::estado400("El campo $field es requerido");
-            }
-        }
-
-        $sql = 'INSERT INTO comisiones (venta_id, monto) 
-        VALUES (:venta_id, :monto)';
-        $params = [
-            ':venta_id' => $data['venta_id'],
-            ':monto' => $data['monto']
-        ];
-
-        try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            error_log('Error en createComision: ' . $e->getMessage());
-            return response::estado500('Error al crear la comisión. Por favor, intenta de nuevo.');
-        }
-    }
-
-    public function cretaeDetalleComision(array $data)
-    {
-        $requiredFields = ['comision_id', 'chica_id', 'comision'];
-        foreach ($requiredFields as $field) {
-            if (!isset($data[$field])) {
-                error_log("El campo $field es requerido");
-                return response::estado400("El campo $field es requerido");
-            }
-        }
-
-        $sql = 'INSERT INTO detalle_comisiones (comision_id, chica_id, comision) 
-        VALUES (:comision_id, :chica_id, :comision)';
-        $params = [
-            ':comision_id' => $data['comision_id'],
-            ':chica_id' => $data['chica_id'],
-            ':comision' => $data['comision']
-        ];
-
-        try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            error_log('Error en createDetalleServicio: ' . $e->getMessage());
-            return response::estado500('Error al crear el detalle del servicio. Por favor, intenta de nuevo.');
-        }
-    }
-
-    public function getLastServicio()
-    {
-        $sql = 'SELECT MAX(id_servicio) AS servicio_id FROM servicios';
-        try {
-            return $this->select($sql);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function getLastComision()
-    {
-        $sql = 'SELECT MAX(id_comision) AS comision_id FROM comisiones';
-        try {
-            return $this->select($sql);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function getAnticipoUsuario(int $id_usuario)
-    {
-        $sql = 'SELECT id_anticipo, usuario_id, monto, estado 
-                FROM anticipos 
-                WHERE usuario_id = :id_usuario 
-                AND estado = 1';
-        $params = [
-            ':id_usuario' => $id_usuario
-        ];
-        try {
-            return $this->selectAll($sql, $params);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function updateAnticipo(int $id_anticipo)
-    {
-        $sql = 'UPDATE anticipos SET estado = 0 WHERE id_anticipo = :id_anticipo';
-        $params = [
-            ':id_anticipo' => $id_anticipo
-        ];
-        try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function createPropina(int $propina)
-    {
-        $sql1 = 'SELECT * FROM propinas WHERE fecha = CURDATE() AND estado = 1';
-        try {
-            $data = $this->select($sql1);
-
-            if ($data) {
-                $sql2 = 'UPDATE propinas SET propina = propina + :propina WHERE fecha = CURDATE() AND estado = 1';
-                $params = [
-                    ':propina' => $propina
-                ];
-                $resp = $this->save($sql2, $params);
-                return $resp === true ? 'ok' : 'error';
-            } else {
-                $sql3 = 'INSERT INTO propinas (propina, fecha) VALUES (:propina, CURDATE())';
-                $params = [
-                    ':propina' => $propina
-                ];
-                $resp = $this->save($sql3, $params);
-                return $resp === true ? 'ok' : 'error';
-            }
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
-    public function updateCaja(array $data)
-    {
-        $sql = 'UPDATE cajas SET ventas_realizadas = ventas_realizadas + 1, monto_cierre = monto_cierre + :monto_cierre, monto_trasferencia = monto_trasferencia + :monto_trasferencia WHERE estado = 1';
-        $params = [
-            ':monto_cierre' => $data['monto_cierre'],
-            ':monto_trasferencia' => $data['monto_trasferencia'],
-        ];
-        try {
-            $resp = $this->save($sql, $params);
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-
     public function getMeserosCajera()
     {
         $sql = 'SELECT L.* FROM logins AS L 
@@ -304,44 +147,6 @@ class ventaModel extends query
         }
     }
 
-    public function createDetallePropina(array $data)
-    {
-
-        $checkSql = 'SELECT id_detalle_propina FROM detalle_propinas WHERE usuario_id = :usuario_id AND estado = 1';
-        $checkParams = [':usuario_id' => $data['usuario_id']];
-
-        try {
-            $existing = $this->select($checkSql, $checkParams);
-
-            if ($existing) {
-                $updateSql = 'UPDATE detalle_propinas SET monto = monto + :monto WHERE id_detalle_propina = :id_detalle_propina';
-                $updateParams = [
-                    ':monto' => $data['monto'],
-                    ':id_detalle_propina' => $existing['id_detalle_propina']
-                ];
-                $resp = $this->save($updateSql, $updateParams);
-            } else {
-                $insertSql = 'INSERT INTO detalle_propinas (propina_id, usuario_id, monto) 
-                             VALUES (:propina_id, :usuario_id, :monto)';
-                $insertParams = [
-                    ':propina_id' => $data['propina_id'],
-                    ':usuario_id' => $data['usuario_id'],
-                    ':monto' => $data['monto']
-                ];
-                $resp = $this->save($insertSql, $insertParams);
-            }
-
-            return $resp === true ? 'ok' : 'error';
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
-    public function getLastPropina(){
-        $sql = 'SELECT MAX(id_propina) AS id_propina FROM propinas WHERE estado = 1';
-        try {
-            return $this->select($sql);
-        } catch (Exception $e) {
-            return response::estado500($e);
-        }
-    }
+  
+    
 }

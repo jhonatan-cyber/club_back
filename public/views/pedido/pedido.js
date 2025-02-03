@@ -1,19 +1,53 @@
 let tbPedido;
+const user = JSON.parse(localStorage.getItem("usuario"));
 document.addEventListener("DOMContentLoaded", () => {
   getPedidos();
-  if (document.getElementById("propina")) {
-    document.getElementById("propina").addEventListener("input", () => {
-      const propina =
-        Number.parseInt(document.getElementById("propina").value) || 0;
-      const carrito = JSON.parse(localStorage.getItem("datos_venta"));
-      const total_a_pagar = carrito.total + propina;
-      document.getElementById("total_").innerHTML = ` TOTAL: $${total_a_pagar}`;
+
+  const propinaInput = document.getElementById("propina");
+  const ivaInput = document.getElementById("iva_pedido");
+  const totalElement = document.getElementById("total_");
+  const metodoPagoSelect = document.getElementById("metodo_pago");
+  const selectIva = document.getElementById("select_iva");
+
+  function actualizarTotal() {
+    const carrito = JSON.parse(localStorage.getItem("datos_venta")) || {
+      total: 0,
+    };
+    const propina = Number(propinaInput?.value) || 0;
+    const iva = Number(ivaInput?.value) || 0;
+    const total_a_pagar = carrito.total + propina + iva;
+
+    if (totalElement) {
+      totalElement.innerHTML = `TOTAL: $${total_a_pagar
+        .toFixed(0)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    }
+  }
+
+  if (propinaInput) {
+    propinaInput.addEventListener("input", actualizarTotal);
+  }
+
+  if (ivaInput) {
+    ivaInput.addEventListener("input", actualizarTotal);
+  }
+
+  if (metodoPagoSelect) {
+    metodoPagoSelect.addEventListener("change", (e) => {
+      if (selectIva) {
+        selectIva.hidden = e.target.value !== "Tarjeta";
+      }
     });
   }
 });
 
 async function getPedidos() {
-  const url = `${BASE_URL}getPedidos`;
+  let url;
+  if (user.rol === "Mesero") {
+    url = `${BASE_URL}getPedidosGarzon`;
+  } else {
+    url = `${BASE_URL}getPedidos`;
+  }
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
@@ -38,25 +72,41 @@ async function getPedidos() {
           },
           { data: "codigo" },
           {
-            data: null,
-            render: (data, type, row) => `${row.nombre_m} ${row.apellido_m}`,
+            data: "garzon",
           },
           {
-            data: null,
-            render: (data, type, row) => `${row.nombre_ch} ${row.apellido_ch}`,
+            data: "nicks",
           },
           {
-            data: null,
-            render: (data, type, row) => `${row.nombre_c} ${row.apellido_c}`,
+            data: "cliente",
           },
 
-          { data: "total" },
+          {
+            data: "total",
+            render: (data, type, row) =>
+              data.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."),
+          },
           {
             data: null,
-            render: (data, type, row) =>
-              `<button title="Ver detalles" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="verPedido('${row.id_pedido}')">
-                  <i class="fa-solid fa-eye"></i>
-                </button> `,
+            render: (data, type, row) => {
+              if (row.estado === 1) {
+                return `<span class="badge badge-sm badge-info">Pendiente</span>`;
+              }
+              return `<span class="badge badge-sm badge-success">Vendido</span>`;
+            },
+          },
+          {
+            data: null,
+            render: (data, type, row) => {
+              if (user.rol === "Administrador") {
+                return `<button title="Ver detalles" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_pedido}" onclick="verPedido('${row.id_pedido}')">
+                <i class="fa-solid fa-eye"></i>
+              </button> `;
+              }
+              return `<button title="Ver detalles" class="btn btn-outline-dark btn-sm hover-scale" disabled>
+              <i class="fa-solid fa-eye"></i>
+            </button> `;
+            },
           },
         ],
       });
@@ -68,7 +118,7 @@ async function getPedidos() {
   }
 }
 
-function nuevoPedido(e) {
+async function nuevoPedido(e) {
   e.preventDefault();
 
   const nuevoPedidoElement = document.getElementById("nuevo_pedido");
@@ -79,9 +129,9 @@ function nuevoPedido(e) {
     listaPedidoElement.hidden = true;
   }
 
-  getClientes();
-  getChicas();
-  getProductosPrecio();
+  await getClientes();
+  await getChicas();
+  await getProductosPrecio();
 
   const carritoData = JSON.parse(localStorage.getItem("carritoData")) || {
     carrito: [],
@@ -147,8 +197,12 @@ async function getBebidasPrecio(precio) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
+      if (!carElement) {
+        return toast("No se encontró el elemento", "info");
+      }
       carElement.innerHTML = "";
 
       const itemsHTML = data.data
@@ -169,6 +223,10 @@ async function getBebidasPrecio(precio) {
       carElement.innerHTML = itemsHTML;
 
       $("#ModalBebida").modal("show");
+      $("#ModalBebida").on("shown.bs.modal", () => {
+        const firstInput = document.querySelector('[id^="cantidad-"]');
+        if (firstInput) firstInput.focus();
+      });
     }
   } catch (error) {
     console.error("Error en la petición:", error);
@@ -177,12 +235,14 @@ async function getBebidasPrecio(precio) {
 
 function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
   const parsedCantidad = Number.parseInt(cantidad);
-  if (Number.isNaN(parsedCantidad) || parsedCantidad <= 0) {
-    document.getElementById(`cantidad-${id_producto}`).focus();
+  const cantidadInput = document.getElementById(`cantidad-${id_producto}`);
+  if (!cantidadInput || parsedCantidad <= 0) {
+    cantidadInput?.focus();
     return toast("La cantidad debe ser mayor a cero", "info");
   }
 
   const parsedPrecio = Number.parseInt(precio) || 0;
+  const parsedComision = Number.parseInt(comision) || 0;
   const subtotal = parsedCantidad * parsedPrecio;
 
   const producto = {
@@ -191,17 +251,30 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
     precio: parsedPrecio,
     cantidad: parsedCantidad,
     subtotal,
-    comision,
+    comision: parsedComision,
   };
 
-  const carritoData = JSON.parse(localStorage.getItem("carritoData")) || {
+  let carritoData = {
     carrito: [],
     total: 0,
     subtotal: 0,
     total_comision: 0,
   };
 
+  try {
+    const storedData = localStorage.getItem("carritoData");
+    carritoData = storedData ? JSON.parse(storedData) : carritoData;
+  } catch (error) {
+    return toast("Error al cargar el carrito", "error");
+  }
+
   const { carrito } = carritoData;
+  if (!Array.isArray(carrito)) {
+    console.error(
+      "Error: carrito no es un array, inicializando carrito vacío."
+    );
+    carritoData.carrito = [];
+  }
 
   const index = carrito.findIndex((item) => item.id_producto === id_producto);
   if (index > -1) {
@@ -211,104 +284,145 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
     carrito.push(producto);
   }
 
-  const nuevoSubtotal = carrito.reduce(
+  carritoData.subtotal = carrito.reduce((acc, item) => acc + item.subtotal, 0);
+  carritoData.total_comision = carrito.reduce(
+    (acc, item) => acc + item.comision * item.cantidad,
+    0
+  );
+  carritoData.total = carritoData.subtotal;
+
+  try {
+    localStorage.setItem("carritoData", JSON.stringify(carritoData));
+  } catch (error) {
+    return toast("Error al guardar el carrito", "error");
+  }
+
+  // Actualizar la tabla y total solo una vez
+  actualizarTablaCarrito(carrito);
+  actualizarTotalCarrito(carrito); // Se pasa el array completo
+
+  return toast("Producto agregado al carrito", "success");
+}
+
+function actualizarTotalCarrito(carrito) {
+  let carritoArray = carrito;
+  if (!Array.isArray(carrito)) {
+    console.error("Error: carrito no es un array", carrito);
+    carritoArray = [];
+  }
+
+  const total = carritoArray.reduce(
     (acc, item) => acc + (item.subtotal || 0),
     0
   );
-  const nuevoTotalComision = carrito.reduce(
-    (acc, item) => acc + (item.comision * item.cantidad || 0),
-    0
-  );
 
-  carritoData.carrito = carrito;
-  carritoData.total = nuevoSubtotal;
-  carritoData.subtotal = nuevoSubtotal;
-  carritoData.total_comision = nuevoTotalComision;
-
-  localStorage.setItem("carritoData", JSON.stringify(carritoData));
-
-  actualizarTablaCarrito(carrito);
-  document.getElementById("total").innerText = nuevoSubtotal.toLocaleString(
-    "es-ES",
-    { maximumFractionDigits: 0 }
-  );
+  document.getElementById("total").innerText = total.toLocaleString("es-ES", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }
 
 function actualizarTablaCarrito(carrito) {
   const tbody = document.querySelector("#tbCarritoPedido tbody");
-  tbody.innerHTML = "";
+  const fragment = document.createDocumentFragment();
 
-  const rows = carrito.map((item) => {
+  for (const item of carrito) {
     const row = document.createElement("tr");
     row.innerHTML = `
-            <td>${item.nombre}</td>
-            <td>${item.cantidad}</td>
-            <td>${item.precio || 0}</td>
-            <td>${item.subtotal || 0}</td>
-            <td><button onclick="eliminarProducto(${
-              item.id_producto
-            })" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
-          `;
-    return row;
-  });
-
-  for (const row of rows) {
-    tbody.appendChild(row);
+      <td>${item.nombre}</td>
+      <td>${item.cantidad}</td>
+ <td>${item.precio.toLocaleString("es-ES", {
+   minimumFractionDigits: 0,
+   maximumFractionDigits: 0,
+ })}</td>
+  <td>${item.subtotal.toLocaleString("es-ES", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}</td>
+      <td>
+        <button onclick="eliminarProducto(${item.id_producto})" 
+                class="btn btn-danger btn-icon btn-sm">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    `;
+    fragment.appendChild(row);
   }
 
-  const total = carrito.reduce((acc, item) => acc + (item.subtotal || 0), 0);
+  tbody.innerHTML = "";
+  tbody.appendChild(fragment);
 
-  document.getElementById("total").innerText = total.toFixed(2);
+  actualizarTotalCarrito(carrito);
 }
 
 function eliminarProducto(id_producto) {
-  const carritoData = JSON.parse(localStorage.getItem("carritoData")) || {
-    carrito: [],
-    total: 0,
-    subtotal: 0,
-    total_comision: 0,
-  };
+  try {
+    const carritoData = JSON.parse(localStorage.getItem("carritoData")) || {
+      carrito: [],
+      total: 0,
+      subtotal: 0,
+      total_comision: 0,
+    };
 
-  carritoData.carrito = carritoData.carrito.filter(
-    (item) => item.id_producto !== id_producto
-  );
+    carritoData.carrito = carritoData.carrito.filter(
+      (item) => item.id_producto !== id_producto
+    );
 
-  carritoData.total = carritoData.carrito.reduce(
-    (acc, item) => acc + (item.subtotal || 0),
-    0
-  );
-  carritoData.subtotal = carritoData.total;
-  carritoData.total_comision = carritoData.carrito.reduce(
-    (acc, item) => acc + (item.comision * item.cantidad || 0),
-    0
-  );
-  localStorage.setItem("carritoData", JSON.stringify(carritoData));
-  actualizarTablaCarrito(carritoData.carrito);
-  document.getElementById("total").innerText = carritoData.total;
+    carritoData.total = carritoData.carrito.reduce(
+      (acc, item) => acc + (item.subtotal || 0),
+      0
+    );
+
+    carritoData.subtotal = carritoData.total;
+    carritoData.total_comision = carritoData.carrito.reduce(
+      (acc, item) => acc + (item.comision || 0) * (item.cantidad || 0),
+      0
+    );
+
+    localStorage.setItem("carritoData", JSON.stringify(carritoData));
+
+    actualizarTablaCarrito(carritoData.carrito);
+    document.getElementById("total").innerText =
+      carritoData.total.toLocaleString("es-ES", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+  } catch (error) {
+    return toast("Error al eliminar el producto", "warning");
+  }
 }
+
 async function getClientes() {
   const url = `${BASE_URL}getClientes`;
+
   try {
     const response = await axios.get(url, config);
     const datos = response.data;
+
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("cliente_id");
-      select.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+
       const defaultOption = document.createElement("option");
       defaultOption.value = 0;
       defaultOption.text = "Seleccione un cliente";
       defaultOption.selected = true;
-      select.appendChild(defaultOption);
-      for (let i = 0; i < datos.data.length; i++) {
-        const cliente = datos.data[i];
+      fragment.appendChild(defaultOption);
+
+      for (const cliente of datos.data) {
         const option = document.createElement("option");
         option.value = cliente.id_cliente;
-        option.text = `${cliente.nombre} ${cliente.apellido}`;
-        select.appendChild(option);
+        option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+        fragment.appendChild(option);
       }
+
+      select.innerHTML = "";
+      select.appendChild(fragment);
+    } else {
+      return toast("No se encontraron clientes", "info");
     }
   } catch (error) {
-    console.log(error);
+    toast("Error al obtener la lista de clientes", "warning");
   }
 }
 
@@ -317,36 +431,41 @@ async function getChicas() {
   try {
     const response = await axios.get(url, config);
     const datos = response.data;
-    console.log(datos);
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("chica_id");
+      const fragment = document.createDocumentFragment();
+
       select.innerHTML = "";
+
       datos.data.map((chica) => {
         const option = document.createElement("option");
         option.value = chica.usuario_id;
-        option.text = `${chica.nombre} ${chica.apellido}`;
-        select.appendChild(option);
+        option.text = chica.nick;
+        fragment.appendChild(option);
       });
+      select.appendChild(fragment);
     }
   } catch (error) {
     const resp = error.response.data;
     if (resp.codigo === 500 && resp.estado === "error") {
-      return toast("Error al abrir la caja", "error");
+      return toast("Error al obtener las anfitrionas", "error");
     }
+    return toast("Error desconocido al obtener las anfitrionas", "error");
   }
 }
 
 async function createPedido(e) {
   e.preventDefault();
 
-  let cliente_id = document.getElementById("cliente_id").value;
+  let cliente_id = Number(document.getElementById("cliente_id").value) || 1;
   if (cliente_id === 0) {
     cliente_id = 1;
   }
 
   const selectElement = document.getElementById("chica_id");
-  const selectedOptions = [...selectElement.selectedOptions];
-  const chica_id = selectedOptions.map((option) => option.value);
+  const chica_id = Array.from(selectElement.selectedOptions).map((option) =>
+    Number(option.value)
+  );
 
   const carritoData = JSON.parse(localStorage.getItem("carritoData")) || {
     carrito: [],
@@ -355,24 +474,32 @@ async function createPedido(e) {
     total_comision: 0,
   };
 
+  if (carritoData.carrito.length === 0) {
+    return toast(
+      "El carrito está vacío. Agrega productos antes de crear el pedido.",
+      "warning"
+    );
+  }
   const datos = {
-    cliente_id: Number(cliente_id),
-    chica_id: chica_id.map((id) => Number(id)),
+    cliente_id,
+    chica_id,
     productos: carritoData.carrito,
     total: carritoData.total,
     total_comision: carritoData.total_comision,
     subtotal: carritoData.subtotal,
   };
+
   const url = `${BASE_URL}createPedido`;
+
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
-    console.log(data);
+
     if (data.codigo === 201 && data.estado === "ok") {
       toast("Pedido creado exitosamente", "success");
       localStorage.removeItem("carritoData");
       actualizarTablaCarrito([]);
-      document.getElementById("total").innerText = 0;
+      document.getElementById("total").innerText = "0";
       sendWebSocketMessage("pedido", "createPedido");
       getPedidosTotal();
       atras(e);
@@ -384,10 +511,12 @@ async function createPedido(e) {
       return toast(error.response.data.data, "info");
     }
     if (error.response.status === 500) {
-      toast("Error al crear el pedido. Intenta nuevamente.", "error");
+      return toast("Error al crear el pedido. Intenta nuevamente.", "error");
     }
+    return toast("Error desconocido al procesar la solicitud", "error");
   }
 }
+
 async function getPiezas() {
   const url = `${BASE_URL}getPiezasLibres`;
   try {
@@ -395,6 +524,7 @@ async function getPiezas() {
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       const select = document.getElementById("habitacion_pedido");
+      select.innerHTML = "";
       const defaultOption = document.createElement("option");
       defaultOption.value = "0";
       defaultOption.text = "Seleccione una habitación";
@@ -415,6 +545,7 @@ async function getPiezas() {
     console.log(error);
   }
 }
+
 async function verPedido(id) {
   const url = `${BASE_URL}getDetallePedido/${id}`;
   const obtenerFechaHora = () => {
@@ -431,7 +562,7 @@ async function verPedido(id) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+    console.log(data)
     if (data.codigo === 200 && data.estado === "ok") {
       const productos = data.data;
       const primerProducto = productos[0];
@@ -439,6 +570,9 @@ async function verPedido(id) {
         getPiezas();
         document.getElementById("select_habitacion").hidden = false;
         document.getElementById("select_tiempo").hidden = false;
+      } else {
+        document.getElementById("select_habitacion").hidden = true;
+        document.getElementById("select_tiempo").hidden = true;
       }
       document.getElementById(
         "hora"
@@ -451,16 +585,19 @@ async function verPedido(id) {
       ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo : ${primerProducto.codigo}</b>`;
       document.getElementById(
         "usuario"
-      ).innerHTML = `<i class="fa-solid fa-user m-2"></i><b>Dama acompañante : ${primerProducto.nombre_ch} ${primerProducto.apellido_ch}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-user m-2"></i><b>Anfitriona(s) : ${primerProducto.Anfitriona}</b>`;
       document.getElementById(
         "cliente"
-      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente : ${primerProducto.nombre_cl} ${primerProducto.apellido_cl}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente : ${primerProducto.cliente} </b>`;
       document.getElementById(
         "mesero"
-      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Mesero : ${primerProducto.nombre_m} ${primerProducto.apellido_m}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Garzón : ${primerProducto.garzon} </b>`;
       document.getElementById(
         "total_"
-      ).innerHTML = `<b>Total: $${primerProducto.total}</b>`;
+      ).innerHTML = `<b>Total: $${primerProducto.total
+        .toFixed(0)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</b>`;
+
       document.getElementById("total_comision").value =
         primerProducto.total_comision;
 
@@ -478,29 +615,42 @@ async function verPedido(id) {
 
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${item.categoria} ${item.nombre}</td>
+          <td>${item.categoria} ${item.producto}</td>
           <td>${item.cantidad}</td>
-          <td>${Number.parseInt(item.precio || 0)}</td>
-          <td>${Number.parseInt(item.comision || 0)}</td>
-          <td>${Number.parseInt(item.subtotal || 0)}</td>
+               <td>${item.precio.toLocaleString("es-ES", {
+                 minimumFractionDigits: 0,
+                 maximumFractionDigits: 0,
+               })}</td>
+           <td>${item.comision.toLocaleString("es-ES", {
+             minimumFractionDigits: 0,
+             maximumFractionDigits: 0,
+           })}</td>
+             <td>${item.subtotal.toLocaleString("es-ES", {
+               minimumFractionDigits: 0,
+               maximumFractionDigits: 0,
+             })}</td>
         `;
         detalleProductos.appendChild(row);
 
         return producto;
       });
 
+      const anfitrionas = productos.flatMap((item) =>
+        item.anfitriona_id
+          .split(",")
+          .map((id) => Number.parseInt(id.trim(), 10))
+      );
       const datos = {
-        id_pedido: id,
+        id_pedido: Number.parseInt(id),
         codigo: primerProducto.codigo,
         categoria: primerProducto.categoria,
-        chica_id: primerProducto.chica_id,
+        usuario_id: anfitrionas,
         cliente_id: primerProducto.cliente_id,
         metodo_pago: document.getElementById("metodo_pago").value,
         total: primerProducto.total,
         total_comision: primerProducto.total_comision,
         productos: productosArray,
       };
-
       localStorage.setItem("datos_venta", JSON.stringify(datos));
 
       $("#ModalVenta").modal("show");
@@ -516,31 +666,51 @@ async function createVenta(e) {
   if (nuevoMetodoPago === "0") {
     return toast("Seleccione un metodo de pago", "info");
   }
+  if (nuevoMetodoPago === "Tarjeta") {
+    if (document.getElementById("iva_pedido").value <= 0) {
+      return toast("Ingrese un monto mayor a cero para el Iva ", "info");
+    }
+  }
   const propina = Number.parseInt(document.getElementById("propina").value);
   const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
-  datos.metodo_pago = nuevoMetodoPago;
-  datos.propina = propina;
-  localStorage.setItem("datos_venta", JSON.stringify(datos));
   const pieza_id = document.getElementById("habitacion_pedido").value;
   const tiempo = document.getElementById("tiempo_pedido").value;
-  const categorias = JSON.parse(localStorage.getItem("datos_venta")) || [];
-  if (categorias.includes("Champaña")) {
+
+  if (datos.categoria === "Champaña") {
     if (pieza_id === "0") {
       return toast("Seleccione una habitación", "info");
     }
     if (tiempo === "") {
+      document.getElementById("tiempo_pedido").focus();
       return toast("Ingrese un tiempo para la habitación", "info");
     }
     if (Number.isNaN(tiempo) || tiempo <= 0) {
-      return toast("Ingrese un tiempo válido para el uso de la pieza", "info");
+      document.getElementById("tiempo_pedido").value = "";
+      document.getElementById("tiempo_pedido").focus();
+      return toast(
+        "Ingrese un tiempo válido para el uso de la habitación",
+        "info"
+      );
     }
     iniciarTemporizadorLocalStorage(tiempo, pieza_id);
     updatePiezaVenta(pieza_id);
-    localStorage.removeItem("datos_venta");
   }
-  console.log(categorias);
 
-  /*   const url = `${BASE_URL}createVenta`;
+  datos.metodo_pago = nuevoMetodoPago;
+  datos.propina = Number.parseInt(propina || 0);
+  datos.pieza_id = Number.parseInt(pieza_id || 0);
+  datos.iva = Number.parseInt(document.getElementById("iva_pedido").value || 0);
+
+  if (datos.iva > 0) {
+    datos.total = Number.parseInt(datos.total) + Number.parseInt(datos.iva);
+  }
+
+  if (datos.propina > 0) {
+    datos.total = Number.parseInt(datos.total) + Number.parseInt(datos.propina);
+  }
+
+  localStorage.setItem("datos_venta", JSON.stringify(datos));
+  const url = `${BASE_URL}createVenta`;
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
@@ -553,16 +723,47 @@ async function createVenta(e) {
     }
   } catch (error) {
     console.error(error);
-  } */
+  }
 }
 
 async function createCuenta() {
-  const datos = JSON.parse(localStorage.getItem("datos_venta") || []);
+  let datos;
+  try {
+    datos = JSON.parse(localStorage.getItem("datos_venta")) || {};
+  } catch (error) {
+    console.error("Error al parsear datos de venta:", error);
+    datos = {};
+  }
+
+  const pieza_id =
+    Number(document.getElementById("habitacion_pedido").value) || 0;
+  let tiempo = document.getElementById("tiempo_pedido").value.trim();
+
   const url = `${BASE_URL}createCuenta`;
 
+  if (datos.categoria === "Champaña") {
+    if (pieza_id === 0) {
+      return toast("Seleccione una habitación", "info");
+    }
+    tiempo = Number(tiempo);
+    if (!tiempo || tiempo <= 0) {
+      document.getElementById("tiempo_pedido").value = "";
+      document.getElementById("tiempo_pedido").focus();
+      return toast(
+        "Ingrese un tiempo válido para el uso de la habitación",
+        "info"
+      );
+    }
+
+    iniciarTemporizadorLocalStorage(tiempo, pieza_id);
+    updatePiezaVenta(pieza_id);
+  }
+  datos.pieza_id = Number.parseInt(pieza_id || 0);
+  console.log(datos);
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
+    console.log(data);
     if (data.codigo === 201 && data.estado === "ok") {
       toast("Cuenta creada correctamente", "success");
       localStorage.removeItem("datos_venta");
@@ -571,5 +772,17 @@ async function createCuenta() {
     }
   } catch (error) {
     console.error(error);
+    if (error.response) {
+      return toast(
+        `Error: ${error.response.data.message || "No se pudo crear la cuenta"}`,
+        "error"
+      );
+    }
+    return toast("Error de conexión al servidor", "error");
   }
+}
+
+function cerrarModalVenta() {
+  localStorage.removeItem("datos_venta");
+  $("#ModalVenta").modal("hide");
 }

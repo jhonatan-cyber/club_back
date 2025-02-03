@@ -48,4 +48,73 @@ class propinaModel extends query
             return response::estado500($e);
         }
     }
+
+    public function createPropina(int $propina)
+    {
+        $sql1 = 'SELECT * FROM propinas WHERE fecha = CURDATE() AND estado = 1';
+        try {
+            $data = $this->select($sql1);
+
+            if ($data) {
+                $sql2 = 'UPDATE propinas SET propina = propina + :propina WHERE fecha = CURDATE() AND estado = 1';
+                $params = [
+                    ':propina' => $propina
+                ];
+                $resp = $this->save($sql2, $params);
+                return $resp === true ? 'ok' : 'error';
+            } else {
+                $sql3 = 'INSERT INTO propinas (propina, fecha) VALUES (:propina, CURDATE())';
+                $params = [
+                    ':propina' => $propina
+                ];
+                $resp = $this->save($sql3, $params);
+                return $resp === true ? 'ok' : 'error';
+            }
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function createDetallePropina(array $data)
+    {
+
+        $checkSql = 'SELECT id_detalle_propina FROM detalle_propinas WHERE usuario_id = :usuario_id AND estado = 1';
+        $checkParams = [':usuario_id' => $data['usuario_id']];
+
+        try {
+            $existing = $this->select($checkSql, $checkParams);
+
+            if ($existing) {
+                $updateSql = 'UPDATE detalle_propinas SET monto = monto + :monto WHERE id_detalle_propina = :id_detalle_propina';
+                $updateParams = [
+                    ':monto' => $data['monto'],
+                    ':id_detalle_propina' => $existing['id_detalle_propina']
+                ];
+                $resp = $this->save($updateSql, $updateParams);
+            } else {
+                $insertSql = 'INSERT INTO detalle_propinas (propina_id, usuario_id, monto) 
+                             VALUES (:propina_id, :usuario_id, :monto)';
+                $insertParams = [
+                    ':propina_id' => $data['propina_id'],
+                    ':usuario_id' => $data['usuario_id'],
+                    ':monto' => $data['monto']
+                ];
+                $resp = $this->save($insertSql, $insertParams);
+            }
+
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getLastPropina()
+    {
+        $sql = 'SELECT MAX(id_propina) AS id_propina FROM propinas WHERE estado = 1';
+        try {
+            return $this->select($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

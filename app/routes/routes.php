@@ -107,6 +107,7 @@ $router->get('getBebidasPrecio/(\d+)', [$producto, 'getBebidasPrecio']);
 $router->get('pedidos', [$pedido, 'index']);
 $router->post('createPedido', [$pedido, 'createPedido']);
 $router->get('getPedidos', [$pedido, 'getPedidos']);
+$router->get('getPedidosGarzon', [$pedido, 'getPedidosGarzon']);
 $router->get('getDetallePedido/(\d+)', [$pedido, 'getDetallePedido']);
 
 /* Ventas */

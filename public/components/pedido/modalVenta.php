@@ -48,6 +48,14 @@
                                         <option value="Transferencia">Transferencia</option>
                                     </select>
                                 </div>
+                                <div id="select_iva" class="mb-3" hidden>
+                                    <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Iva</b></small>
+                                    <div class="d-flex input-group input-group-solid">
+                                        <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                                        <input type="number" min="0" class="form-control form-control-sm form-control-solid"
+                                            id="iva_pedido" placeholder="Impuesto Iva" />
+                                    </div>
+                                </div>
                                 <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Propina</b></small>
                                 <div class="d-flex input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-coins"></i></span>
@@ -75,7 +83,7 @@
                                         <span class="input-group-text" id="basic-addon1"><i
                                                 class="fa-solid fa-stopwatch-20"></i></span>
                                         <input type="number" min="0" class="form-control form-control-sm form-control-solid"
-                                            id="tiempo_pedido" placeholder="Tiempo de servicio" />
+                                            id="tiempo_pedido" placeholder="Tiempo de uso" />
                                     </div>
                                 </div>
                                 <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Total
@@ -132,6 +140,8 @@
                             <button type="button" class="btn btn-light-dark btn-sm hover-elevate-up btn-block"
                                 onclick="createCuenta(event)"><i class="fa-solid fa-coins"></i> Registrar
                                 Cuenta</button>
+                            <button type="button" class="btn btn-light-danger btn-sm hover-elevate-up btn-block"
+                                onclick="cerrarModalVenta(event)"><i class="fa-solid fa-times"></i> Cancelar</button>
                         </div>
                     </div>
                 </div>

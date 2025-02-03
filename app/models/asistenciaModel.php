@@ -48,7 +48,7 @@ class asistenciaModel extends query
     public function getAsistencia(int $usuario_id): array
     {
         try {
-            $paramas = [
+            $params = [
                 ':usuario_id' => $usuario_id
             ];
             $sql_totales = "SELECT SUM(U.sueldo) AS total_sueldos, SUM(U.aporte) AS total_aportes,
@@ -59,7 +59,7 @@ class asistenciaModel extends query
                             WHERE A.estado = 1 AND A.usuario_id = :usuario_id 
                             AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())";
 
-            $totales = $this->select($sql_totales, $paramas);
+            $totales = $this->select($sql_totales, $params);
 
             if (empty($totales)) {
                 return response::estado500("No se encontraron resultados para los totales.");
@@ -70,7 +70,7 @@ class asistenciaModel extends query
                     WHERE A.usuario_id = :usuario_id AND A.estado = 1 AND A.fercha_asistencia BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
                     ORDER BY A.fercha_asistencia DESC";
 
-            $asistencias = $this->selectAll($sql, $paramas);
+            $asistencias = $this->selectAll($sql, $params);
 
             return [
                 'asistencias' => array_map(function ($row) {

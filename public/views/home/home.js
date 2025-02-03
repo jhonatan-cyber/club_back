@@ -43,6 +43,7 @@ function vistas(user) {
 document
   .getElementById("btnAsistencias")
   .addEventListener("click", getAsistencia);
+
 async function getAsistencia() {
   const url = `${BASE_URL}getAsistencia/${user.id_usuario}`;
   try {
@@ -116,45 +117,50 @@ async function getAnticipos() {
     const resp = await axios.get(url, config);
     const data = resp.data;
     console.log(data);
+
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron anticipos", "info");
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
-      const anticipos = data.data;
-      document.getElementById(
-        "anticipo_total"
-      ).innerHTML = `Monto Total : ${anticipos[0].total}`;
-      const anticipoHTML = await Promise.all(
-        anticipos.map(async (anticipo) => {
+      const { total, anticipos } = data; 
+      
+      
+      document.getElementById("anticipo_total").innerHTML = `Monto Total: ${total}`;
+      document.getElementById("usuario_anticipo").innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
+
+      if (!Array.isArray(anticipos) || anticipos.length === 0) {
+        document.getElementById("detalle_anticipo").innerHTML = "<tr><td colspan='4'>No hay anticipos disponibles</td></tr>";
+      } else {
+        const anticipoHTML = anticipos.map((anticipo) => {
           const fecha = moment(anticipo.fecha_crea).format("DD/MM/YYYY");
           const hora = moment(anticipo.fecha_crea).format("HH:mm");
-          document.getElementById(
-            "usuario_anticipo"
-          ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
+
           const estadoBadge =
             anticipo.estado === 0
               ? '<span class="badge badge-sm badge-success">Pagado</span>'
               : '<span class="badge badge-sm badge-info">Pendiente</span>';
 
           return `
-              <tr>
-                <td>${fecha}</td>
-                <td>${hora}</td>
-                <td>${anticipo.monto}</td>
-                <td>${estadoBadge}</td>
-              </tr>
-            `;
-        })
-      );
-      document.getElementById("detalle_anticipo").innerHTML =
-        anticipoHTML.join("");
+            <tr>
+              <td>${fecha}</td>
+              <td>${hora}</td>
+              <td>${anticipo.monto}</td>
+              <td>${estadoBadge}</td>
+            </tr>
+          `;
+        }).join(""); 
+
+        document.getElementById("detalle_anticipo").innerHTML = anticipoHTML;
+      }
+
       $("#ModalAnticipo").modal("show");
     }
   } catch (error) {
     console.error("Error al obtener anticipos:", error);
   }
 }
+
 document.getElementById("btnServicios").addEventListener("click", getServicios);
 
 async function getServicios() {
@@ -162,20 +168,22 @@ async function getServicios() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron servicios", "info");
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
-      const servicios = data.data;
-      document.getElementById("total_servicio").innerHTML = `Monto Total: ${
-        servicios[0]?.total || 0
-      }`;
+      const serviciosData = data.data; 
+
+      const servicios = Array.isArray(serviciosData.servicios) ? serviciosData.servicios : [];
+
+      document.getElementById("total_servicio").innerHTML = `Monto Total: $${serviciosData.total || 0}`;
 
       document.getElementById(
         "usuario_servicio"
       ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
+
 
       const servicioHTML = servicios.map((servicio) => {
         const fecha = moment(servicio.fecha_crea).format("DD/MM/YYYY");
@@ -183,14 +191,11 @@ async function getServicios() {
 
         let estadoBadge = "";
         if (servicio.estado === 0) {
-          estadoBadge =
-            '<span class="badge badge-sm badge-info">Pendiente</span>';
+          estadoBadge = '<span class="badge badge-sm badge-info">Pendiente</span>';
         } else if (servicio.estado === 1) {
-          estadoBadge =
-            '<span class="badge badge-sm badge-primary">En proceso</span>';
+          estadoBadge = '<span class="badge badge-sm badge-primary">En proceso</span>';
         } else if (servicio.estado === 2) {
-          estadoBadge =
-            '<span class="badge badge-sm badge-success">Pagado</span>';
+          estadoBadge = '<span class="badge badge-sm badge-success">Pagado</span>';
         }
 
         return `
@@ -202,60 +207,70 @@ async function getServicios() {
           </tr>
         `;
       });
-      document.getElementById("detalle_servicio").innerHTML =
-        servicioHTML.join("");
+
+      document.getElementById("detalle_servicio").innerHTML = servicioHTML.join("");
       $("#ModalServicio").modal("show");
     }
   } catch (error) {
     console.error("Error al obtener los servicios:", error);
   }
 }
+
 document
   .getElementById("btnComisiones")
   .addEventListener("click", getComisiones);
+
 
 async function getComisiones() {
   const url = `${BASE_URL}getComisionesUsuario/${user.id_usuario}`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
-    if (data.estado !== "ok" || data.codigo !== 200) {
+
+    console.log("Respuesta API:", data);
+
+    if (!data || data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron comisiones", "info");
     }
 
-    if (data.estado === "ok" && data.codigo === 200) {
-      const comisiones = data.data;
-      document.getElementById("total_comision").innerHTML = `Monto Total: ${
-        comisiones[0]?.total || 0
-      }`;
+    const { comisiones, total } = data.data;
 
-      document.getElementById(
-        "usuario_comision"
-      ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
+    document.getElementById("total_comision").innerHTML = `Monto Total: $ ${
+      total || 0
+    }`;
 
-      const comisionHTML = comisiones.map((comision) => {
-        const fecha = moment(comision.fecha_crea).format("DD/MM/YYYY");
-        const hora = moment(comision.fecha_crea).format("HH:mm");
+    document.getElementById(
+      "usuario_comision"
+    ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
 
-        const estadoBadge =
-          comision.estado === 0
-            ? '<span class="badge badge-sm badge-success">Pagado</span>'
-            : '<span class="badge badge-sm badge-info">Pendiente</span>';
-
-        return `
-          <tr>
-            <td>${fecha}</td>
-            <td>${hora}</td>
-            <td>${comision.comision}</td>
-            <td>${estadoBadge}</td>
-          </tr>
-        `;
-      });
+    if (!Array.isArray(comisiones) || comisiones.length === 0) {
       document.getElementById("detalle_comision").innerHTML =
-        comisionHTML.join("");
-      $("#ModalComision").modal("show");
+        "<tr><td colspan='4'>No hay comisiones registradas</td></tr>";
+      return;
     }
+
+    const comisionHTML = comisiones.map((comision) => {
+      const fecha = moment(comision.fecha_crea).format("DD/MM/YYYY");
+      const hora = moment(comision.fecha_crea).format("HH:mm");
+
+      const estadoBadge =
+        comision.estado === 0
+          ? '<span class="badge badge-sm badge-success">Pagado</span>'
+          : '<span class="badge badge-sm badge-info">Pendiente</span>';
+
+      return `
+        <tr>
+          <td>${fecha}</td>
+          <td>${hora}</td>
+          <td>$ ${comision.comision.toLocaleString()}</td>
+          <td>${estadoBadge}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("detalle_comision").innerHTML =
+      comisionHTML.join("");
+    $("#ModalComision").modal("show");
   } catch (error) {
     console.error("Error al obtener comisiones:", error);
   }

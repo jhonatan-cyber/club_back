@@ -13,13 +13,10 @@
 
                             <div class="col-6">
                                 <hr>
-                                <small id="hora"
-                                    class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
-                                </small>
                                 <small id="fecha"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
-                                <small id="codigo"
+                                <small id="codigo_cuenta"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
                                 <small id="usuario"
@@ -58,7 +55,9 @@
                                     <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer">
                                         <thead>
                                             <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">
-                                                <th>Bebida</th>
+                                                <th>Hora</th>
+                                                <th>Anfitriona</th>
+                                                <th>Producto</th>                        
                                                 <th>Cantidad</th>
                                                 <th>precio</th>
                                                 <th>comision</th>

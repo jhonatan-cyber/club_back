@@ -8,6 +8,7 @@
                     <th>Cliente</th>
                     <th>total</th>
                     <th>Fecha/Hora</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

@@ -13,9 +13,7 @@ class pedidoModel extends query
         parent::__construct();
     }
 
-
-
-    public function createPedido(array $data)
+    public function createPedido(array $data): string
     {
         $requiredFields = ['mesero_id', 'subtotal', 'total', 'codigo'];
         foreach ($requiredFields as $field) {
@@ -37,12 +35,12 @@ class pedidoModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? "ok" : "error";
         } catch (Exception $e) {
-    
+
             return response::estado500("asdasd");
         }
     }
 
-    public function createDetallePedido(array $data)
+    public function createDetallePedido(array $data): string
     {
         $requiredFields = ["pedido_id", "producto_id", "precio", "cantidad", "comision", "subtotal"];
         foreach ($requiredFields as $field) {
@@ -73,48 +71,108 @@ class pedidoModel extends query
         try {
             return $this->select($sql);
         } catch (Exception $e) {
-            return response::estado500("asdasd");
+            return response::estado500($e);
         }
     }
     public function getPedidos()
     {
-        $sql = "SELECT P.id_pedido,P.codigo,P.subtotal,P.total, C.nombre AS nombre_c,
-         C.apellido AS apellido_c, CH.nombre AS nombre_ch, CH.apellido AS apellido_ch,
-         M.nombre AS nombre_m,M.apellido AS apellido_m 
-         FROM pedidos AS P 
-         JOIN clientes AS C ON P.cliente_id = C.id_cliente 
-         JOIN usuarios AS CH ON P.chica_id = CH.id_usuario 
-         JOIN usuarios AS M ON P.mesero_id = M.id_usuario 
-         WHERE P.estado = 1";
+        $sql = "SELECT P.id_pedido, P.codigo, P.subtotal, P.total, P.estado, CONCAT(C.nombre, ' ', C.apellido) AS cliente, 
+                GROUP_CONCAT(DISTINCT CH.nick ORDER BY CH.nick SEPARATOR ', ') AS nicks, CONCAT(M.nombre, ' ', M.apellido) AS garzon 
+                FROM pedidos AS P JOIN clientes AS C ON P.cliente_id = C.id_cliente 
+                JOIN pedidos_usuarios AS PU ON PU.pedido_id = P.id_pedido JOIN usuarios AS CH ON CH.id_usuario = PU.usuario_id  
+                JOIN usuarios AS M ON P.mesero_id = M.id_usuario WHERE P.estado = 1  
+                GROUP BY P.id_pedido ORDER BY P.id_pedido";
         try {
-            return $this->selectAll($sql);
+            $result = $this->selectAll($sql);
+            return array_map(function ($row) {
+                return [
+                    'cliente'          => (string) $row['cliente'],
+                    'codigo'      => (string) $row['codigo'],
+                    'estado'          => (int) $row['estado'],
+                    'garzon'          => (string) $row['garzon'],
+                    'id_pedido' => (int) $row['id_pedido'],
+                    'nicks'           => (string) $row['nicks'],
+                    'subtotal'       => (int) $row['subtotal'],
+                    'total'           => (int) $row['total'],
+                ];
+            }, $result);
         } catch (Exception $e) {
-            error_log("PedidoModel::getPedidos() -> " . $e);
+            return response::estado500($e);
+        }
+    }
+    public function getPedidosGarzon(int $usuario_id)
+    {
+        $params = [':usuario_id' => $usuario_id];
+        $sql = "SELECT P.id_pedido, P.codigo, P.subtotal, P.total, P.estado, CONCAT(C.nombre, ' ', C.apellido) AS cliente, 
+                GROUP_CONCAT(DISTINCT CH.nick ORDER BY CH.nick SEPARATOR ', ') AS nicks, CONCAT(M.nombre, ' ', M.apellido) AS garzon 
+                FROM pedidos AS P JOIN clientes AS C ON P.cliente_id = C.id_cliente 
+                JOIN pedidos_usuarios AS PU ON PU.pedido_id = P.id_pedido JOIN usuarios AS CH ON CH.id_usuario = PU.usuario_id  
+                JOIN usuarios AS M ON P.mesero_id = M.id_usuario WHERE P.estado = 1 AND M.id_usuario = :usuario_id 
+                GROUP BY P.id_pedido ORDER BY P.id_pedido";
+        try {
+            $result = $this->selectAll($sql, $params);
+            return array_map(function ($row) {
+                return [
+                    'cliente'          => (string) $row['cliente'],
+                    'codigo'      => (string) $row['codigo'],
+                    'estado'          => (int) $row['estado'],
+                    'garzon'          => (string) $row['garzon'],
+                    'id_pedido' => (int) $row['id_pedido'],
+                    'nicks'           => (string) $row['nicks'],
+                    'subtotal'       => (int) $row['subtotal'],
+                    'total'           => (int) $row['total'],
+                ];
+            }, $result);
+        } catch (Exception $e) {
             return response::estado500($e);
         }
     }
     public function getDetallePedido(int $pedido_id)
     {
-        $sql = "SELECT P.codigo, P.id_pedido, C.nombre AS categoria,PR.id_producto,
-        PR.nombre, D.precio, D.comision, D.cantidad, D.subtotal, P.chica_id, P.cliente_id,
-        P.subtotal AS total_subtotal, P.total, P.total_comision, CH.nombre AS nombre_ch,
-        CH.apellido AS apellido_ch, CL.nombre AS nombre_cl, CL.apellido AS apellido_cl,
-         M.nombre AS nombre_m, M.apellido AS apellido_m 
-         FROM detalle_pedidos AS D 
-         INNER JOIN pedidos AS P ON D.pedido_id = P.id_pedido 
-         INNER JOIN productos AS PR ON D.producto_id = PR.id_producto 
-         INNER JOIN categorias AS C ON PR.categoria_id = C.id_categoria 
-         INNER JOIN usuarios AS CH ON P.chica_id = CH.id_usuario 
-         INNER JOIN usuarios AS M ON P.mesero_id = M.id_usuario 
-         INNER JOIN clientes AS CL ON P.cliente_id = CL.id_cliente 
-         WHERE D.pedido_id = :pedido_id AND P.estado = 1";
+        $sql = "SELECT P.codigo, P.id_pedido, C.nombre AS categoria, PR.id_producto, 
+                GROUP_CONCAT(DISTINCT CH.id_usuario ORDER BY CH.nombre SEPARATOR ', ') AS anfitriona_ids,
+                PR.nombre AS producto, D.precio, D.comision, D.cantidad, D.subtotal, P.cliente_id,
+                P.subtotal AS total_subtotal, P.total, P.total_comision,
+                GROUP_CONCAT(DISTINCT CONCAT(CH.nick) ORDER BY CH.nombre SEPARATOR ', ') AS Anfitriona,
+                CONCAT(CL.nombre, ' ', CL.apellido) AS cliente, CONCAT(M.nombre, ' ', M.apellido) AS garzon
+                FROM detalle_pedidos AS D
+                INNER JOIN pedidos AS P ON D.pedido_id = P.id_pedido
+                INNER JOIN productos AS PR ON D.producto_id = PR.id_producto
+                INNER JOIN categorias AS C ON PR.categoria_id = C.id_categoria
+                INNER JOIN pedidos_usuarios AS PU ON PU.pedido_id = P.id_pedido
+                INNER JOIN usuarios AS CH ON CH.id_usuario = PU.usuario_id
+                INNER JOIN usuarios AS M ON P.mesero_id = M.id_usuario
+                INNER JOIN clientes AS CL ON P.cliente_id = CL.id_cliente
+                WHERE D.pedido_id = :pedido_id AND P.estado = 1
+                GROUP BY P.id_pedido, PR.id_producto, D.id_detalle_pedido, CL.id_cliente, M.id_usuario;";
         $params = [
             ":pedido_id" => $pedido_id
         ];
         try {
-            return $this->selectAll($sql, $params);
+            $result = $this->selectAll($sql, $params);
+            return array_map(function ($row) {
+                return [
+                    'Anfitriona'      => (string) $row['Anfitriona'],
+                    'cantidad'        => (int) $row['cantidad'],
+                    'categoria'       => (string) $row['categoria'],
+                    'cliente'         => (string) $row['cliente'],
+                    'cliente_id'      => (int) $row['cliente_id'],
+                    'codigo'          => (string) $row['codigo'],
+                    'comision'        => (int) $row['comision'],
+                    'garzon'          => (string) $row['garzon'],
+                    'id_pedido'       => (int) $row['id_pedido'],
+                    'id_producto'     => (int) $row['id_producto'],
+                    'precio'          => (int) $row['precio'],
+                    'producto'        => (string) $row['producto'],
+                    'subtotal'        => (int) $row['subtotal'],
+                    'total'           => (int) $row['total'],
+                    'total_comision'  => (int) $row['total_comision'],
+                    'total_subtotal'  => (int) $row['total_subtotal'],
+                    'anfitriona_id'  => (string) $row['anfitriona_ids']
+                ];
+            }, $result);
         } catch (Exception $e) {
-            error_log("PedidoModel::getDetallePedido() -> " . $e);
+
             return response::estado500($e);
         }
     }
@@ -132,4 +190,19 @@ class pedidoModel extends query
             return response::estado500($e);
         }
     }
+    public function updatePedido(int $id_pedido)
+    {
+        $sql = 'UPDATE pedidos SET estado = 0 WHERE id_pedido = :id_pedido';
+        $params = [
+            ':id_pedido' => $id_pedido
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+
 }

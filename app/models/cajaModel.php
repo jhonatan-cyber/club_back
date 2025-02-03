@@ -93,4 +93,20 @@ class cajaModel extends query
             return response::estado500($e);
         }
     }
+
+    public function updateCaja(array $data)
+    {
+        $sql = 'UPDATE cajas SET ventas_realizadas = ventas_realizadas + 1, monto_cierre = monto_cierre + :monto_cierre, monto_trasferencia = monto_trasferencia + :monto_trasferencia WHERE estado = 1';
+        $params = [
+            ':monto_cierre' => $data['monto_cierre'],
+            ':monto_trasferencia' => $data['monto_trasferencia'],
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
 }

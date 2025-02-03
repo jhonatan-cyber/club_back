@@ -45,27 +45,36 @@ class comisionModel extends query
 
     public function getComisionesUsuario(int $usuario_id): array
     {
-        $sql = 'SELECT DC.estado, D.fecha_crea, DC.comision, (SELECT SUM(DC1.comision) 
-                FROM detalle_comisiones AS DC1 
-                WHERE DC1.chica_id = DC.chica_id) AS total 
-                FROM detalle_comisiones AS DC
-                INNER JOIN comisiones AS D ON DC.comision_id = D.id_comision
-                WHERE DC.chica_id = :usuario_id';
+
+        $sql1 = 'SELECT DC.estado, D.fecha_crea, DC.comision 
+                 FROM detalle_comisiones AS DC
+                 INNER JOIN comisiones AS D ON DC.comision_id = D.id_comision
+                 WHERE DC.chica_id = :usuario_id';
+        $sql2 = 'SELECT SUM(DC.comision) AS total 
+                 FROM detalle_comisiones AS DC 
+                 WHERE DC.chica_id = :usuario_id';
+
         $params = [':usuario_id' => $usuario_id];
+
         try {
-            $result = $this->selectAll($sql, $params);
-            return array_map(function ($row) {
-                return [
-                    'comision'    => (int) $row['comision'],
-                    'fecha_crea'  => (string) $row['fecha_crea'],
-                    'estado'      => (int) $row['estado'],
-                    'total'       => (int) $row['total'],
-                ];
-            }, $result);
+            $comisiones = $this->selectAll($sql1, $params);
+            $totalRow = $this->select($sql2, $params);
+            $total = (int) $totalRow['total'];
+            return [
+                'comisiones' => array_map(function ($row) {
+                    return [
+                        'comision'    => (int) $row['comision'],
+                        'fecha_crea'  => (string) $row['fecha_crea'],
+                        'estado'      => (int) $row['estado'],
+                    ];
+                }, $comisiones),
+                'total' => $total
+            ];
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
+
 
     public function getDetatalleComisionUsuario(int $chica_id)
     {
@@ -137,6 +146,69 @@ class comisionModel extends query
         try {
             $data = $this->selectAll($sql, $params);
             return $data;
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function createComision(array $data)
+    {
+        $requiredFields = ['monto'];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                error_log("El campo $field es requerido");
+                return response::estado400("El campo $field es requerido");
+            }
+        }
+
+        $sql = 'INSERT INTO comisiones (venta_id, monto) 
+        VALUES (:venta_id, :monto)';
+        $params = [
+            ':venta_id' => $data['venta_id'],
+            ':monto' => $data['monto']
+        ];
+
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            error_log('Error en createComision: ' . $e->getMessage());
+            return response::estado500('Error al crear la comisión. Por favor, intenta de nuevo.');
+        }
+    }
+
+    public function cretaeDetalleComision(array $data)
+    {
+        $requiredFields = ['comision_id', 'chica_id', 'comision'];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                error_log("El campo $field es requerido");
+                return response::estado400("El campo $field es requerido");
+            }
+        }
+
+        $sql = 'INSERT INTO detalle_comisiones (comision_id, chica_id, comision) 
+        VALUES (:comision_id, :chica_id, :comision)';
+        $params = [
+            ':comision_id' => $data['comision_id'],
+            ':chica_id' => $data['chica_id'],
+            ':comision' => $data['comision']
+        ];
+
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            error_log('Error en createDetalleServicio: ' . $e->getMessage());
+            return response::estado500('Error al crear el detalle del servicio. Por favor, intenta de nuevo.');
+        }
+    }
+
+    public function getLastComision()
+    {
+        $sql = 'SELECT MAX(id_comision) AS comision_id FROM comisiones';
+        try {
+            return $this->select($sql);
         } catch (Exception $e) {
             return response::estado500($e);
         }

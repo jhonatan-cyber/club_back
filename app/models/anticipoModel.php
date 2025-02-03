@@ -23,30 +23,38 @@ class anticipoModel extends query
 
     public function getAnticipoUsuario(int $id_usuario): array
     {
-        $sql = 'SELECT A.id_anticipo, A.monto, A.fecha_crea, A.estado, (SELECT SUM(monto) 
-                FROM anticipos WHERE usuario_id = :id_usuario) AS total FROM anticipos AS A 
-                INNER JOIN usuarios AS U ON A.usuario_id = U.id_usuario 
-                WHERE A.usuario_id = :id_usuario ORDER BY A.fecha_crea DESC';
-        $params = [
-            ':id_usuario' => $id_usuario
-        ];
+        $sql = "SELECT A.id_anticipo, A.usuario_id, A.monto, A.fecha_crea, A.estado
+                FROM anticipos AS A
+                WHERE A.usuario_id = :id_usuario
+                ORDER BY A.fecha_crea DESC";
+        
+        $sqlTotal = "SELECT SUM(monto) AS total FROM anticipos WHERE usuario_id = :id_usuario";
+        
+        $params = [':id_usuario' => $id_usuario];
+    
         try {
             $result = $this->selectAll($sql, $params);
-
-            return array_map(function ($row) {
-                return [
-                    'estado'          => (int) $row['estado'],
-                    'fecha_crea'      => (string) $row['fecha_crea'],
-                    'id_anticipo' => (int) $row['id_anticipo'],
-                    'total'           => (int) $row['total'],
-                    'monto'           => (int) $row['monto'],
-                ];
-            }, $result);
+            
+            $totalResult = $this->select($sqlTotal, $params);
+            $total = $totalResult['total'] ?? 0; 
+            
+            return [
+                'total' => (int) $total,
+                'anticipos' => array_map(function ($row) {
+                    return [
+                        'id_anticipo' => (int) $row['id_anticipo'],
+                        'usuario_id'  => (int) $row['usuario_id'],
+                        'monto'       => (int) $row['monto'],
+                        'fecha_crea'  => (string) $row['fecha_crea'],
+                        'estado'      => (int) $row['estado'],
+                    ];
+                }, $result),
+            ];
         } catch (Exception $e) {
             return response::estado500($e);
         }
-        
     }
+    
 
     public function getAnticipo($id_anticipo)
     {
@@ -96,4 +104,21 @@ class anticipoModel extends query
             return response::estado500($e);
         }
     }
+
+   /*  public function getAnticipoUsuario(int $id_usuario)
+    {
+        $sql = 'SELECT id_anticipo, usuario_id, monto, estado 
+                FROM anticipos 
+                WHERE usuario_id = :id_usuario 
+                AND estado = 1';
+        $params = [
+            ':id_usuario' => $id_usuario
+        ];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    } */
+
 }

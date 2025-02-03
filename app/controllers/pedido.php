@@ -44,8 +44,6 @@ class pedido extends controller
         }
     }
 
-
-
     public function createPedido()
     {
         if ($this->method !== 'POST') {
@@ -64,20 +62,27 @@ class pedido extends controller
         }
 
         $this->data['mesero_id'] = $_SESSION['id_usuario'];
+
         $this->data['codigo'] = $this->generarCodigoAleatorio(8);
 
-        $minChica = 120000;
-        $maxChica = max(1, floor(($this->data['total'] - $minChica) / 40000) + 2);
         if (count($productos) === 0) {
 
             $this->response(response::estado400('Selecione productos para realizar el pedido.'));
         }
 
-        if ($this->data['total'] < $minChica) {
-            if (count($chicas) > $maxChica) {
+        $minChica = 120000;
+        $maxChica = 1;
 
-                $this->response(response::estado400('Solo puede seleccionar ' . $maxChica . ' anfitriona(s).'));
-            }
+        if ($this->data['total'] >= $minChica) {
+            $maxChica = floor(($this->data['total'] - $minChica) / 40000) + 2;
+        }
+
+        if ($this->data['total'] == 120000) {
+            $maxChica = 2;
+        }
+
+        if (count($chicas) > $maxChica) {
+            return $this->response(response::estado400('Solo puede seleccionar ' . $maxChica . ' anfitriona(s).'));
         }
 
         if (count($chicas) === 0) {
@@ -88,9 +93,11 @@ class pedido extends controller
         try {
             $pedido = $this->model->createPedido($this->data);
             if ($pedido !== 'ok') {
-                return $this->response(response::estado500('Error al creal el pedido'));
+                return $this->response(response::estado500('Error al crear el pedido'));
             }
+
             $id_pedido = $this->model->getLastPedido();
+
             foreach ($productos as $value) {
                 $detalle = [
                     'pedido_id' => $id_pedido['id_pedido'],
@@ -102,7 +109,7 @@ class pedido extends controller
                 ];
                 $detalle_pedido = $this->model->createDetallePedido($detalle);
                 if ($detalle_pedido !== 'ok') {
-                    return $this->response(response::estado500('Error al creal el detalle del pedido'));
+                    return $this->response(response::estado500('Error al crear el detalle del pedido'));
                 }
             }
 
@@ -137,6 +144,26 @@ class pedido extends controller
 
         try {
             $pedido = $this->model->getPedidos();
+            if (!empty($pedido)) {
+                return $this->response(response::estado200($pedido));
+            }
+            return $this->response(response::estado204());
+        } catch (Exception $e) {
+            http_response_code(500);
+            return $this->response(response::estado500($e));
+        }
+    }
+
+    public function getPedidosGarzon()
+    {
+        if ($this->method !== 'GET') {
+            http_response_code(405);
+            return $this->response(response::estado405());
+        }
+        guard::validateToken($this->header, guard::secretKey());
+        $usuario_id = $_SESSION['id_usuario'];
+        try {
+            $pedido = $this->model->getPedidosGarzon($usuario_id);
             if (!empty($pedido)) {
                 return $this->response(response::estado200($pedido));
             }
