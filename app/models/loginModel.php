@@ -23,7 +23,7 @@ class loginModel extends query
             }
         }
 
-        $sql = 'SELECT U.id_usuario, U.run,U.nick, U.nombre, U.apellido, U.direccion, U.telefono,U.estado_civil, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
+        $sql = 'SELECT U.id_usuario, U.run,U.nick, U.nombre, U.apellido, U.direccion, U.telefono,U.estado_civil,U.afp,U.aporte,U.sueldo, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
                 FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol 
                 WHERE U.correo = :correo LIMIT 1';
         $params = [':correo' => $usuario['correo']];
