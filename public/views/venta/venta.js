@@ -1,7 +1,6 @@
 let tbVenta;
-
-document.addEventListener("DOMContentLoaded", () => {
-  getVentas();
+document.addEventListener("DOMContentLoaded", async () => {
+  await getVentas();
 
   const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   actualizarTablaCarrito(carrito);
@@ -9,15 +8,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("propina").addEventListener("input", () => {
     const carrito = JSON.parse(localStorage.getItem("carrito_venta")) || [];
     const subtotal = carrito.reduce(
-      (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+      (acc, item) => acc + (Number.parseInt(item.subtotal) || 0),
       0
     );
     const propina =
-      Number.parseFloat(document.getElementById("propina").value) || 0;
+      Number.parseInt(document.getElementById("propina").value) || 0;
     const total_a_pagar = subtotal + propina;
-    document.getElementById("total").innerText = total_a_pagar;
+    document.getElementById(
+      "total"
+    ).innerText = `$ ${total_a_pagar.toLocaleString("es-CL")}`;
+  });
+  const observer = new MutationObserver(verificarCategorias);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener("change", async () => {
+    await verificarCategorias();
   });
 });
+
 async function getPiezas() {
   const url = `${BASE_URL}getPiezasLibres`;
   try {
@@ -25,9 +33,10 @@ async function getPiezas() {
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 200) {
       const select = document.getElementById("pieza_id");
+      select.innerHTML = "";
       const defaultOption = document.createElement("option");
       defaultOption.value = "0";
-      defaultOption.text = "Seleccione una pieza";
+      defaultOption.text = "Seleccione una habitación";
       defaultOption.selected = true;
       select.appendChild(defaultOption);
 
@@ -45,12 +54,12 @@ async function getPiezas() {
     console.log(error);
   }
 }
+
 async function getVentas() {
   const url = `${BASE_URL}getVentas`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-
     if (data.codigo === 200 && data.estado === "ok") {
       const piezasPromises = data.data.map(async (venta) => {
         if (venta.pieza_id) {
@@ -85,8 +94,7 @@ async function getVentas() {
           },
           { data: "codigo" },
           {
-            data: null,
-            render: (data, type, row) => `${row.nombre_c} ${row.apellido_c}`,
+            data: "cliente",
           },
           {
             data: "nombre_pieza",
@@ -94,7 +102,12 @@ async function getVentas() {
           },
 
           { data: "metodo_pago" },
-          { data: "total" },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.total.toLocaleString("es-CL")} `,
+          },
+
           {
             data: "fecha_crea",
             render: (data, type, row) =>
@@ -103,9 +116,27 @@ async function getVentas() {
           {
             data: null,
             render: (data, type, row) =>
-              `<button class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_venta}" onclick="verVenta('${row.id_venta}')">
-                        <i class="fa-solid fa-eye"></i>
-                      </button> `,
+              row.estado === 1
+                ? `<span class="badge badge-sm badge-success">Activo</span>`
+                : `<span class="badge badge-sm badge-info">Anulado</span>`,
+          },
+          {
+            data: null,
+            render: (data, type, row) => {
+              if (row.estado === 1) {
+                return `
+                        <button title="Detalles de venta" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_venta}" onclick="verVenta('${row.id_venta}')">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button title="Anular venta" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_venta}" onclick="anularVenta('${row.id_venta}')">
+                            <i class="fa-solid fa-store-slash"></i>
+                        </button>`;
+              }
+              return `
+                        <button title="Detalles de venta" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.id_venta}" onclick="verVenta('${row.id_venta}')">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>`;
+            },
           },
         ],
       });
@@ -138,9 +169,9 @@ async function verVenta(id_venta) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    detalleVenta = data.data;
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
-      const detalleVenta = data.data;
-
       if (!detalleVenta.length) {
         toast("No se encontraron detalles de la venta", "info");
         return;
@@ -156,23 +187,21 @@ async function verVenta(id_venta) {
         "fecha"
       ).innerHTML = `<i class="fa-solid fa-calendar-days m-2"></i><b>Fecha: ${fecha}</b>`;
       document.getElementById(
-        "codigo"
+        "codigo_d_venta"
       ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo: ${detalleVenta[0].codigo}</b>`;
 
       const usuariosUnicos = [
         ...new Set(
           detalleVenta.map((item) => {
-            if (item.nombre_u === null || item.apellido_u === null) {
+            if (item.usuario === null || item.usuario.trim() === "") {
               return "Venta en barra";
             }
-            return `${item.nombre_u} ${item.apellido_u}`;
+            return `${item.usuario}`;
           })
         ),
       ];
 
-      const esVentaEnBarra = usuariosUnicos.every(
-        (usuario) => usuario === "Venta en barra"
-      );
+      const esVentaEnBarra = usuariosUnicos.every((usuario) => usuario === "");
 
       if (esVentaEnBarra) {
         document.getElementById(
@@ -183,20 +212,22 @@ async function verVenta(id_venta) {
       } else {
         document.getElementById(
           "usuario"
-        ).innerHTML = `<b>Dama acompañante: <br/> ${usuariosUnicos.join(
+        ).innerHTML = `<i class="fa-solid fa-user-group m-2"></i><b>Anfitriona(s): <br/> ${usuariosUnicos.join(
           "<br/>"
         )}</b>`;
       }
 
       document.getElementById(
         "cliente"
-      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente: ${detalleVenta[0].nombre_c} ${detalleVenta[0].apellido_a}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente: ${detalleVenta[0].cliente}</b>`;
       document.getElementById(
         "total"
       ).innerHTML = `<b>Total: $${detalleVenta[0].total}</b>`;
       document.getElementById(
         "total_comision"
-      ).innerHTML = `<i class="fa-solid fa-hand-holding-dollar m-2"></i><b>Comision: ${detalleVenta[0].total_comision}</b>`;
+      ).innerHTML = `<i class="fa-solid fa-hand-holding-dollar m-2"></i><b>Comision: $ ${detalleVenta[0].total_comision.toLocaleString(
+        "es-CL"
+      )}</b>`;
 
       document.getElementById(
         "metodo"
@@ -209,10 +240,10 @@ async function verVenta(id_venta) {
         if (!productosMap.has(key)) {
           productosMap.set(key, {
             producto: `${item.categoria} ${item.producto}`,
-            cantidad: Number.parseFloat(item.cantidad),
-            precio: Number.parseFloat(item.precio),
-            comision: Number.parseFloat(item.comision),
-            sub_total: Number.parseFloat(item.sub_total),
+            cantidad: Number.parseInt(item.cantidad),
+            precio: Number.parseInt(item.precio),
+            comision: Number.parseInt(item.comision),
+            sub_total: Number.parseInt(item.sub_total),
           });
         }
       }
@@ -225,13 +256,15 @@ async function verVenta(id_venta) {
             <tr>
               <td>${item[1].producto}</td>
               <td>${item[1].cantidad}</td>
-              <td>${item[1].precio}</td>
-              <td>${item[1].sub_total}</td>
+              <td>$ ${item[1].precio.toLocaleString("es-CL")}</td>
+              <td>$ ${item[1].sub_total.toLocaleString("es-CL")}</td>
             </tr>
           `;
         let total = 0;
         total += item[1].sub_total;
-        document.getElementById("total_").innerHTML = `<b>Total: $${total}</b>`;
+        document.getElementById(
+          "total_"
+        ).innerHTML = `<b>Total: $ ${total.toLocaleString("es-CL")}</b>`;
       }
 
       $("#ModalDetalleVenta").modal("show");
@@ -246,23 +279,23 @@ function cerrarModal(e) {
   $("#ModalDetalleVenta").modal("hide");
 }
 
-function nuevoVenta(e) {
+async function nuevoVenta(e) {
   e.preventDefault();
   document.getElementById("nuevo_venta").hidden = false;
   document.getElementById("lista_venta").hidden = true;
   document.getElementById("propina").value = "";
-  getClientes();
-  getChicas();
-  getProductosPrecio();
-  getPiezas();
-  verificarCategorias();
+  await getClientes();
+  await getChicas();
+  await getProductosPrecio();
+  await getPiezas();
+  await verificarCategorias();
 }
 
-function atras(e) {
+async function atras(e) {
   e.preventDefault();
   document.getElementById("nuevo_venta").hidden = true;
   document.getElementById("lista_venta").hidden = false;
-  getVentas();
+  await getVentas();
 }
 
 async function getProductosPrecio() {
@@ -275,33 +308,21 @@ async function getProductosPrecio() {
       const preciosHTML = precios
         .filter((precio) => precio.nombre)
         .map(
-          (precio) => `
-            <div class="col-xl-3 col-md-3 col-sm-4 mb-2">
-              <a onclick="getBebidasPrecio(${precio.precio})">
-                <div class="card-wrapper">
-                  <div class="card overflow-hidden mb-5 mb-xl-2 shadow-sm parent-hover card overflow-hidden mb-5 mb-xl-2 shadow-sm parent-hover hover-scale btn btn-outline btn-outline-dashed btn-outline-default">
-                    <div class="card-body d-flex justify-content-between flex-column px-0 pb-0">
-                      <div class="mb-4 px-9">
-                        <div class="d-flex align-items-center mb-2">
-                          <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">
-                            <i class="fa-solid fa-martini-glass-citrus"></i>
-                            <small>Bebidas de ${precio.precio}</small>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </div>
-          `
+          (
+            precio
+          ) => `<div class="col-xl-2 col-md-2 col-sm-6 mb-2"><a onclick="getBebidasPrecio(${precio.precio})" class="text-decoration-none">
+          <div class="card shadow-sm btn btn-outline btn-outline-dashed btn-outline-default rounded overflow-hidden cardi">
+          <div class="card-body d-flex flex-column align-items-center text-center p-4"><i class="fa-solid fa-martini-glass-citrus fs-2hx text-gray-900 mb-3"></i>
+          <h5 class="fw-bold text-gray-900 mb-1">Bebidas de ${precio.precio}</h5></div></div></a></div>`
         )
         .join("");
-
       document.getElementById("precio_bebidas").innerHTML = preciosHTML;
     }
   } catch (error) {
-    console.error(error);
+    return toast(
+      "Error al obtener los productos, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -310,32 +331,31 @@ async function getBebidasPrecio(precio) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron bebidas para ese precio", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       const carElement = document.getElementById("bebida_card");
       carElement.innerHTML = "";
-
       const itemsHTML = data.data
         .map(
-          (item) => `
-          <input type="hidden" class="form-control" value="${item.id_producto}">
-          <div class="input-group input-group-solid mb-3">
-            <small class="m-5" >${item.categoria} ${item.nombre}</small>
-            <input id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Ingrese una cantidad"/>
-            <button onclick="cargarCarrito(${item.id_producto},'${item.categoria}','${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-block btn-sm hover-elevate-up" type="button">
-              <i class="fas fa-plus"></i> Agregar
-            </button>
-          </div>
-        `
+          (
+            item
+          ) => `<input type="hidden" class="form-control form-control-sm form-control-solid" value="${item.id_producto}"><div class="input-group input-group-solid mb-3">
+          <small class="text-muted m-2"><b>${item.categoria} ${item.nombre}</b></small><input min="0" step="1" id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Cantidad"/>
+          <button title="Agregar al carrito" onclick="cargarCarrito(${item.id_producto},'${item.categoria}','${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-sm hover-elevate-up" type="button">
+          <i class="fas fa-plus"></i> Agregar</button></div>`
         )
         .join("");
 
       carElement.innerHTML = itemsHTML;
-
       $("#ModalBebida").modal("show");
     }
   } catch (error) {
-    console.error("Error en la petición:", error);
+    return toast(
+      "Error al obtener las bebidas, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -382,7 +402,7 @@ function cargarCarrito(
   }, 0);
 
   const propina =
-    Number.parseFloat(document.getElementById("propina").value) || 0;
+    Number.parseInt(document.getElementById("propina").value) || 0;
   const total = subtotal_ + propina;
 
   const totales = {
@@ -395,7 +415,7 @@ function cargarCarrito(
   localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
   document.getElementById("total").innerText = total;
-  toast("Producto agregado al carrito", "info");
+  return toast("Producto agregado al carrito", "info");
 }
 
 function actualizarTablaCarrito(carrito) {
@@ -407,8 +427,8 @@ function actualizarTablaCarrito(carrito) {
     row.innerHTML = `
               <td>${item.categoria} ${item.nombre}</td>
               <td>${item.cantidad}</td>
-              <td>${item.precio || 0}</td>
-              <td>${item.subtotal || 0}</td>
+              <td>$ ${item.precio.toLocaleString("es-CL") || 0}</td>
+              <td>$ ${item.subtotal.toLocaleString("es-CL") || 0}</td>
               <td><button onclick="eliminarProducto(${
                 item.id_producto
               })" class="btn btn-danger btn-icon btn-sm"><i class="fa-solid fa-trash"></i></button></td>
@@ -421,13 +441,15 @@ function actualizarTablaCarrito(carrito) {
   }
 
   const subtotal = carrito.reduce(
-    (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+    (acc, item) => acc + (Number.parseInt(item.subtotal) || 0),
     0
   );
   const propina =
-    Number.parseFloat(document.getElementById("propina").value) || 0;
+    Number.parseInt(document.getElementById("propina").value) || 0;
   const total_a_pagar = subtotal + propina;
-  document.getElementById("total").innerText = total_a_pagar;
+  document.getElementById(
+    "total"
+  ).innerText = `$ ${total_a_pagar.toLocaleString("es-CL")}`;
 }
 
 function eliminarProducto(id_producto) {
@@ -436,11 +458,11 @@ function eliminarProducto(id_producto) {
   carrito = carrito.filter((item) => item.id_producto !== id_producto);
 
   const subtotal = carrito.reduce(
-    (acc, item) => acc + (Number.parseFloat(item.subtotal) || 0),
+    (acc, item) => acc + (Number.parseInt(item.subtotal) || 0),
     0
   );
   const propina =
-    Number.parseFloat(document.getElementById("propina").value) || 0;
+    Number.parseInt(document.getElementById("propina").value) || 0;
   const total = subtotal + propina;
 
   const totales = {
@@ -455,7 +477,7 @@ function eliminarProducto(id_producto) {
   localStorage.setItem("carrito_venta", JSON.stringify(carrito));
   localStorage.setItem("totales", JSON.stringify(totales));
   actualizarTablaCarrito(carrito);
-  toast("Producto eliminado del carrito", "info");
+  return toast("Producto eliminado del carrito", "info");
 }
 
 async function getClientes() {
@@ -479,7 +501,10 @@ async function getClientes() {
       }
     }
   } catch (error) {
-    console.log(error);
+    return toast(
+      "Error al obtener los clientes, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -488,7 +513,9 @@ async function getChicas() {
   try {
     const response = await axios.get(url, config);
     const datos = response.data;
-
+    if (datos.estado !== "ok" || datos.codigo !== 200) {
+      return toast("No hay anfitrionas disponibles", "info");
+    }
     if (datos.estado === "ok" && datos.codigo === 200) {
       const select = document.getElementById("usuario_id");
       select.innerHTML = "";
@@ -500,24 +527,22 @@ async function getChicas() {
       });
     }
   } catch (error) {
-    const resp = error.response.data;
-    if (resp.codigo === 500 && resp.estado === "error") {
-      return toast("Error al abrir la caja", "error");
-    }
+    return toast(
+      "Error al obtener las anfitrionas, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
 async function createVenta(e) {
   e.preventDefault();
-
   const selectElement = document.getElementById("usuario_id");
   const productos = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   const totales = JSON.parse(localStorage.getItem("totales")) || {};
   let cliente_id = document.getElementById("cliente_id").value;
   const pieza_id = document.getElementById("pieza_id").value;
   const tiempo = document.getElementById("tiempo").value;
-  let propina =
-    Number.parseFloat(document.getElementById("propina").value) || 0;
+  let propina = Number.parseInt(document.getElementById("propina").value) || 0;
   if (propina === "") {
     propina = 0;
   }
@@ -530,19 +555,19 @@ async function createVenta(e) {
   let usuario_id = selectedOptions.map((option) => option.value);
 
   const minimoAcomprañante = 120000;
-
   const maxUsuarios =
     Math.floor((totales.total - minimoAcomprañante) / 40000) + 2;
 
   if (totales.total < minimoAcomprañante) {
     if (selectedOptions.length > 1) {
-      toast("solo puede seleccionar a una acompañante", "info");
-      return;
+      return toast("solo puede seleccionar a una acompañante", "info");
     }
   } else {
     if (selectedOptions.length > maxUsuarios) {
-      toast(`Puedes seleccionar hasta ${maxUsuarios} acompañantes`, "info");
-      return;
+      return toast(
+        `Puedes seleccionar hasta ${maxUsuarios} acompañantes`,
+        "info"
+      );
     }
   }
 
@@ -579,15 +604,13 @@ async function createVenta(e) {
   const categorias = productos.map((producto) => producto.categoria);
   if (categorias.includes("Champaña")) {
     if (pieza_id === "0") {
-      toast("Seleccione una pieza", "info");
-      return;
+      return toast("Seleccione una pieza", "info");
     }
     if (Number.isNaN(tiempo) || tiempo <= 0) {
-      toast("Ingrese un tiempo válido para el uso de la pieza", "info");
-      return;
+      return toast("Ingrese un tiempo válido para el uso de la pieza", "info");
     }
-    iniciarTemporizadorLocalStorage(tiempo, pieza_id);
-    updatePiezaVenta(pieza_id);
+    await iniciarTemporizadorLocalStorage(tiempo, pieza_id);
+    await updatePiezaVenta(pieza_id);
     localStorage.removeItem("carrito_venta");
     localStorage.removeItem("totales");
   }
@@ -599,16 +622,18 @@ async function createVenta(e) {
     if (data.estado === "ok" && data.codigo === 201) {
       localStorage.removeItem("carrito_venta");
       localStorage.removeItem("totales");
-      toast("Venta creada correctamente", "info");
       atras(e);
+      return toast("Venta realizada correctamente", "success");
     }
   } catch (e) {
-    console.error(e);
-    toast("Error al crear la venta", "error");
+    return toast(
+      "Error al crear la venta, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
-function verificarCategorias() {
+async function verificarCategorias() {
   const productos = JSON.parse(localStorage.getItem("carrito_venta")) || [];
   const categorias = productos.map((producto) => producto.categoria);
   if (categorias.includes("Champaña")) {
@@ -618,9 +643,76 @@ function verificarCategorias() {
   }
 }
 
-const observer = new MutationObserver(verificarCategorias);
-observer.observe(document.body, { childList: true, subtree: true });
+async function anularVenta(id_venta) {
+  const result = await Swal.fire({
+    title: "Las Muñecas de Ramón",
+    text: "¿Está seguro de anular la venta ?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Si, anular",
+    cancelButtonText: "No, cancelar",
+    customClass: {
+      confirmButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      cancelButton: "btn btn-outline-dark btn-sm hover-scale rounded-pill",
+      popup: "swal2-dark",
+      title: "swal2-title",
+      htmlContainer: "swal2-html-container",
+    },
+    buttonsStyling: false,
+    confirmButtonColor: "#dc3545",
+    background: "var(--bs-body-bg)",
+    color: "var(--bs-body-color)",
+  });
 
-document.addEventListener("change", () => {
-  verificarCategorias();
-});
+  if (result.isConfirmed) {
+    const d_venta = `${BASE_URL}getVenta/${id_venta}`;
+    const url = `${BASE_URL}createDevolucionVenta`;
+    try {
+      const resp = await axios.get(d_venta, config);
+      const data = resp.data;
+      if (data.estado === "ok" && data.codigo === 200) {
+        const ventas = data.data;
+
+        const usuario_id = [
+          ...new Set(ventas.map((venta) => venta.id_usuario)),
+        ];
+
+        const producto = [
+          ...new Map(
+            ventas.map((venta) => [
+              venta.id_producto,
+              {
+                id_producto: venta.id_producto,
+                cantidad: venta.cantidad,
+                precio: venta.precio,
+                comision: venta.comision,
+                usuario_id: usuario_id,
+              },
+            ])
+          ).values(),
+        ];
+
+        const datos = {
+          usuario_id: usuario_id,
+          cliente_id: ventas[0].id_cliente,
+          total: ventas[0].total,
+          venta_id: Number.parseInt(id_venta),
+          total_comision: ventas[0].total_comision,
+          producto: producto,
+        };
+        const respuesta = await axios.post(url, datos, config);
+        const result = respuesta.data;
+        console.log(result);
+        if (result.estado === "ok" && result.codigo === 200) {
+          await getVentas();
+          return toast("Venta anulada con exito", "success");
+        }
+      }
+    } catch (e) {
+      return toast(
+        "Error al anular la venta, por favor intente de nuevo",
+        "error"
+      );
+    }
+  }
+}

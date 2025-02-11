@@ -9,8 +9,6 @@
                 </div>
             </div>
             <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                <button class="btn btn-light-dark btn-sm text-center hover-scale"
-                    onclick="MDevolucionVenta(event)"><i class="fa fa-plus"></i> Nuevo</button>
                 <button  class="btn btn-light-dark btn-sm text-center hover-scale"
                     onclick="atras();"><i class="fa-solid fa-arrow-left"></i> Atras</button>
             </div>
@@ -21,4 +19,3 @@
         </div>
     </div>
 </div>
-<?php include 'public/components/devolucion/modalDevolucionVenta.php' ?>

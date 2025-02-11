@@ -14,23 +14,27 @@
 </div>
 </div>
 </div>
-<script> const BASE_URL = '<?php echo BASE_URL ?>'; </script>
-<script> const IP_URL = '<?php echo IP_URL ?>'; </script>
-<script src="<?php echo BASE_URL ?>public/assets/js/jquery.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/plugins.bundle.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/scripts.bundle.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/datatables.bundle.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/jquery.dataTables.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.bootstrap4.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.responsive.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/responsive.bootstrap4.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.buttons.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/function.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/timers.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/webSocket.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/widgets.bundle.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/axios.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/moment.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/all.min.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/toastr.js"></script>
-<script src="<?php echo BASE_URL ?>public/assets/js/sweetalert2.min.js"></script>
+<script>
+    const BASE_URL = '<?php echo BASE_URL ?>';
+</script>
+<script>
+    const IP_URL = '<?php echo IP_URL ?>';
+</script>
+<script src="<?php echo BASE_URL ?>public/assets/js/jquery.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/plugins.bundle.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/scripts.bundle.js" ></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/datatables.bundle.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/jquery.dataTables.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.bootstrap4.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.responsive.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/responsive.bootstrap4.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/dataTables.buttons.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/function.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/timers.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/webSocket.js" defer></script>
+<!-- <script src="<?php echo BASE_URL ?>public/assets/js/widgets.bundle.js" defer></script> -->
+<script src="<?php echo BASE_URL ?>public/assets/js/axios.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/moment.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/all.min.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/toastr.js" defer></script>
+<script src="<?php echo BASE_URL ?>public/assets/js/sweetalert2.min.js" defer></script>

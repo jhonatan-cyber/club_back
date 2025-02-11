@@ -40,7 +40,7 @@ class planillaModel extends query
                 FROM detalle_propinas DP
                 INNER JOIN propinas P ON DP.propina_id = P.id_propina WHERE P.estado = 1 GROUP BY DP.usuario_id) P ON U.id_usuario = P.usuario_id
                 WHERE U.id_usuario != 1 GROUP BY U.id_usuario, U.nombre, U.apellido, U.sueldo, U.aporte, COM.total_venta, COM.total_servicio, COM.total_anticipo, P.propina_total
-                HAVING total > 0 ORDER BY total DESC;';
+                HAVING total > 0 ORDER BY total DESC';
 
         try {
             $data = $this->selectAll($sql);

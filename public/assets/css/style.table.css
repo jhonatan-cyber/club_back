@@ -1,9 +1,9 @@
 
 .table-container {
-  max-height: 300px;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.table-container::-webkit-scrollbar {
-  display: none;
-}
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .table-container::-webkit-scrollbar {
+    display: none;
+  }

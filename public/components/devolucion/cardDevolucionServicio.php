@@ -14,7 +14,7 @@
                 <button id="btn_atras_dev" hidden class="btn btn-light-dark btn-sm text-center hover-scale"
                     onclick="atras();"><i class="fa-solid fa-arrow-left"></i> Atras</button>
                 <button id="btn_atras" hidden class="btn btn-light-dark btn-sm text-center hover-scale"
-                    onclick="listarDevolucionesServicios();"><i class="fa-solid fa-arrow-left"></i> Atras</button>
+                    onclick="devolucionServicio(event);"><i class="fa-solid fa-arrow-left"></i> Atras</button>
             </div>
         </div>
         <div id="servicio_table" hidden class="card-body pt-0">

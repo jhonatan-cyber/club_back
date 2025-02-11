@@ -1,22 +1,5 @@
-<div class="row" id="nuevo_venta" hidden>
-    <div class="col-xl-12 mb-xl-10">
-        <div class="card card-flush">
-            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                <div class="row align-items-center">
-                    <div>
-                        <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo TITLE ?></b></small>
-                        <h5 class="h3 mb-0">Nuevo Pedido</h5>
-                    </div>
-                </div>
-                <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-                    <buttonn onclick="atras(event)" class="btn btn-light-dark btn-sm text-center hover-scale"><i
-                            class="fa-solid fa-arrow-left"></i>
-                        Atras</>
-                </div>
-            </div>
-        </div>
-    </div>
 
+<div class="row" id="nuevo_venta" hidden>
     <div class="row mt-3" id="car_ticket">
         <div class="col-xl-12 mb-xl-10">
             <div class=" card card-flush">
@@ -26,6 +9,11 @@
                             <small class="text-uppercase text-muted ls-1 mb-1"><b><?php echo TITLE ?></b></small>
                             <h5 class="h3 mb-0"><b>Datos Ticket Venta</b></h5>
                         </div>
+                    </div>
+                    <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                        <buttonn onclick="atras(event)" class="btn btn-light-dark btn-sm text-center hover-scale"><i
+                                class="fa-solid fa-arrow-left"></i>
+                            Atras</>
                     </div>
                 </div>
                 <div class="separator mx-1 my-4"></div>
@@ -74,15 +62,15 @@
                         </div>
 
                         <div class="col-xl-3 col-md-3 col-sm-12 mt-3">
-                        <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Propina</b></small>
-                        <div class="d-flex input-group input-group-solid mb-3">
-                            <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-coins"></i></span>
-                            <input type="number" min="0"
-                                class="form-control form-control-sm form-control-solid" id="propina" placeholder="Propina" />
-                        </div>
+                            <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Propina</b></small>
+                            <div class="d-flex input-group input-group-solid mb-3">
+                                <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-coins"></i></span>
+                                <input type="number" min="0"
+                                    class="form-control form-control-sm form-control-solid" id="propina" placeholder="Propina" />
+                            </div>
                         </div>
 
-                     
+
 
                     </div>
                     <div id="pieza_venta" hidden class="row">

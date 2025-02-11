@@ -1,50 +1,44 @@
 let tbProducto;
-document.addEventListener("DOMContentLoaded", () => {
-  getCategorias();
+document.addEventListener("DOMContentLoaded", async () => {
+  await getCategorias();
   const input = document.getElementById("foto");
   if (input) {
     input.addEventListener("change", preview);
   }
   enterKey();
 });
+
 async function getCategorias() {
   const url = `${BASE_URL}getCategorias`;
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron categorias registradas.", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       const categoriaElements = document.getElementById("categorias");
       categoriaElements.innerHTML = "";
       const categorias = data.data;
       for (let i = 0; i < categorias.length; i++) {
         const categoria = categorias[i];
-        const categoriaElement = ` 
-                    <a onclick="getProductoCategoria('${categoria.id_categoria}', '${categoria.nombre}')" class="col-xl-3 col-md-3 col-sm-6 mb-md-5 mb-xl-2">
-                        <div>
-                            <div class="card overflow-hidden h-md-50 mb-5 mb-xl-2 hover-scale shadow-sm parent-hover btn-sm">
-                                <div class="card-body d-flex justify-content-between flex-column px-0 pb-0">
-                                    <div class="mb-4 px-9">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">
-                                                <i class="fa-solid fa-martini-glass-citrus"></i>
-                                                <small>${categoria.nombre}</small>
-                                            </span>
-                                        </div>
-                                        <span class="fs-6 fw-semibold text-gray-600">
-                                            <small><b>${categoria.descripcion}</b></small>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>`;
+        const categoriaElement = `
+        <div onclick="getProductoCategoria('${categoria.id_categoria}', '${categoria.nombre}')" class="col-xl-3 col-md-3 col-sm-6 mb-4">
+        <div class="card h-100 shadow-sm rounded bg-light-default btn btn-outline btn-outline-dashed btn-outline-default p-4 cardi">
+        <div class="card-body d-flex flex-column justify-content-center"><div class="d-flex align-items-center mb-3">
+        <i class="fa-solid fa-martini-glass-citrus fs-2hx text-gray-900 me-3"></i><h5 class="fw-bold text-gray-900 mb-0">${categoria.nombre}</h5>
+        </div><p class="fs-7 text-gray-600 fw-semibold mb-0"><b>${categoria.descripcion}</b></p></div></div></div>`;
         categoriaElements.innerHTML += categoriaElement;
       }
     }
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    return toast(
+      "Error al cargar las categorias, por favor intente de nuevo",
+      "error"
+    );
   }
 }
+
 async function getProductoCategoria(id_categoria, nombre) {
   localStorage.setItem("id_categoria", id_categoria);
   localStorage.setItem("nombre_categoria", nombre);
@@ -60,7 +54,6 @@ async function getProductoCategoria(id_categoria, nombre) {
 
     if (data.estado === "ok" && data.codigo === 200) {
       const productos = data.data.length > 0 ? data.data : [];
-
       if ($.fn.dataTable.isDataTable("#tbProducto")) {
         $("#tbProducto").DataTable().clear().destroy();
       }
@@ -91,8 +84,16 @@ async function getProductoCategoria(id_categoria, nombre) {
           },
           { data: "nombre" },
           { data: "descripcion" },
-          { data: "precio" },
-          { data: "comision" },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.precio.toLocaleString("es-CL")}`,
+          },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.comision.toLocaleString("es-CL")}`,
+          },
           {
             data: null,
             render: (data, type, row) =>
@@ -102,21 +103,23 @@ async function getProductoCategoria(id_categoria, nombre) {
         ],
       });
       if (productos.length === 0) {
-        toast("No se encontraron datos registrados", "info");
+        return toast("No se encontraron productos registrados", "info");
       }
     }
   } catch (error) {
-    console.error("Error:", error);
+    return toast("Error al obtener los productos, por favor intente de nuevo", "error");
   }
 }
-function Atras(e) {
+
+async function Atras(e) {
   e.preventDefault();
   document.getElementById("productos").hidden = true;
   document.getElementById("categorias").hidden = false;
-  getCategorias();
+  await getCategorias();
   localStorage.removeItem("id_categoria");
   localStorage.removeItem("nombre_categoria");
 }
+
 function Mproducto(e) {
   e.preventDefault();
   reset();
@@ -127,11 +130,11 @@ function Mproducto(e) {
   wrapper.style.backgroundImage = "none";
   $("#ModalProducto").modal("show");
   $("#ModalProducto").on("shown.bs.modal", () => {
-    document.getElementById("txt_nombre").innerHTML = "<b>Nombre</b>";
     document.getElementById("nombre").setAttribute("placeholder", "");
     document.getElementById("nombre").focus();
   });
 }
+
 function reset() {
   document.getElementById("id_producto").value = "";
   document.getElementById("codigo").value = "";
@@ -142,6 +145,7 @@ function reset() {
   const wrapper = document.getElementById("imagen");
   wrapper.style.backgroundImage = "none";
 }
+
 async function deleteProducto(id) {
   const result = await Swal.fire({
     title: "Las Muñecas de Ramón",
@@ -167,7 +171,7 @@ async function deleteProducto(id) {
       const url = `${BASE_URL}deleteProducto/${id}`;
       const resp = await axios.get(url, config);
       if (resp.data.estado === "ok" && resp.data.codigo === 200) {
-        getProductoCategoria(
+        await getProductoCategoria(
           localStorage.getItem("id_categoria"),
           localStorage.getItem("nombre_categoria")
         );
@@ -178,12 +182,13 @@ async function deleteProducto(id) {
       if (resultado.codigo === 500 && resultado.estado === "error") {
         return toast(
           "Error al eliminar el producto, intente nuevamente",
-          "warning"
+          "error"
         );
       }
     }
   }
 }
+
 async function createProducto(e) {
   e.preventDefault();
   const id_producto = document.getElementById("id_producto").value;
@@ -225,15 +230,14 @@ async function createProducto(e) {
     if (data.estado === "ok" && data.codigo === 201) {
       toast("Producto registrado correctamente", "success");
       $("#ModalProducto").modal("hide");
-      getProductoCategoria(
+      await getProductoCategoria(
         localStorage.getItem("id_categoria"),
         localStorage.getItem("nombre_categoria")
       );
     }
   } catch (error) {
-    console.error(error);
     if (error.response.status === 409) {
-      toast("El producto ingresado ya existe", "warning");
+      toast("El producto ingresado ya existe", "error");
       if (id_producto !== "") {
         codigo.value = "";
         nombre.value = "";
@@ -249,11 +253,12 @@ async function createProducto(e) {
       return;
     }
     if (error.response.status === 500) {
-      toast("Error al registrar el producto, intente nuevamente", "warning");
+      toast("Error al registrar el producto, por favor intente de nuevo", "error");
       return;
     }
   }
 }
+
 function validarDatos(
   codigo,
   nombre,
@@ -305,6 +310,7 @@ function validarDatos(
     return;
   }
 }
+
 function enterKey() {
   const nombre = document.getElementById("nombre");
   const precio = document.getElementById("precio");
@@ -322,7 +328,6 @@ function enterKey() {
       }
       nombre.setAttribute("placeholder", "");
       nombre.value = capitalizarPalabras(nombre.value);
-      document.getElementById("txt_precio").innerHTML = "<b>Precio</b>";
       precio.focus();
     }
   });
@@ -345,7 +350,6 @@ function enterKey() {
         return;
       }
       precio.setAttribute("placeholder", "");
-      document.getElementById("txt_comision").innerHTML = "<b>Comision</b>";
       comision.focus();
     }
   });
@@ -364,8 +368,6 @@ function enterKey() {
       }
 
       comision.setAttribute("placeholder", "");
-      document.getElementById("txt_descripcion").innerHTML =
-        "<b>descripcion</b>";
       descripcion.focus();
     }
   });
@@ -383,6 +385,7 @@ function enterKey() {
     }
   });
 }
+
 async function getProducto(id) {
   document.getElementById("tituloProducto").innerHTML = "Modificar Producto";
   document.getElementById("txt_nombre").innerHTML = "<b>Nombre</b>";
@@ -419,6 +422,6 @@ async function getProducto(id) {
       });
     }
   } catch (error) {
-    console.error("Error fetching product:", error);
+    return toast("Error al obtener el producto, por favor intente de nuevo", "error");
   }
 }

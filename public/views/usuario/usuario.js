@@ -263,6 +263,7 @@ async function getUsuarios() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
+    console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
       tbUsuario = $("#tbUsuario").DataTable({
         data: data.data,
@@ -292,12 +293,33 @@ async function getUsuarios() {
           { data: "nombre" },
           { data: "apellido" },
           { data: "estado_civil" },
-          { data: "sueldo" },
-          { data: "aporte" },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.sueldo.toLocaleString("es-CL")}`,
+          },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.aporte.toLocaleString("es-CL")}`,
+          },
           { data: "afp" },
           { data: "direccion" },
           { data: "telefono" },
-          { data: "rol" },
+          { data: null,
+            render: (data, type, row) => {
+              if (row.rol === "Chica") {
+                return `<span class="badge badge-sm badge-primary">Anfitriona</span>`;
+              }
+              if(row.rol === "Mesero") {
+                return `<span class="badge badge-sm badge-info">Garzón</span>`;
+              }
+              if(row.rol === "Cajero"){
+                return `<span class="badge badge-sm badge-warning">Cajero</span>`;
+              }
+              return `<span class="badge badge-sm badge-success">${row.rol}</span>`;
+            },
+           },
           {
             data: null,
             render: (data, type, row) => {

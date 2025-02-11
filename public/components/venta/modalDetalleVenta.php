@@ -1,20 +1,13 @@
 <div class="modal fade" tabindex="-1" id="ModalDetalleVenta">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Detalle de Venta</h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
-                    aria-label="Close">
-                    <span class="svg-icon svg-icon-1"><i class="fa-solid fa-xmark"></i></span>
-                </div>
-            </div>
             <form method="post">
                 <div class="modal-body">
                     <div class="card-body">
                         <p
                             class="text-center justify-content-end align-items-center text-gray-600 text-hover-primary me-5 mb-2">
 
-                            <b>Informacion</b>
+                            <b>Informacion de la Venta</b>
                         </p>
                         <div class="row">
 
@@ -26,7 +19,7 @@
                                 <small id="fecha"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
-                                <small id="codigo"
+                                <small id="codigo_d_venta"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2">
                                 </small>
                                 <small id="usuario"

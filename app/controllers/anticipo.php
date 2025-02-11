@@ -8,12 +8,14 @@ use app\config\response;
 use app\config\view;
 use app\models\anticipoModel;
 use app\models\comisionModel;
+use app\models\asistenciaModel;
 use Exception;
 
 class anticipo extends controller
 {
     private $model;
     private $comision;
+    private $asistencia;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class anticipo extends controller
         parent::__construct();
         $this->model = new anticipoModel();
         $this->comision = new comisionModel();
+        $this->asistencia = new asistenciaModel();
     }
 
     public function index()
@@ -92,7 +95,13 @@ class anticipo extends controller
         guard::validateToken($this->header, guard::secretKey());
 
         try {
-            $comisionUsuario = $this->comision->getDetalleComisionUsuario($this->data['usuario_id']);
+
+            $usuario = $this->data['usuario_id'];
+            $asistencia = $this->asistencia->getAsistencia($usuario)['totales']['total_sueldos'];
+            if (empty($asistencia) || $asistencia <= 0) {
+                return $this->response(response::estado400('El usuario no tiene saldo suficiente para el anticipo.'));
+            }
+            $comisionUsuario = $this->comision->getDetalleComisionUsuario($usuario);
 
             if (empty($comisionUsuario)) {
                 $anticipo = $this->model->createAnticipo($this->data);
@@ -106,11 +115,13 @@ class anticipo extends controller
             if ($anticipo !== 'ok') {
                 return $this->response(response::estado500('Error al crear anticipo'));
             }
+
             $id_anticipo = $this->model->getLastAnticipo()['id_anticipo'];
-            $detalle_comision = $this->comision->getDetatalleComisionUsuario($this->data['usuario_id']);
+            $detalle_comision = $this->comision->getDetatalleComisionUsuario($usuario);
             if (empty($detalle_comision)) {
                 return $this->response(response::estado500('Error al obtener detalle comision'));
             }
+            
             $ultima_comision = end($detalle_comision);
             $excedente = $this->data['monto'] - $ultima_comision['comision'];
             $estado = 1;
@@ -166,7 +177,7 @@ class anticipo extends controller
                 return $this->response(response::estado500('error al actualizar anticipo'));
             }
             if ($excedente > 0) {
-                $detalle_comision_actualizada = $this->comision->getDetatalleComisionUsuario($this->data['usuario_id']);
+                $detalle_comision_actualizada = $this->comision->getDetatalleComisionUsuario($usuario);
                 if (empty($detalle_comision_actualizada)) {
                     return $this->response(response::estado500('Error al obtener detalle comision'));
                 }
@@ -193,6 +204,7 @@ class anticipo extends controller
             return $this->response(response::estado500($e));
         }
     }
+
     public function getAnticipoUsuario(int $id)
     {
         if ($this->method !== 'GET') {

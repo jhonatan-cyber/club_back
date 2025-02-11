@@ -108,5 +108,15 @@ class cajaModel extends query
             return response::estado500($e);
         }
     }
-
+    public function updateCajaDevolucion(int $total)
+    {
+        $sql = "UPDATE cajas SET monto_cierre= monto_cierre - :total, ventas_realizadas=ventas_realizadas - 1 WHERE estado = 1";
+        $params = [':total' => $total];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

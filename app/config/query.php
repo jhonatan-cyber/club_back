@@ -63,7 +63,6 @@ class query extends conexion
             return $result;
         } catch (PDOException $e) {
             $this->con->rollBack();
-            $this->logError('Error en save: ' . $e->getMessage());
             return false;
         }
     }
@@ -102,7 +101,6 @@ class query extends conexion
             $this->bindParams($stmt, $params);
             return $stmt->execute();
         } catch (PDOException $e) {
-            $this->logError('Error en executeQuery: ' . $e->getMessage());
             return false;
         }
     }

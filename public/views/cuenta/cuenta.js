@@ -4,6 +4,45 @@ document.addEventListener("DOMContentLoaded", () => {
   getCuentas();
   const carrito = JSON.parse(localStorage.getItem("carrito_cuenta")) || [];
   actualizarTablaCarrito(carrito);
+
+  const propinaInput = document.getElementById("propina_cuenta");
+  const ivaInput = document.getElementById("iva_cuenta");
+  const totalElement = document.getElementById("total_cuenta");
+  const metodoPagoSelect = document.getElementById("metodo_pago");
+  const selectIva = document.getElementById("select_iva");
+
+  function actualizarTotal() {
+    const carrito_datos = JSON.parse(
+      localStorage.getItem("datos_venta_cuenta")
+    ) || {
+      total: 0,
+    };
+    const propina = Number(propinaInput?.value) || 0;
+    const iva = Number(ivaInput?.value) || 0;
+    const total_a_pagar = carrito_datos.total + propina + iva;
+
+    if (totalElement) {
+      totalElement.innerHTML = `TOTAL: $${total_a_pagar
+        .toFixed(0)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    }
+  }
+
+  if (propinaInput) {
+    propinaInput.addEventListener("input", actualizarTotal);
+  }
+
+  if (ivaInput) {
+    ivaInput.addEventListener("input", actualizarTotal);
+  }
+
+  if (metodoPagoSelect) {
+    metodoPagoSelect.addEventListener("change", (e) => {
+      if (selectIva) {
+        selectIva.hidden = e.target.value !== "Tarjeta";
+      }
+    });
+  }
 });
 
 async function getCuentas() {
@@ -104,143 +143,165 @@ async function getDetalleCuenta(id) {
   const url = `${BASE_URL}getDetalleCuentas/${id}`;
   try {
     const resp = await axios.get(url, config);
-    const data = resp.data;
+    const { data } = resp;
     const metodo_pago = document.getElementById("metodo_pago");
-    const cuenta = data.data;
+    const { data: cuenta } = data;
     console.log(data);
     if (data.estado === "ok" && data.codigo === 200) {
-      const datos_cuenta = cuenta.cuenta;
-      const datos_detalle = cuenta.detalle_cuenta;
+      const { cuenta: datos_cuenta, detalle_cuenta: datos_detalle } = cuenta;
 
-      const productoArray = datos_detalle.map((item) => ({
-        id_producto: item.id_producto,
-        precio: item.precio,
-        cantidad: item.cantidad,
-        comision: item.comision,
-        subtotal: item.subtotal,
-      }));
-      const usuarios = datos_detalle.reduce(
-        (acc, item) => acc.concat(item.id_usuario),
-        []
+      const productoArray = datos_detalle.map(
+        ({ id_producto, precio, cantidad, comision, subtotal }) => ({
+          id_producto,
+          precio,
+          cantidad,
+          comision,
+          subtotal,
+        })
       );
+
+      const usuarios = datos_detalle.map(({ id_usuario }) => id_usuario);
 
       const datos = {
         id_cuenta: datos_cuenta.id_cuenta,
         codigo: datos_cuenta.codigo,
         usuario_id: usuarios,
         cliente_id: datos_cuenta.id_cliente,
-        metodo_pago: document.getElementById("metodo_pago").value,
+        metodo_pago: metodo_pago.value,
+        iva: 0,
+        propina: 0,
+        pieza_id: 0,
         total: datos_cuenta.total,
         total_comision: datos_cuenta.total_comision,
         productos: productoArray,
       };
 
-      /*    localStorage.setItem("datos_venta_cuenta", JSON.stringify(datos)); */
-      const fechaMoment = moment(datos_cuenta.fecha);
-      document.getElementById(
-        "fecha"
-      ).innerHTML = `<b>Fecha : ${fechaMoment.format("DD-MM-YYYY")}</b>`;
+      actualizarDOM(datos_cuenta, datos_detalle);
 
-      document.getElementById(
-        "codigo_cuenta"
-      ).innerHTML = `<b>Codigo : ${datos_cuenta.codigo}</b>`;
+      localStorage.setItem("datos_venta_cuenta", JSON.stringify(datos));
+      document.getElementById("btn_cobrar").onclick = () => {
+        if (metodo_pago.value === "0") {
+          return toast("Seleccione un metodo de pago", "info");
+        }
+        createVenta();
+      };
 
-      const anfitrionas = [
-        ...new Set(
-          datos_detalle.flatMap((item) =>
-            item.anfitrionas.flatMap((nombre) =>
-              nombre.split(",").map((n) => n.trim().toLowerCase())
-            )
-          )
-        ),
-      ]
-        .map((nombre) =>
-          nombre
-            .split(" ")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ")
-        )
-        .join(", ");
-
-      if (anfitrionas.length > 0) {
-        document.getElementById(
-          "usuario"
-        ).innerHTML = `<b>Anfitriona(s): ${anfitrionas}</b>`;
-      }
-
-      if (datos_cuenta.id_cliente !== 0) {
-        document.getElementById(
-          "cliente"
-        ).innerHTML = `<b>Cliente : ${datos_cuenta.cliente}</b>`;
-      } else {
-        document.getElementById("cliente").innerHTML =
-          "<b>Cuenta creada en barra</b>";
-      }
-
-      document.getElementById("comision").innerHTML = `<b>Comision : $ ${Number(
-        datos_cuenta.total_comision
-      ).toLocaleString("es-ES")}</b>`;
-      document.getElementById("total").innerHTML = `<b>Total : $ ${Number(
-        datos_cuenta.total
-      ).toLocaleString("es-ES")}</b>`;
-
-      const productos = cuenta
-        .map((item) => {
-          return `
-    <tr>
-      <td>${item.nombre_categoria} ${item.nombre_producto}</td>
-      <td>${item.cantidad}</td>
-      <td>${item.precio}</td>
-      <td>${item.comision}</td>
-      <td>${item.subtotal}</td>
-    </tr>
-  `;
-        })
-        .join("");
-
-      document.getElementById("detalle_productos").innerHTML = productos;
+      $("#ModalDetalleCuenta").modal("show");
     }
-    document.getElementById("btn_cobrar").onclick = () => {
-      if (metodo_pago.value === "0") {
-        return toast("Seleccione un metodo de pago", "info");
-      }
-      cobrarCuenta(cuenta[0].cuenta_id, metodo_pago.value);
-    };
   } catch (error) {
-    console.log(error);
+    console.error("Error al obtener los detalles de la cuenta:", error);
   }
-  $("#ModalDetalleCuenta").modal("show");
 }
 
-async function cobrarCuenta(id, metodo_pago) {
-  const url = `${BASE_URL}cobrarCuenta`;
-  const datos = {
-    id_cuenta: id,
-    metodo_pago: metodo_pago,
-  };
-  try {
-    const resp = await axios.post(url, datos, config);
-    const data = resp.data;
+function actualizarDOM(datos_cuenta, datos_detalle) {
+  const fechaMoment = moment(datos_cuenta.fecha);
+  document.getElementById("fecha").innerHTML = `<b>Fecha : ${fechaMoment.format(
+    "DD-MM-YYYY"
+  )}</b>`;
+  document.getElementById(
+    "codigo_cuenta"
+  ).innerHTML = `<b>Codigo : ${datos_cuenta.codigo}</b>`;
 
-    if (data.estado === "ok" && data.codigo === 201) {
-      createVenta();
-    }
-  } catch (error) {
-    console.log(error);
+  const anfitrionas = [
+    ...new Set(
+      datos_detalle.flatMap(({ anfitrionas }) =>
+        anfitrionas.flatMap((nombre) =>
+          nombre.split(",").map((n) => n.trim().toLowerCase())
+        )
+      )
+    ),
+  ]
+    .map((nombre) =>
+      nombre
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    )
+    .join(", ");
+
+  if (anfitrionas.length > 0) {
+    document.getElementById(
+      "usuario"
+    ).innerHTML = `<b>Anfitriona(s): ${anfitrionas}</b>`;
   }
+
+  if (datos_cuenta.id_cliente !== 0) {
+    document.getElementById(
+      "cliente"
+    ).innerHTML = `<b>Cliente : ${datos_cuenta.cliente}</b>`;
+  } else {
+    document.getElementById("cliente").innerHTML =
+      "<b>Cuenta creada en barra</b>";
+  }
+
+  document.getElementById("comision").innerHTML = `<b>Comision : $ ${Number(
+    datos_cuenta.total_comision
+  ).toLocaleString("es-ES")}</b>`;
+  document.getElementById("total_cuenta").innerHTML = `<b>Total : $ ${Number(
+    datos_cuenta.total
+  ).toLocaleString("es-ES")}</b>`;
+
+  const productos = datos_detalle
+    .map(
+      ({
+        fecha_crea,
+        anfitrionas,
+        producto,
+        cantidad,
+        precio,
+        comision,
+        subtotal,
+      }) => {
+        return `
+    <tr>
+      <td>${moment(fecha_crea).format("hh:mm:ss")}</td>
+      <td>${anfitrionas}</td>
+      <td>${producto}</td>
+      <td>${cantidad}</td>
+      <td>${Number(precio).toLocaleString("es-ES")}</td>
+      <td>${Number(comision).toLocaleString("es-ES")}</td>
+      <td>${Number(subtotal).toLocaleString("es-ES")}</td>
+    </tr>
+  `;
+      }
+    )
+    .join("");
+
+  document.getElementById("detalle_productos").innerHTML = productos;
 }
 
 async function createVenta() {
+  const datos = JSON.parse(localStorage.getItem("datos_venta_cuenta") || []);
   const nuevoMetodoPago = document.getElementById("metodo_pago").value;
+  const propina = Number.parseInt(
+    document.getElementById("propina_cuenta").value || 0
+  );
+  let iva = Number.parseInt(document.getElementById("iva_cuenta").value);
   if (nuevoMetodoPago === "0") {
     return toast("Seleccione un metodo de pago", "info");
   }
-  const datos = JSON.parse(localStorage.getItem("datos_venta_cuenta") || []);
+  if (nuevoMetodoPago === "Tarjeta" && iva.value <= 0) {
+    document.getElementById("iva_cuenta").focus();
+    return toast("Seleccione un monto mayor a cero par ael iva", "info");
+  }
+  let total = datos.total;
+  if (iva === null || iva === "") {
+    iva = 0;
+  }
+  if (iva > 0) {
+    total = total + iva;
+  }
+  if (propina > 0) {
+    total = total + propina;
+  }
+
   datos.metodo_pago = nuevoMetodoPago;
+  datos.propina = propina;
+  datos.iva = iva;
+  datos.total = total;
+
   localStorage.setItem("datos_venta_cuenta", JSON.stringify(datos));
-
   const url = `${BASE_URL}createVenta`;
-
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
@@ -331,6 +392,7 @@ async function getProductosPrecio() {
     console.error(error);
   }
 }
+
 async function getBebidasPrecio(precio) {
   const url = `${BASE_URL}getBebidasPrecio/${precio}`;
   try {
@@ -439,7 +501,7 @@ function actualizarTablaCarrito(carrito) {
 
   const total = carrito.reduce((acc, item) => acc + (item.subtotal || 0), 0);
 
-  document.getElementById("total").innerText = total.toFixed(2);
+  document.getElementById("total_cuenta").innerText = total;
 }
 
 function eliminarProducto(id_producto) {

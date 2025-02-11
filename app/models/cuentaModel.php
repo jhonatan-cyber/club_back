@@ -68,8 +68,7 @@ class cuentaModel extends query
     {
         try {
             $params = [':cuenta_id' => $cuenta_id];
-            
-            // Consulta de detalle de cuenta con anfitrionas concatenadas
+
             $sql_detalle = "SELECT D.precio, D.cantidad, D.subtotal, D.comision, D.fecha_crea, 
                                    GROUP_CONCAT(CONCAT(U.nombre, ' ', U.apellido) SEPARATOR ', ') AS anfitrionas,
                                    GROUP_CONCAT(U.id_usuario SEPARATOR ', ') AS id_usuario, PR.nombre AS producto, PR.id_producto
@@ -80,31 +79,30 @@ class cuentaModel extends query
                                WHERE D.cuenta_id = :cuenta_id AND D.fecha_crea = CU.fecha_crea
                                GROUP BY D.cuenta_id, D.fecha_crea, D.precio, D.cantidad, D.subtotal, D.comision, PR.nombre, PR.id_producto
                                ORDER BY D.fecha_crea DESC";
-    
+
             $detalle_cuenta = $this->selectAll($sql_detalle, $params);
             if (empty($detalle_cuenta)) {
                 return response::estado500("No se encontraron resultados para los detalles.");
             }
-    
-            // Consulta de cuenta y cliente
+
             $sql_cuenta = "SELECT C.id_cuenta, C.codigo, C.total_comision, C.fecha_crea AS fecha, C.total,
                                    CONCAT(CL.nombre, ' ', CL.apellido) AS cliente, CL.id_cliente 
                                FROM cuentas AS C
                                JOIN clientes AS CL ON C.cliente_id = CL.id_cliente 
                                WHERE C.id_cuenta = :cuenta_id";
-    
+
             $cuenta = $this->select($sql_cuenta, $params);
             if (empty($cuenta)) {
                 return response::estado500("No se encontraron resultados para la cuenta.");
             }
-    
+
             return [
                 'detalle_cuenta' => array_map(function ($row) {
                     return [
-                        'precio'       => (int) $row['precio'], 
+                        'precio'       => (int) $row['precio'],
                         'cantidad'     => (int) $row['cantidad'],
-                        'subtotal'     => (int) $row['subtotal'],  
-                        'comision'     => (int) $row['comision'],  
+                        'subtotal'     => (int) $row['subtotal'],
+                        'comision'     => (int) $row['comision'],
                         'fecha_crea'   => (string) $row['fecha_crea'],
                         'anfitrionas'  => (array) $row['anfitrionas'],
                         'id_usuario'   => (array) $row['id_usuario'],
@@ -113,21 +111,20 @@ class cuentaModel extends query
                     ];
                 }, $detalle_cuenta),
                 'cuenta' => [
-                    'id_cuenta'   => (int) $cuenta['id_cuenta'],
-                    'id_cliente'  => (int) $cuenta['id_cliente'],
-                    'codigo'      => (string) $cuenta['codigo'],
+                    'id_cuenta'      => (int) $cuenta['id_cuenta'],
+                    'id_cliente'     => (int) $cuenta['id_cliente'],
+                    'codigo'         => (string) $cuenta['codigo'],
                     'total_comision' => (int) $cuenta['total_comision'],
-                    'fecha'       => (string) $cuenta['fecha'],
-                    'total'       => (int) $cuenta['total'], 
-                    'cliente'     => (string) $cuenta['cliente']
+                    'fecha'          => (string) $cuenta['fecha'],
+                    'total'          => (int) $cuenta['total'],
+                    'cliente'        => (string) $cuenta['cliente']
                 ]
             ];
         } catch (Exception $e) {
-            error_log('Error en getDetalleCuentas: ' . $e->getMessage());
             return response::estado500("Error: " . $e->getMessage());
         }
     }
-    
+
 
     public function cobrarCuenta(array $cuenta)
     {

@@ -4,12 +4,12 @@
             <thead>
                 <tr class="text-center text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                     <th>#</th> 
+                    <th>Codigo</th>
                     <th>Cliente</th>
-                    <th>Acompañante</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Monto Devuelto</th>
+                    <th>Total</th>
                     <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Detalles</th>
                 </tr>
             </thead>
             <tbody class="fw-semibold text-gray-600"></tbody>

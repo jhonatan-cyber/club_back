@@ -163,25 +163,10 @@ async function getProductosPrecio() {
       const preciosHTML = precios
         .map(
           (precio) => `
-          <div class="col-xl-3 col-md-3 col-sm-4 mb-2">
-            <a onclick="getBebidasPrecio(${precio.precio})">
-              <div class="card-wrapper">
-                <div class="card overflow-hidden mb-5 mb-xl-2 shadow-sm parent-hover card overflow-hidden mb-5 mb-xl-2 shadow-sm parent-hover hover-scale btn btn-outline btn-outline-dashed btn-outline-default">
-                  <div class="card-body d-flex justify-content-between flex-column px-0 pb-0">
-                    <div class="mb-4 px-9">
-                      <div class="d-flex align-items-center mb-2">
-                        <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">
-                          <i class="fa-solid fa-martini-glass-citrus"></i>
-                          <small>Bebidas de ${precio.precio}</small>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </a>
-          </div>
-        `
+          <div class="col-xl-3 col-md-3 col-sm-4 mb-2"><a onclick="getBebidasPrecio(${precio.precio})" class="text-decoration-none">
+          <div class="card shadow-sm btn btn-outline btn-outline-dashed btn-outline-default rounded overflow-hidden cardi">
+          <div class="card-body d-flex flex-column align-items-center text-center p-4"><i class="fa-solid fa-martini-glass-citrus fs-2hx text-gray-900 mb-3"></i>
+          <h5 class="fw-bold text-gray-900 mb-1">Bebidas de ${precio.precio}</h5></div></div></a></div>`
         )
         .join("");
 
@@ -208,15 +193,10 @@ async function getBebidasPrecio(precio) {
       const itemsHTML = data.data
         .map(
           (item) => `
-        <input type="hidden" class="form-control" value="${item.id_producto}">
-        <div class="input-group input-group-solid mb-3">
-          <small style="font-size: 1rem; width: auto; min-width: 120px;">${item.categoria} ${item.nombre}</small>
-          <input id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Ingrese una cantidad" style="width: 100px;" min="1" />
-          <button onclick="cargarCarrito(${item.id_producto}, '${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-block btn-sm hover-elevate-up" type="button">
-            <i class="fas fa-plus"></i> Agregar
-          </button>
-        </div>
-      `
+          <input type="hidden" class="form-control form-control-sm form-control-solid" value="${item.id_producto}"><div class="input-group input-group-solid mb-3">
+          <small class="text-muted m-2"><b>${item.categoria} ${item.nombre}</b></small><input min="0" step="1" id="cantidad-${item.id_producto}" type="number" class="form-control form-control-sm form-control-solid" placeholder="Cantidad"/>
+          <button title="Agregar al carrito" onclick="cargarCarrito(${item.id_producto},'${item.categoria}','${item.nombre}', ${item.precio}, ${item.comision}, document.getElementById('cantidad-${item.id_producto}').value)" class="btn btn-light-dark btn-sm hover-elevate-up" type="button">
+          <i class="fas fa-plus"></i> Agregar</button></div>`
         )
         .join("");
 
@@ -233,7 +213,14 @@ async function getBebidasPrecio(precio) {
   }
 }
 
-function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
+function cargarCarrito(
+  id_producto,
+  categoria,
+  nombre,
+  precio,
+  comision,
+  cantidad
+) {
   const parsedCantidad = Number.parseInt(cantidad);
   const cantidadInput = document.getElementById(`cantidad-${id_producto}`);
   if (!cantidadInput || parsedCantidad <= 0) {
@@ -247,6 +234,7 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
 
   const producto = {
     id_producto,
+    categoria,
     nombre,
     precio: parsedPrecio,
     cantidad: parsedCantidad,
@@ -297,9 +285,8 @@ function cargarCarrito(id_producto, nombre, precio, comision, cantidad) {
     return toast("Error al guardar el carrito", "error");
   }
 
-  // Actualizar la tabla y total solo una vez
   actualizarTablaCarrito(carrito);
-  actualizarTotalCarrito(carrito); // Se pasa el array completo
+  actualizarTotalCarrito(carrito);
 
   return toast("Producto agregado al carrito", "success");
 }
@@ -316,7 +303,7 @@ function actualizarTotalCarrito(carrito) {
     0
   );
 
-  document.getElementById("total").innerText = total.toLocaleString("es-ES", {
+  document.getElementById("total").innerText = total.toLocaleString("es-CL", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
@@ -329,13 +316,13 @@ function actualizarTablaCarrito(carrito) {
   for (const item of carrito) {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${item.nombre}</td>
+      <td>${item.categoria} ${item.nombre}</td>
       <td>${item.cantidad}</td>
- <td>${item.precio.toLocaleString("es-ES", {
+ <td>${item.precio.toLocaleString("es-CL", {
    minimumFractionDigits: 0,
    maximumFractionDigits: 0,
  })}</td>
-  <td>${item.subtotal.toLocaleString("es-ES", {
+  <td>${item.subtotal.toLocaleString("es-CL", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })}</td>
@@ -382,11 +369,8 @@ function eliminarProducto(id_producto) {
     localStorage.setItem("carritoData", JSON.stringify(carritoData));
 
     actualizarTablaCarrito(carritoData.carrito);
-    document.getElementById("total").innerText =
-      carritoData.total.toLocaleString("es-ES", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      });
+    document.getElementById("total").innerText =`$ ${carritoData.total.toLocaleString("es-CL")}`;
+    return toast("Producto eliminado del carrito", "info");
   } catch (error) {
     return toast("Error al eliminar el producto", "warning");
   }
@@ -562,7 +546,7 @@ async function verPedido(id) {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data)
+    console.log(data);
     if (data.codigo === 200 && data.estado === "ok") {
       const productos = data.data;
       const primerProducto = productos[0];
@@ -711,6 +695,7 @@ async function createVenta(e) {
 
   localStorage.setItem("datos_venta", JSON.stringify(datos));
   const url = `${BASE_URL}createVenta`;
+
   try {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;

@@ -1,18 +1,19 @@
 let tbHoraExtra;
-document.addEventListener("DOMContentLoaded", () => {
-  getHorasExtras();
+document.addEventListener("DOMContentLoaded", async () => {
+  await getHorasExtras();
   $("#usuario_id").select2({
     placeholder: "Seleccionar Usuario",
     dropdownParent: $("#ModalHoraExtra .modal-body"),
   });
 });
-function Mhora(e) {
+
+async function Mhora(e) {
   e.preventDefault();
-  getMesero();
+  await getMesero();
   document.getElementById("id_hora_extra").value = "";
   document.getElementById("hora").value = "";
   document.getElementById("monto").value = "";
-  function actualizarFechaHora() {
+  async function actualizarFechaHora() {
     const fecha = new Date();
     const dia = String(fecha.getDate()).padStart(2, "0");
     const mes = String(fecha.getMonth() + 1).padStart(2, "0");
@@ -23,8 +24,7 @@ function Mhora(e) {
     const fechaFormateada = `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
     document.getElementById("fecha").value = fechaFormateada;
   }
-  actualizarFechaHora();
-
+  await actualizarFechaHora();
   setInterval(actualizarFechaHora, 1000);
   $("#ModalHoraExtra").modal("show");
 }
@@ -38,7 +38,7 @@ async function getMesero() {
       const select = document.getElementById("usuario_id");
       select.innerHTML = "";
       const usuariosFiltrados = datos.data.filter(
-        (usuario) => usuario.rol_id !== 1 
+        (usuario) => usuario.rol === "Mesero" || usuario.rol === "Cajero"
       );
       for (const usuario of usuariosFiltrados) {
         const option = document.createElement("option");
@@ -48,7 +48,10 @@ async function getMesero() {
       }
     }
   } catch (error) {
-    console.log(error);
+    return toast(
+      "Error al obtener los usuarios, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -78,12 +81,15 @@ async function createHoraExtra(e) {
     const resp = await axios.post(url, datos, config);
     const data = resp.data;
     if (data.estado === "ok" && data.codigo === 201) {
-      toast("Hora Extra creada correctamente", "success");
       $("#ModalHoraExtra").modal("hide");
-      getHorasExtras()
+      await getHorasExtras();
+      return toast("Hora Extra creada correctamente", "success");
     }
   } catch (error) {
-    console.error(error);
+    return toast(
+      "Error al crear la hora extra, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -93,7 +99,7 @@ async function getHorasExtras() {
     const resp = await axios.get(url, config);
     const data = resp.data;
     if (data.estado !== "ok" && data.codigo !== 200) {
-      return toast("No se encontraron horas extras", "info");
+      return toast("No se encontraron horas extras registradas.", "info");
     }
     if (data.estado === "ok" && data.codigo === 200) {
       tbHoraExtra = $("#tbHoraExtra").DataTable({
@@ -119,7 +125,11 @@ async function getHorasExtras() {
             render: (data, type, row) => `${row.nombre} ${row.apellido}`,
           },
           { data: "total_horas" },
-          { data: "total_monto" },
+          {
+            data: null,
+            render: (data, type, row) =>
+              `$ ${row.total_monto.toLocaleString("es-CL")}`,
+          },
           {
             data: null,
             render: (data, type, row) =>
@@ -129,7 +139,10 @@ async function getHorasExtras() {
       });
     }
   } catch (error) {
-    console.error(error);
+    return toast(
+      "Error al obteber las horas extras, por favor intente de nuevo",
+      "error"
+    );
   }
 }
 
@@ -139,7 +152,7 @@ async function gethoraExtra(id) {
     const resp = await axios.get(url, config);
     const data = resp.data;
     if (data.estado !== "ok" && data.codigo !== 200) {
-      return toast("No se encontraron horas extras", "info");
+      return toast("No se encontraron detalles de las horas extras ", "info");
     }
     if (data.estado === "ok" && data.codigo === 200) {
       document.getElementById(
@@ -150,7 +163,9 @@ async function gethoraExtra(id) {
       ).innerHTML = `Total Horas : ${data.data.totales.total_horas}`;
       document.getElementById(
         "total_pagar_horas"
-      ).innerHTML = `Total Monto : ${data.data.totales.total_monto}`;
+      ).innerHTML = `Total Monto : $ ${data.data.totales.total_monto.toLocaleString(
+        "es-CL"
+      )}`;
 
       let html = "";
       const detalle = data.data.registros.map((item) => {
@@ -158,7 +173,7 @@ async function gethoraExtra(id) {
             <tr>
               <td>${item.fecha}</td>
               <td>${item.hora}</td>
-              <td>${item.monto}</td>
+              <td>$ ${item.monto.toLocaleString("es-CL")}</td>
             </tr>
           `;
       });
@@ -168,6 +183,9 @@ async function gethoraExtra(id) {
       $("#ModalDetalleHoraExtra").modal("show");
     }
   } catch (error) {
-    console.error(error);
+    return toast(
+      "Error al obteber el detalle de horas extras, por favor intente de nuevo",
+      "error"
+    );
   }
 }

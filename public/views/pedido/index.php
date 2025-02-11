@@ -11,6 +11,16 @@ $Layout = (new layout())
     ->addScripts(BASE_URL . 'public/views/pedido/pedido.js')
     ->content(function () {
 ?>
+ <style>
+        .cardi {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cardi:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     <section class="row" id="lista_pedido">
         <div class="col-xl-12 mb-xl-10">
             <div class="card card-flush">

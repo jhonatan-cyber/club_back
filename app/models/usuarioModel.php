@@ -13,29 +13,36 @@ class usuarioModel extends query
     {
         parent::__construct();
     }
-    /**
-     * Obtiene todos los usuarios de la base de datos
-     * 
-     * @return array
-     */
 
     public function getUsuarios(): array
     {
-        $sql = 'SELECT U.*, R.nombre AS rol
-                FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol';
+        $sql = 'SELECT U.id_usuario, U.foto,U.run,U.nick,U.nombre,U.apellido,U.direccion,U.telefono,U.estado_civil,U.afp,U.aporte,U.sueldo,U.estado, R.nombre AS rol
+                FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol ORDER BY R.nombre ASC';
         try {
-            return $this->selectAll($sql);
+            $result = $this->selectAll($sql);
+            return array_map(function ($row) {
+                return [
+                    'id_usuario' => (int)$row['id_usuario'],
+                    'foto' => (string)$row['foto'],
+                    'run' => (string)$row['run'],
+                    'nick' => (string)$row['nick'],
+                    'nombre' => (string)$row['nombre'],
+                    'apellido' => (string)$row['apellido'],
+                    'direccion' => (string)$row['direccion'],
+                    'telefono' => (string)$row['telefono'],
+                    'estado_civil' => (string)$row['estado_civil'],
+                    'afp' => (string)$row['afp'],
+                    'aporte' => (int)$row['aporte'],
+                    'sueldo' => (int)$row['sueldo'],
+                    'rol' => (string)$row['rol'],
+                    'estado' => (int)$row['estado'],
+                ];
+            }, $result);
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
 
-    /**
-     * Obtine un usuario especifico de la base de datos
-     *
-     * @param integer $id
-     * @return array
-     */
     public function getUsuario(int $id): array
     {
         $sql = "SELECT * FROM usuarios WHERE id_usuario =$id AND estado = 1";
@@ -46,12 +53,6 @@ class usuarioModel extends query
         }
     }
 
-    /**
-     * Crea un nuevo usuario en la base de datos
-     *
-     * @param array $usuario
-     * @return string
-     */
 
     public function createUsuario(array $usuario): string
     {
@@ -97,12 +98,6 @@ class usuarioModel extends query
         }
     }
 
-    /**
-     * Actualiza un usuario en la base de datos
-     *
-     * @param array $usuario
-     * @return string
-     */
     public function updateUsuario(array $usuario): string
     {
         $requiredFields = ['run', 'nick', 'nombre', 'apellido', 'direccion', 'telefono', 'rol_id', 'id_usuario'];
@@ -166,12 +161,6 @@ class usuarioModel extends query
         }
     }
 
-    /**
-     * Elimina (desactiva) un usuario de la base de datos
-     *
-     * @param integer $id_usuario
-     * @return string
-     */
     public function deleteUsuario(int $id_usuario): string
     {
         $sql = 'UPDATE usuarios SET estado = 0, fecha_baja = now() WHERE id_usuario = :id_usuario';
@@ -184,11 +173,6 @@ class usuarioModel extends query
         }
     }
 
-    /**
-     * Obtiene los usuarios de la base de datos que tengan el rol de 'Chica'
-     *
-     * @return array
-     */
     public function getChicas(): array
     {
         $sql = "SELECT L.usuario_id,U.nick, U.nombre, U.apellido FROM logins AS L JOIN usuarios AS U ON L.usuario_id = U.id_usuario JOIN roles AS R ON U.rol_id = R.id_rol WHERE R.nombre = 'Chica' AND L.estado = 1";
@@ -200,12 +184,6 @@ class usuarioModel extends query
         }
     }
 
-    /**
-     * Restaura (reactiva) un usuario de la base de datos
-     *
-     * @param integer $id_usuario
-     * @return string
-     */
     public function highUsuario(int $id_usuario): string
     {
         $sql = 'UPDATE usuarios SET estado = 1 , fecha_mod = now() WHERE id_usuario = :id_usuario';
@@ -217,6 +195,4 @@ class usuarioModel extends query
             return response::estado500($e);
         }
     }
-
-
 }

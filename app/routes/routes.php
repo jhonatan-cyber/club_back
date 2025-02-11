@@ -21,6 +21,7 @@ use app\controllers\servicio;
 use app\controllers\token;
 use app\controllers\usuario;
 use app\controllers\venta;
+use app\controllers\dplanilla;
 use Bramus\Router\Router;
 
 $router = new Router();
@@ -45,6 +46,7 @@ $asistencia = new asistencia();
 $horaExtra = new horaExtra();
 $caja = new caja();
 $token = new token();
+$dplanilla =new dplanilla();
 
 /* Token */
 $router->post('tokenVerify', [$token, 'tokenVerify']);
@@ -198,5 +200,9 @@ $router->get('cajas', [$caja, 'index']);
 $router->post('createCaja', [$caja, 'createCaja']);
 $router->get('getCajas', [$caja, 'getCajas']);
 $router->get('cerrarCaja/(\d+)', [$caja, 'cerrarCaja']);
+
+/* DPlanilla */
+$router->get('dplanillas', [$dplanilla, 'index']);
+$router->get('getPlanillaFecha/(.+)', [$dplanilla, 'getPlanillaFecha']);
 
 $router->run();

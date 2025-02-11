@@ -117,4 +117,44 @@ class propinaModel extends query
             return response::estado500($e);
         }
     }
+
+    public function updatePropinaDevolcion(int $propina)
+    {
+        $querySelect = "SELECT propina FROM propinas WHERE estado = 1";
+        $queryUpdate = "UPDATE propinas SET propina = propina - :propina, fecha_mod = now() WHERE estado = 1";
+        $params = [':propina' => $propina];
+
+        try {
+            $data = $this->select($querySelect);
+
+            if (!empty($data)) {
+                $propinaActual = (int)$data['propina'];
+
+                if ($propinaActual > 0) {
+
+                    if ($propinaActual >= $propina) {
+
+                        $result = $this->save($queryUpdate, $params);
+                        return $result === true ? 'ok' : 'error';
+                    }
+                }
+            }
+
+        } catch (Exception $e) {
+            return response::estado500($e->getMessage());
+        }
+    }
+
+    public function getPropinaVenta(int $venta_id)
+    {
+        $sql = "SELECT V.total - (SUM(DV.cantidad * DV.precio) + V.iva) AS propina
+                FROM detalle_ventas AS DV INNER JOIN ventas AS V ON DV.venta_id = V.id_venta
+                WHERE V.id_venta = :venta_id";
+        $params = [':venta_id' => $venta_id];
+        try {
+            return $this->select($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

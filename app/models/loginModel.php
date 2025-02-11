@@ -23,7 +23,7 @@ class loginModel extends query
             }
         }
 
-        $sql = 'SELECT U.id_usuario, U.run, U.nombre, U.apellido, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
+        $sql = 'SELECT U.id_usuario, U.run,U.nick, U.nombre, U.apellido, U.direccion, U.telefono,U.estado_civil, U.correo, U.password, U.foto, U.estado, R.nombre AS rol
                 FROM usuarios AS U JOIN roles AS R ON U.rol_id = R.id_rol 
                 WHERE U.correo = :correo LIMIT 1';
         $params = [':correo' => $usuario['correo']];
@@ -39,8 +39,15 @@ class loginModel extends query
                     'token' => [
                         'id_usuario' => $res['id_usuario'],
                         'run' => $res['run'],
+                        'nick' => $res['nick'],
                         'nombre' => $res['nombre'],
                         'apellido' => $res['apellido'],
+                        'direccion' => $res['direccion'],
+                        'telefono' => $res['telefono'],
+                        'estado_civil' => $res['estado_civil'],
+                        'afp' => $res['afp'],
+                        'aporte' => $res['aporte'],
+                        'sueldo' => $res['sueldo'],
                         'rol' => $res['rol'],
                         'foto' => $res['foto'],
                         'correo' => $res['correo']

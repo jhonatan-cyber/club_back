@@ -12,7 +12,6 @@ use Exception;
 class planilla extends controller
 {
     private $model;
-    private static $validar_numero = '/^[0-9]+$/';
 
     public function __construct()
     {

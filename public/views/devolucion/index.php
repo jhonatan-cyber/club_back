@@ -47,10 +47,13 @@ $Layout = (new layout())
             </div>
         </div>
     </div>
-    <?php include_once 'public/components/devolucion/cardDevolucionServicio.php' ?>
-    <?php include_once 'public/components/devolucion/cardDevolucionVenta.php' ?>
+  
+    <?php include_once 'public/components/devolucion/cardDevolucionServicio.php' ;
+    include_once 'public/components/devolucion/cardDevolucionVenta.php';
+     include_once 'public/components/venta/ModalDetalleVenta.php';
+    ?>
+    
 
-<?php
-        include_once 'public/components/devolucion/modalDetalleDevolucion.php';
+<?php include_once 'public/components/devolucion/modalDetalleDevolucion.php';
     })
     ->render();

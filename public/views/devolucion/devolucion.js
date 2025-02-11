@@ -1,19 +1,7 @@
 let tbServicios;
 let tbDevoluciones;
 let tbDevolucionesVenta;
-document.addEventListener("DOMContentLoaded",  () => {
-  document.getElementById("cantidad").addEventListener("input", () => {
-    const cantidad = Number($("#cantidad").val());
-    const precio = document
-      .getElementById("producto_id")
-      .options[
-        document.getElementById("producto_id").selectedIndex
-      ].getAttribute("data-precio");
-    document.getElementById("subtotal").innerHTML = `<b>Pagó : ${
-      cantidad * precio
-    }</b>`;
-  });
-});
+
 async function getServicios() {
   const url = `${BASE_URL}getAllServicios`;
   try {
@@ -175,15 +163,21 @@ function listarServicios(e) {
   document.getElementById("btn_atras").hidden = false;
   document.getElementById("btn_nuevo").hidden = true;
   document.getElementById("btn_atras_dev").hidden = true;
-  document.getElementById("title_servicios").innerHTML = "Listado de servicios activos";
+  document.getElementById("title_servicios").innerHTML =
+    "Listado de servicios activos";
 }
-function listarDevolucionesServicios() {
+
+function devolucionServicio(e) {
+  e.preventDefault();
+  document.getElementById("devoluciones").hidden = true;
+  document.getElementById("devolucion_servicio").hidden = false;
   document.getElementById("servicio_table").hidden = true;
   document.getElementById("devolucion_table").hidden = false;
   document.getElementById("btn_atras").hidden = true;
   document.getElementById("btn_nuevo").hidden = false;
   document.getElementById("btn_atras_dev").hidden = false;
-  document.getElementById("title_servicios").innerHTML = "Listado de devoluciones de servicios";
+  document.getElementById("title_servicios").innerHTML =
+    "Listado de devoluciones de servicios";
   getDevoluciones();
 }
 
@@ -289,16 +283,6 @@ async function verDetalles(id_devolucion) {
   }
 }
 
-function devolucionServicio(e) {
-  e.preventDefault();
-  document.getElementById("devoluciones").hidden = true;
-  document.getElementById("devolucion_servicio").hidden = false;
-  document.getElementById("btn_atras_dev").hidden = false;
-  document.getElementById("btn_nuevo").hidden = false;
-  document.getElementById("title_servicios").innerHTML = "Listado de devoluciones de servicios";
-  getDevoluciones();
-}
-
 function atras() {
   document.getElementById("devoluciones").hidden = false;
   document.getElementById("devolucion_servicio").hidden = true;
@@ -313,153 +297,11 @@ function devolucionVenta(e) {
   getDevolucionesVentas();
 }
 
-function MDevolucionVenta(e) {
-  e.preventDefault();
-
-  document.getElementById("monto").value = "";
-  document.getElementById("cantidad").value = "";
-  document.getElementById("subtotal").innerHTML = "";
-  getChicas();
-  getClientes();
-  getProductos();
-  $("#cliente_id").select2({
-    dropdownParent: $("#ModalDevolucionVenta .modal-body"),
-  });
-  $("#chica_id").select2({
-    dropdownParent: $("#ModalDevolucionVenta .modal-body"),
-  });
-  $("#producto_id").select2({
-    dropdownParent: $("#ModalDevolucionVenta .modal-body"),
-  });
-  $("#ModalDevolucionVenta").modal("show");
-}
-async function getClientes() {
-  const url = `${BASE_URL}getClientes`;
-  try {
-    const response = await axios.get(url, config);
-    const datos = response.data;
-    if (datos.estado === "ok" && datos.codigo === 200) {
-      const select = document.getElementById("cliente_id");
-      select.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "0";
-      defaultOption.text = "Seleccione un cliente";
-      defaultOption.selected = true;
-      select.appendChild(defaultOption);
-      for (let i = 0; i < datos.data.length; i++) {
-        const cliente = datos.data[i];
-        const option = document.createElement("option");
-        option.value = cliente.id_cliente;
-        option.text = `${cliente.nombre} ${cliente.apellido}`;
-        select.appendChild(option);
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function getChicas() {
-  const url = `${BASE_URL}getChicas`;
-  try {
-    const response = await axios.get(url, config);
-    const datos = response.data;
-    if (datos.estado === "ok" && datos.codigo === 200) {
-      const select = document.getElementById("chica_id");
-      select.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "0";
-      defaultOption.text = "Seleccione una acompañante";
-      defaultOption.selected = true;
-      select.appendChild(defaultOption);
-      for (let i = 0; i < datos.data.length; i++) {
-        const chica = datos.data[i];
-        const option = document.createElement("option");
-        option.value = chica.usuario_id;
-        option.text = `${chica.nombre} ${chica.apellido}`;
-        select.appendChild(option);
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function getProductos() {
-  const url = `${BASE_URL}getProductos`;
-  try {
-    const response = await axios.get(url, config);
-    const datos = response.data;
-    if (datos.estado === "ok" && datos.codigo === 200) {
-      const select = document.getElementById("producto_id");
-      select.innerHTML = "";
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "0";
-      defaultOption.text = "Seleccione un producto";
-      defaultOption.selected = true;
-      select.appendChild(defaultOption);
-      for (let i = 0; i < datos.data.length; i++) {
-        const producto = datos.data[i];
-        const option = document.createElement("option");
-        option.value = producto.id_producto;
-        option.text = `${producto.nombre}`;
-        option.setAttribute("data-precio", producto.precio);
-        option.setAttribute("data-comision", producto.comision);
-        select.appendChild(option);
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function createDevolucionVenta(e) {
-  e.preventDefault();
-  let cliente_id = Number($("#cliente_id").val()) || 1;
-  const chica_id = Number($("#chica_id").val()) || 0;
-  const producto_id = Number($("#producto_id").val());
-  const cantidad = Number($("#cantidad").val()) || 1;
-  const monto = Number($("#monto").val());
-  const comisionInput = document
-    .getElementById("producto_id")
-    .options[document.getElementById("producto_id").selectedIndex].getAttribute(
-      "data-comision"
-    );
-  const comision = Number(comisionInput) * cantidad;
-
-  if (cliente_id === 0 || cliente_id == null || cliente_id === "") {
-    cliente_id = 1;
-  }
-  if (producto_id === 0 || producto_id == null || producto_id === "") {
-    return toast("Seleccione un producto", "info");
-  }
-  if (monto === 0 || monto === null || monto === "") {
-    return toast("Ingrese un monto", "info");
-  }
-  const datos = {
-    cliente_id: cliente_id,
-    chica_id: chica_id,
-    producto_id: producto_id,
-    cantidad: cantidad,
-    monto: monto,
-    comision: Number(comision),
-  };
-  const url = `${BASE_URL}createDevolucionVenta`;
-  const resp = await axios.post(url, datos, config);
-  const data = resp.data;
-  console.log(data);
-  if (data.estado === "ok" && data.codigo === 201) {
-    toast("Devolucion creada correctamente", "success");
-    getDevolucionesVentas();
-    $("#ModalDevolucionVenta").modal("hide");
-  }
-}
 async function getDevolucionesVentas() {
   const url = `${BASE_URL}getDevolucionesVentas`;
   try {
     const response = await axios.get(url, config);
     const data = response.data;
-
     if (data.estado !== "ok" && data.codigo !== 200) {
       return toast("No se encontraron devoluciones de ventas", "info");
     }
@@ -482,11 +324,9 @@ async function getDevolucionesVentas() {
                 meta.row + 1
               }</span>`,
           },
+          { data: "codigo" },
           { data: "cliente" },
-          { data: "nick" },
-          { data: "producto" },
-          { data: "cantidad" },
-          { data: "monto" },
+          { data: "total" },
           {
             data: null,
             render: (data, type, row) => {
@@ -496,10 +336,142 @@ async function getDevolucionesVentas() {
               return `<div>${formattedDate}</div><div>${formattedTime}</div>`;
             },
           },
+          {
+            data: null,
+            render: (data, type, row) => {
+              if (row.estado === 0) {
+                return `<span class="badge badge-sm badge-info">Venta anulada</span>`;
+              }
+            },
+          },
+          {
+            data: null,
+            render: (data, type, row) => `
+                  <button title="Ver detalles" class="btn btn-outline-dark btn-sm hover-scale" data-id="${row.venta_id}" 
+                  onclick="verDetallesVenta(${row.venta_id})">
+                      <i class="fas fa-eye"></i>
+                  </button>`,
+          },
         ],
       });
     }
   } catch (error) {
     console.log(error);
   }
+}
+
+async function verDetallesVenta(id_venta) {
+  const url = `${BASE_URL}getVenta/${id_venta}`;
+  try {
+    const resp = await axios.get(url, config);
+    const data = resp.data;
+    detalleVenta = data.data;
+    if (data.estado === "ok" && data.codigo === 200) {
+      if (!detalleVenta.length) {
+        toast("No se encontraron detalles de la venta", "info");
+        return;
+      }
+
+      const hora = moment(detalleVenta[0].fecha_crea).format("HH:mm:ss");
+      const fecha = moment(detalleVenta[0].fecha_crea).format("DD/MM/YYYY");
+
+      document.getElementById(
+        "hora"
+      ).innerHTML = `<i class="fa-solid fa-clock m-2"></i><b>Hora: ${hora}</b>`;
+      document.getElementById(
+        "fecha"
+      ).innerHTML = `<i class="fa-solid fa-calendar-days m-2"></i><b>Fecha: ${fecha}</b>`;
+      document.getElementById(
+        "codigo_d_venta"
+      ).innerHTML = `<i class="fa-solid fa-tag m-2"></i><b>Codigo: ${detalleVenta[0].codigo}</b>`;
+
+      const usuariosUnicos = [
+        ...new Set(
+          detalleVenta.map((item) => {
+            if (item.usuario === null) {
+              return "Venta en barra";
+            }
+            return `${item.usuario}`;
+          })
+        ),
+      ];
+
+      const esVentaEnBarra = usuariosUnicos.every(
+        (usuario) => usuario === "Venta en barra"
+      );
+
+      if (esVentaEnBarra) {
+        document.getElementById(
+          "usuario"
+        ).innerHTML = `<i class="fa-solid fa-cash-register m-2"></i><b>${usuariosUnicos.join(
+          "<br/>"
+        )}</b>`;
+      } else {
+        document.getElementById(
+          "usuario"
+        ).innerHTML = `<i class="fa-solid fa-user-group m-2"></i><b>Anfitriona(s): <br/> ${usuariosUnicos.join(
+          "<br/>"
+        )}</b>`;
+      }
+
+      document.getElementById(
+        "cliente"
+      ).innerHTML = `<i class="fa-solid fa-users m-2"></i><b>Cliente: ${detalleVenta[0].cliente}</b>`;
+      document.getElementById(
+        "total"
+      ).innerHTML = `<b>Total: $${detalleVenta[0].total}</b>`;
+      document.getElementById(
+        "total_comision"
+      ).innerHTML = `<i class="fa-solid fa-hand-holding-dollar m-2"></i><b>Comision: $ ${detalleVenta[0].total_comision.toLocaleString(
+        "es-CL"
+      )}</b>`;
+
+      document.getElementById(
+        "metodo"
+      ).innerHTML = `<i class="fa-solid fa-money-bill-transfer m-2"></i><b>Metodo de Pago: ${detalleVenta[0].metodo_pago}</b>`;
+
+      const productosMap = new Map();
+
+      for (const item of detalleVenta) {
+        const key = `${item.categoria}-${item.producto}`;
+        if (!productosMap.has(key)) {
+          productosMap.set(key, {
+            producto: `${item.categoria} ${item.producto}`,
+            cantidad: Number.parseFloat(item.cantidad),
+            precio: Number.parseFloat(item.precio),
+            comision: Number.parseFloat(item.comision),
+            sub_total: Number.parseFloat(item.sub_total),
+          });
+        }
+      }
+
+      const detalleProductos = document.getElementById("detalle_productos");
+      detalleProductos.innerHTML = "";
+
+      for (const item of productosMap) {
+        detalleProductos.innerHTML += `
+            <tr>
+              <td>${item[1].producto}</td>
+              <td>${item[1].cantidad}</td>
+              <td>$ ${item[1].precio.toLocaleString("es-CL")}</td>
+              <td>$ ${item[1].sub_total.toLocaleString("es-CL")}</td>
+            </tr>
+          `;
+        let total = 0;
+        total += item[1].sub_total;
+        document.getElementById(
+          "total_"
+        ).innerHTML = `<b>Total: $ ${total.toLocaleString("es-CL")}</b>`;
+      }
+
+      $("#ModalDetalleVenta").modal("show");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function cerrarModal(e) {
+  e.preventDefault();
+  $("#ModalDetalleVenta").modal("hide");
 }

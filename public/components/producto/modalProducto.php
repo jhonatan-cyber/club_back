@@ -22,21 +22,21 @@
                         <input type="hidden" id="imagen_anterior">
                         <div class="row">
                             <div class="col-7">
-                                <small class="text-gray-700 d-block m-1" id="txt_codigo"><b>Codigo</b></small>
+                                <small class="text-gray-700 d-block m-1"><b>Codigo</b></small>
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fa-solid fa-barcode"></i></span>
                                     <input type="text" class="form-control form-control-sm form-control-solid"
                                         id="codigo" disabled />
                                 </div>
-                                <small class="text-gray-700 d-block m-1" id="txt_nombre"></small>
+                                <small class="text-gray-700 d-block m-1"><b>Nombre</b></small>
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fa-brands fa-product-hunt"></i></span>
                                     <input type="text" class="form-control form-control-sm form-control-solid"
                                         id="nombre" placeholder="Nombre" />
                                 </div>
-                                <small class="text-gray-700 d-block m-1" id="txt_precio"></small>
+                                <small class="text-gray-700 d-block m-1"><b>Precio</b></small>
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fa-solid fa-money-bill-transfer"></i></span>
@@ -44,7 +44,7 @@
                                         class="form-control form-control-sm form-control-solid" id="precio"
                                         placeholder="Precio" />
                                 </div>
-                                <small class="text-gray-700 d-block m-1" id="txt_comision"></small>
+                                <small class="text-gray-700 d-block m-1"><b>Comision</b></small>
                                 <div class="input-group input-group-solid mb-3">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fa-solid fa-coins"></i></span>
@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                             <div class="col-5 mt-6">
-                                <small class="text-gray-700 d-block text-center m-1"><b>Foto</b></small>
+                                <small class="text-gray-700 d-block text-start m-1"><b>Foto</b></small>
                                 <div class="image-input image-input-outline image-input-placeholder image-input-empty"
                                     data-kt-image-input="true">
                                     <div id="imagen" class="image-input-wrapper w-125px h-125px"
@@ -88,7 +88,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <small class="text-gray-700 d-block m-1" id="txt_descripcion"></small>
+                            <small class="text-gray-700 d-block m-1"><b>Descripción</b></small>
                             <div class="input-group input-group-solid mb-3">
                                 <span class="input-group-text"> <i class="fa-solid fa-audio-description"></i> </span>
                                 <textarea class="form-control" id="descripcion" name="glosa" placeholder="Descripción"

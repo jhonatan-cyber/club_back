@@ -49,7 +49,6 @@ async function getAsistencia() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
       return toast("No se encontraron asistencias", "info");
     }
@@ -69,18 +68,26 @@ async function getAsistencia() {
       ).innerHTML = `Usuario : ${asistencias[0].nombre} ${asistencias[0].apellido}`;
       document.getElementById(
         "total_sueldo"
-      ).innerHTML = `Sueldos Total : ${totales.total_sueldos}`;
+      ).innerHTML = `Sueldos Total : $ ${totales.total_sueldos.toLocaleString(
+        "es-CL"
+      )}`;
       document.getElementById(
         "total_aporte"
-      ).innerHTML = `Aportes Total : ${totales.total_aportes}`;
+      ).innerHTML = `Aportes Total : $ ${totales.total_aportes.toLocaleString(
+        "es-CL"
+      )}`;
 
       document.getElementById(
         "total_anticipo"
-      ).innerHTML = `Anticipos Total : ${totales.total_anticipos}`;
+      ).innerHTML = `Anticipos Total : $ ${totales.total_anticipos.toLocaleString(
+        "es-CL"
+      )}`;
 
       document.getElementById(
         "total_pagar"
-      ).innerHTML = `Total a Cobrar : ${totales.gran_total}`;
+      ).innerHTML = `Total a Cobrar : $ ${totales.gran_total.toLocaleString(
+        "es-CL"
+      )}`;
 
       const asistenciasHTML = await Promise.all(
         asistencias.map(async (asistencia) => {
@@ -93,9 +100,9 @@ async function getAsistencia() {
               <tr>
                 <td>${fecha}</td>
                 <td>${asistencia.hora_asistencia}</td>
-                <td>${asistencia.sueldo}</td>
-                <td>${asistencia.aporte}</td>
-                <td>${sub_total}</td>
+                <td>$ ${asistencia.sueldo.toLocaleString("es-CL")}</td>
+                <td>$ ${asistencia.aporte.toLocaleString("es-CL")}</td>
+                <td>$ ${sub_total.toLocaleString("es-CL")}</td>
               </tr>
             `;
         })
@@ -123,33 +130,39 @@ async function getAnticipos() {
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
-      const { total, anticipos } = data; 
-      
-      
-      document.getElementById("anticipo_total").innerHTML = `Monto Total: ${total}`;
-      document.getElementById("usuario_anticipo").innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
+      const { total, anticipos } = data.data;
+
+      document.getElementById(
+        "anticipo_total"
+      ).innerHTML = `Monto Total : $ ${total.toLocaleString("es-CL")}`;
+      document.getElementById(
+        "usuario_anticipo"
+      ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
 
       if (!Array.isArray(anticipos) || anticipos.length === 0) {
-        document.getElementById("detalle_anticipo").innerHTML = "<tr><td colspan='4'>No hay anticipos disponibles</td></tr>";
+        document.getElementById("detalle_anticipo").innerHTML =
+          "<tr><td colspan='4'>No hay anticipos disponibles</td></tr>";
       } else {
-        const anticipoHTML = anticipos.map((anticipo) => {
-          const fecha = moment(anticipo.fecha_crea).format("DD/MM/YYYY");
-          const hora = moment(anticipo.fecha_crea).format("HH:mm");
+        const anticipoHTML = anticipos
+          .map((anticipo) => {
+            const fecha = moment(anticipo.fecha_crea).format("DD/MM/YYYY");
+            const hora = moment(anticipo.fecha_crea).format("HH:mm");
 
-          const estadoBadge =
-            anticipo.estado === 0
-              ? '<span class="badge badge-sm badge-success">Pagado</span>'
-              : '<span class="badge badge-sm badge-info">Pendiente</span>';
+            const estadoBadge =
+              anticipo.estado === 0
+                ? '<span class="badge badge-sm badge-success">Pagado</span>'
+                : '<span class="badge badge-sm badge-info">Pendiente</span>';
 
-          return `
+            return `
             <tr>
               <td>${fecha}</td>
               <td>${hora}</td>
-              <td>${anticipo.monto}</td>
+              <td>$ ${anticipo.monto.toLocaleString("es-CL")}</td>
               <td>${estadoBadge}</td>
             </tr>
           `;
-        }).join(""); 
+          })
+          .join("");
 
         document.getElementById("detalle_anticipo").innerHTML = anticipoHTML;
       }
@@ -174,16 +187,19 @@ async function getServicios() {
     }
 
     if (data.estado === "ok" && data.codigo === 200) {
-      const serviciosData = data.data; 
+      const serviciosData = data.data;
 
-      const servicios = Array.isArray(serviciosData.servicios) ? serviciosData.servicios : [];
+      const servicios = Array.isArray(serviciosData.servicios)
+        ? serviciosData.servicios
+        : [];
 
-      document.getElementById("total_servicio").innerHTML = `Monto Total: $${serviciosData.total || 0}`;
+      document.getElementById("total_servicio").innerHTML = `Monto Total: $ ${
+        serviciosData.total.toLocaleString("es-CL") || 0
+      }`;
 
       document.getElementById(
         "usuario_servicio"
       ).innerHTML = `Usuario: ${user.nombre} ${user.apellido}`;
-
 
       const servicioHTML = servicios.map((servicio) => {
         const fecha = moment(servicio.fecha_crea).format("DD/MM/YYYY");
@@ -191,24 +207,28 @@ async function getServicios() {
 
         let estadoBadge = "";
         if (servicio.estado === 0) {
-          estadoBadge = '<span class="badge badge-sm badge-info">Pendiente</span>';
+          estadoBadge =
+            '<span class="badge badge-sm badge-info">Pendiente</span>';
         } else if (servicio.estado === 1) {
-          estadoBadge = '<span class="badge badge-sm badge-primary">En proceso</span>';
+          estadoBadge =
+            '<span class="badge badge-sm badge-primary">En proceso</span>';
         } else if (servicio.estado === 2) {
-          estadoBadge = '<span class="badge badge-sm badge-success">Pagado</span>';
+          estadoBadge =
+            '<span class="badge badge-sm badge-success">Pagado</span>';
         }
 
         return `
           <tr>
             <td>${fecha}</td>
             <td>${hora}</td>
-            <td>${servicio.precio_servicio}</td>
+            <td>$ ${servicio.precio_servicio.toLocaleString("es-CL")}</td>
             <td>${estadoBadge}</td>
           </tr>
         `;
       });
 
-      document.getElementById("detalle_servicio").innerHTML = servicioHTML.join("");
+      document.getElementById("detalle_servicio").innerHTML =
+        servicioHTML.join("");
       $("#ModalServicio").modal("show");
     }
   } catch (error) {
@@ -219,7 +239,6 @@ async function getServicios() {
 document
   .getElementById("btnComisiones")
   .addEventListener("click", getComisiones);
-
 
 async function getComisiones() {
   const url = `${BASE_URL}getComisionesUsuario/${user.id_usuario}`;
@@ -236,7 +255,7 @@ async function getComisiones() {
     const { comisiones, total } = data.data;
 
     document.getElementById("total_comision").innerHTML = `Monto Total: $ ${
-      total || 0
+      total.toLocaleString("es-CL") || 0
     }`;
 
     document.getElementById(
@@ -262,7 +281,7 @@ async function getComisiones() {
         <tr>
           <td>${fecha}</td>
           <td>${hora}</td>
-          <td>$ ${comision.comision.toLocaleString()}</td>
+          <td>$ ${comision.comision.toLocaleString("es-CL")}</td>
           <td>${estadoBadge}</td>
         </tr>
       `;
@@ -281,7 +300,6 @@ async function getPropinas() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-    console.log(data);
     if (data.estado !== "ok" || data.codigo !== 200) {
       document.getElementById("propinas_garzon").innerHTML =
         '<span class="badge badge-sm badge-info">Sin propinas</span>';
@@ -292,7 +310,9 @@ async function getPropinas() {
       if (document.getElementById("propinas_garzon")) {
         document.getElementById(
           "propinas_garzon"
-        ).innerHTML = `<span class="badge badge-sm badge-success">${data.data.total}</span>`;
+        ).innerHTML = `<span class="badge badge-sm badge-success">$ ${data.data.total.toLocaleString(
+          "es-CL"
+        )}</span>`;
       }
     }
   } catch (error) {
@@ -302,6 +322,7 @@ async function getPropinas() {
 document
   .getElementById("btnHorasExtra")
   .addEventListener("click", gethoraExtra);
+
 async function gethoraExtra() {
   const url = `${BASE_URL}getHoraExtra/${user.id_usuario}`;
   try {
@@ -320,7 +341,9 @@ async function gethoraExtra() {
       ).innerHTML = `Total Horas : ${data.data.totales.total_horas}`;
       document.getElementById(
         "total_pagar_horas"
-      ).innerHTML = `Total Monto : ${data.data.totales.total_monto}`;
+      ).innerHTML = `Total Monto : $ ${data.data.totales.total_monto.toLocaleString(
+        "es-CL"
+      )}`;
       let html = "";
       const detalle = data.data.registros.map((item) => {
         const estadoBadge =
@@ -331,7 +354,7 @@ async function gethoraExtra() {
             <tr>
               <td>${item.fecha}</td>
               <td>${item.hora}</td>
-              <td>${item.monto}</td>
+              <td>$ ${item.monto.toLocaleString("es-CL")}</td>
               <td>${estadoBadge}</td> 
             </tr>
           `;

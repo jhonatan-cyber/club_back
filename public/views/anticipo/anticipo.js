@@ -1,6 +1,5 @@
 let tbAnticipo;
 document.addEventListener("DOMContentLoaded", () => {
-  getUsuarios();
   getAnticipos();
   $("#usuario_id").select2({
     placeholder: "Seleccionar Usuario",
@@ -29,9 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function MAnticipo(e) {
   e.preventDefault();
+  getUsuarios();
   document.getElementById("id_anticipo").value = "";
   document.getElementById("tituloAnticipo").innerHTML = "Nuevo Anticipo";
- document.getElementById("monto").value="";
+  document.getElementById("monto").value = "";
 
   function actualizarFechaHora() {
     const fecha = new Date();
@@ -75,40 +75,78 @@ async function getUsuarios() {
 }
 async function createAnticipo(e) {
   e.preventDefault();
-  const usuario_id = document.getElementById("usuario_id").value;
-  const monto = document.getElementById("monto").value;
+  const usuario_idElement = document.getElementById("usuario_id");
+  const montoElement = document.getElementById("monto");
+  if (!usuario_idElement || !montoElement) {
+    return toast("Error interno, recargue la página", "error");
+  }
+
+  const usuario_id = usuario_idElement.value;
+  const monto = montoElement.value;
+
   const url = `${BASE_URL}createAnticipo`;
-  if (monto === "") {
+  if (!monto) {
     toast("El monto es requerido", "info");
-    monto.focus();
+    montoElement.focus();
     return;
   }
-  if (monto <= 0) {
-    toast("El monto no puede ser cero o negativo", "info");
-    monto.focus();
+
+  const montoNumerico = Number(monto);
+
+  if (isNaN(montoNumerico) || montoNumerico <= 0) {
+    toast("El monto debe ser un número mayor a cero", "info");
+    montoElement.focus();
     return;
   }
+
+  if (!usuario_id) {
+    toast("El usuario es requerido", "info");
+    usuario_idElement.focus();
+    return;
+  }
+
   const data = {
     usuario_id,
-    monto,
+    monto: montoNumerico,
   };
+
   try {
     const response = await axios.post(url, data, config);
     const datos = response.data;
+
+    if (datos.estado !== "ok" && datos.codigo !== 201) {
+      return toast(datos.data, "info");
+    }
+
     if (datos.estado === "ok" && datos.codigo === 201) {
-      toast("Anticipo registrado correctamente", "info");
+      toast("Anticipo registrado correctamente", "success");
       $("#ModalAnticipo").modal("hide");
       getAnticipos();
     }
+    return;
   } catch (error) {
-    resultado = error.response.data;
-    if (resultado.codigo === 500 && resultado.estado === "error") {
-      return toast(
-        "Ocurrio un error al registrar el anticipo, Intentelo mas tarde ",
-        "info"
-      );
+    let mensajeError =
+      "Ocurrio un error al registrar el anticipo, Intentelo mas tarde ";
+
+    if (error.response) {
+      resultado = error.response.data;
+
+      if (resultado.codigo === 400 && resultado.estado === "Error") {
+        return toast(resultado.data, "info");
+      }
+      
+      if (resultado.codigo === 500 && resultado.estado === "error") {
+        mensajeError =
+          "Error del servidor al registrar el anticipo. Contacte a soporte si persiste.";
+      } else if (resultado.data) {
+        mensajeError = resultado.data;
+      }
+    } else if (error.request) {
+      mensajeError =
+        "No se pudo conectar con el servidor. Verifique su conexión a internet.";
     }
-    console.log(error);
+
+    return toast(mensajeError, "error");
   }
 }
 
@@ -117,9 +155,9 @@ async function getAnticipos() {
   try {
     const resp = await axios.get(url, config);
     const data = resp.data;
-if(data.estado !== "ok" && data.codigo !== 200){
-  return toast("No se encontraron anticipos", "info");
-}
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      return toast("No se encontraron anticipos", "info");
+    }
     if (data.estado === "ok" && data.codigo === 200) {
       tbAnticipo = $("#tbAnticipo").DataTable({
         data: data.data,
@@ -156,12 +194,9 @@ if(data.estado !== "ok" && data.codigo !== 200){
           },
         ],
       });
-    } 
+    }
   } catch (e) {
     resultado = e.response.data;
-    if (resultado.codigo === 400 && resultado.error === "Error") {
-      return toast(resultado.data, "info");
-    }
+    return toast(resultado.data, "warning");
   }
 }
-

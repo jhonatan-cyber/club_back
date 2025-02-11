@@ -2,28 +2,43 @@ const defaultThemeMode = "light";
 let themeMode;
 const MAX_PIEZAS = 50;
 document.addEventListener("DOMContentLoaded", async () => {
-  /* ajustes();
-  window.addEventListener("resize", ajustes); */
+  if (document.documentElement) {
+    if (document.documentElement.hasAttribute("data-bs-theme-mode")) {
+      themeMode = document.documentElement.getAttribute("data-bs-theme-mode");
+    } else {
+      if (localStorage.getItem("data-bs-theme") !== null) {
+        themeMode = localStorage.getItem("data-bs-theme");
+      } else {
+        themeMode = defaultThemeMode;
+      }
+    }
+    if (themeMode === "system") {
+      themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    document.documentElement.setAttribute("data-bs-theme", themeMode);
+  }
+  const usuario_l = JSON.parse(localStorage.getItem("usuario"));
+  document.getElementById(
+    "avatar"
+  ).innerHTML = `<img id="foto_perfil" alt="Pic" src="${BASE_URL}public/assets/img/usuarios/${usuario_l.foto}" />`;
+  getToken();
   verificarTemporizadorActivo();
-  usuarioAvatar();
+  getCajas();
+  getPedidosTotal();
 
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if (usuario.rol === "Mesero" || usuario.rol === "Chica") {
+  document.getElementById("correoo").innerHTML = usuario_l.correo;
+
+  if (usuario_l.rol === "Mesero" || usuario_l.rol === "Chica") {
     document.getElementById("btn_menu").hidden = true;
   }
-  if (usuario.rol === "Mesero") {
+
+  if (usuario_l.rol === "Mesero") {
     if (document.getElementById("btn_home")) {
       document.getElementById("btn_home").hidden = false;
     }
   }
-  getCajas();
-  if (
-    usuario &&
-    (usuario.rol === "Administrador" || usuario.rol === "Cajero")
-  ) {
-    getPedidosTotal();
-  }
-  getToken();
 });
 
 async function getToken() {
@@ -46,6 +61,12 @@ async function getToken() {
   try {
     const resp = await axios.post(url, {}, config);
     const data = resp.data;
+    if (data.estado !== "ok" && data.codigo !== 200) {
+      localStorage.clear();
+      window.location.href = `${BASE_URL}`;
+      return;
+    }
+
     if (data.estado === "ok" && data.codigo === 200) {
       if (data.data.newToken && data.data.tokenRefreshed === true) {
         localStorage.setItem("token", data.data.newToken);
@@ -53,11 +74,6 @@ async function getToken() {
       }
     }
   } catch (error) {
-    console.error(
-      "Error al verificar el token:",
-      error.response?.data || error.message
-    );
-
     if (
       error.response?.status === 401 ||
       error.response?.status === 403 ||
@@ -65,26 +81,9 @@ async function getToken() {
     ) {
       localStorage.clear();
       window.location.href = `${BASE_URL}`;
+      return;
     }
   }
-}
-
-if (document.documentElement) {
-  if (document.documentElement.hasAttribute("data-bs-theme-mode")) {
-    themeMode = document.documentElement.getAttribute("data-bs-theme-mode");
-  } else {
-    if (localStorage.getItem("data-bs-theme") !== null) {
-      themeMode = localStorage.getItem("data-bs-theme");
-    } else {
-      themeMode = defaultThemeMode;
-    }
-  }
-  if (themeMode === "system") {
-    themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-  document.documentElement.setAttribute("data-bs-theme", themeMode);
 }
 
 const TOKEN = localStorage.getItem("token");
@@ -155,18 +154,6 @@ function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
-/* const boton = document.getElementById("mod");
-const modo_movil = document.querySelectorAll(".mobile-hide");
-
-function ajustes() {
-  if (boton) {
-    boton.style.display = window.innerWidth >= 900 ? "none" : "block";
-  }
-  for (const elemento of modo_movil) {
-    elemento.style.display = window.innerWidth < 900 ? "none" : "block";
-  }
-} */
-
 function mostrarPassword(idInput, idIcono) {
   const tipoInput = document.getElementById(idInput).getAttribute("type");
   const icono = document.getElementById(idIcono);
@@ -210,25 +197,6 @@ function deleteImg(button) {
 function validarCorreo(correo) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(correo);
-}
-
-async function usuarioAvatar() {
-  const id_usuario = JSON.parse(localStorage.getItem("usuario")).id_usuario;
-  const url = `${BASE_URL}getUsuario/${id_usuario}`;
-  try {
-    const resp = await axios.get(url, config);
-    const data = resp.data;
-    if (data.estado === "ok" && data.codigo === 200) {
-      document.getElementById(
-        "avatar"
-      ).innerHTML = `<img id="foto_perfil" alt="Pic" src="${BASE_URL}public/assets/img/usuarios/${data.data.foto}" />`;
-      document.getElementById("correoo").innerHTML = data.data.correo;
-    }
-    return null;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
 }
 
 async function logaout(e) {
@@ -281,10 +249,18 @@ async function getPedidosTotal() {
                         </div>
                         <div class="mb-1 pe-3 flex-grow-1" >
                             <a href="${BASE_URL}pedidos" class="fs-6 text-dark text-hover-primary fw-bold">
-                            <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${pedido.nombre_c} ${pedido.apellido_c}</div>
-                            <div class="text-gray-400 fw-bold fs-7">Acompañante: ${pedido.nombre_u} ${pedido.apellido_u}</div>
-                            <div class="text-gray-400 fw-bold fs-7">Subtotal: $${pedido.subtotal}</div>
-                            <div class="text-gray-400 fw-bold fs-7">Total: $${pedido.total}</div>
+                            <div class="text-gray-400 text-dark text-hover-primary fw-bold fs-7">Cliente: ${
+                              pedido.cliente
+                            }</div>
+                            <div class="text-gray-400 fw-bold fs-7">Acompañante: ${
+                              pedido.nicks
+                            }</div>
+                            <div class="text-gray-400 fw-bold fs-7">Subtotal: $ ${pedido.subtotal.toLocaleString(
+                              "es-CL"
+                            )}</div>
+                            <div class="text-gray-400 fw-bold fs-7">Total: $ ${pedido.total.toLocaleString(
+                              "es-CL"
+                            )}</div>
                             </a>                       
                         </div>
                     </div>`;
@@ -301,7 +277,7 @@ async function updatePiezaVenta(id_pieza) {
     const resp_pieza = await axios.get(pieza, config);
     const data = resp_pieza.data;
     if (data.estado === "ok" && data.codigo === 201) {
-      toast("Habitacion actualizada", "info");
+      console.log(data);
     }
   } catch (e) {
     console.log(e);
@@ -310,6 +286,87 @@ async function updatePiezaVenta(id_pieza) {
 
 async function iniciarTemporizadorLocalStorage(tiempoEnMinutos, piezaId) {
   let intervalo;
+
+  const tiempoInicialKey = `temporizadorInicio_${piezaId}`;
+  const tiempoRestanteKey = `temporizadorRestante_${piezaId}`;
+  const piezaIdKey = `piezaId_${piezaId}`;
+  const tiempoFinalizadoKey = `tiempoFinalizado_${piezaId}`;
+
+  let tiempoRestante;
+  let nombrePieza = "desconocida";
+
+  const url = `${BASE_URL}getPieza/${piezaId}`;
+
+  try {
+    const resp = await axios.get(url, config);
+    if (resp.data.estado !== "ok" || resp.data.codigo !== 200) {
+      console.warn(
+        `Error al obtener el nombre de la pieza ${piezaId} desde la API. Estado: ${resp.data.estado}, Código: ${resp.data.codigo}`
+      );
+    }
+    if (resp.data.estado === "ok" && resp.data.codigo === 200) {
+      nombrePieza = resp.data.data.nombre;
+    }
+  } catch (error) {
+    console.error(
+      "Error al realizar la petición para obtener la pieza:",
+      error
+    );
+
+    nombrePieza = "desconocida";
+  }
+
+  const tiempoInicialAlmacenado = localStorage.getItem(tiempoInicialKey);
+  const tiempoRestanteAlmacenado = localStorage.getItem(tiempoRestanteKey);
+
+  if (tiempoInicialAlmacenado && tiempoRestanteAlmacenado) {
+    const tiempoTranscurrido = Math.floor(
+      (Date.now() - tiempoInicialAlmacenado) / 1000
+    );
+    tiempoRestante = parseInt(tiempoRestanteAlmacenado) - tiempoTranscurrido;
+
+    if (tiempoRestante <= 0) {
+      localStorage.removeItem(tiempoRestanteKey);
+      localStorage.removeItem(tiempoInicialKey);
+      localStorage.removeItem(piezaIdKey);
+      localStorage.setItem(tiempoFinalizadoKey, "true");
+      updatePiezaVenta(piezaId);
+      Swal.fire({
+        title: "Tiempo Finalizado",
+        text: `El tiempo de uso de la pieza ${nombrePieza} ha terminado.`,
+        icon: "info",
+      });
+      return;
+    }
+  } else {
+    tiempoRestante = tiempoEnMinutos * 60;
+    localStorage.setItem(tiempoInicialKey, Date.now());
+    localStorage.setItem(tiempoRestanteKey, tiempoRestante);
+    localStorage.setItem(piezaIdKey, piezaId);
+  }
+
+  if (typeof intervalo === "undefined") {
+    intervalo = setInterval(() => {
+      tiempoRestante--;
+
+      if (tiempoRestante <= 0) {
+        clearInterval(intervalo);
+        localStorage.removeItem(tiempoRestanteKey);
+        localStorage.removeItem(tiempoInicialKey);
+        localStorage.removeItem(piezaIdKey);
+        localStorage.setItem(tiempoFinalizadoKey, "true");
+        updatePiezaVenta(piezaId);
+        Swal.fire({
+          title: "Tiempo Finalizado",
+          text: `El tiempo de uso de la pieza ${nombrePieza} ha terminado.`,
+          icon: "info",
+        });
+      } else {
+        localStorage.setItem(tiempoRestanteKey, tiempoRestante);
+      }
+    }, 1000);
+  }
+  /* let intervalo;
   const tiempoInicial = localStorage.getItem(`temporizadorInicio_${piezaId}`);
   const tiempoRestanteAlmacenado = localStorage.getItem(
     `temporizadorRestante_${piezaId}`
@@ -377,7 +434,7 @@ async function iniciarTemporizadorLocalStorage(tiempoEnMinutos, piezaId) {
   };
 
   intervalo = setInterval(actualizarTemporizador, 1000);
-  actualizarTemporizador();
+  actualizarTemporizador(); */
 }
 
 function verificarTemporizadorActivo() {
@@ -427,10 +484,6 @@ async function getCajas() {
       if (document.getElementById("btn_nuevo_caja")) {
         document.getElementById("btn_nuevo_caja").hidden = false;
         toast("No se encontraron cajas registradas", "info");
-      }
-
-      if (document.getElementById("btn_nuevo_venta")) {
-        document.getElementById("btn_nuevo_venta").hidden = true;
       }
       return;
     }

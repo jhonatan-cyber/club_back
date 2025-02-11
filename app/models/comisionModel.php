@@ -26,18 +26,30 @@ class comisionModel extends query
         }
     }
 
-    public function getComisiones()
+    public function getComisiones(): array
     {
-        $sql = 'SELECT D.estado, COALESCE(SUM(CASE WHEN C.venta_id != 0 THEN C.monto ELSE 0 END), 0) AS total_venta, 
-        COALESCE(SUM(CASE WHEN C.servicio_id != 0 THEN C.monto ELSE 0 END), 0) AS total_servicio, 
-        COALESCE(A.anticipo, 0) AS anticipo, COALESCE(SUM(C.monto) - COALESCE(A.anticipo, 0), 0) AS total, D.chica_id, 
-        CONCAT(U.nombre, " ", U.apellido) AS chica FROM comisiones AS C 
-        INNER JOIN detalle_comisiones AS D ON C.id_comision = D.comision_id 
-        INNER JOIN usuarios AS U ON D.chica_id = U.id_usuario 
-        LEFT JOIN (SELECT usuario_id, SUM(monto) AS anticipo FROM anticipos WHERE estado = 0 GROUP BY usuario_id) AS A ON D.chica_id = A.usuario_id 
-        WHERE C.estado = 1 GROUP BY D.chica_id, D.estado, A.anticipo, U.nombre, U.apellido ORDER BY total DESC';
+        $sql = 'SELECT D.estado, COALESCE(SUM(D.comision), 0) AS total_venta,
+                COALESCE(SUM(CASE WHEN C.servicio_id != 0 THEN C.monto ELSE 0 END), 0) AS total_servicio, COALESCE(A.anticipo, 0) AS anticipo,
+                COALESCE(SUM(D.comision), 0) + COALESCE(SUM(CASE WHEN C.servicio_id != 0 THEN C.monto ELSE 0 END), 0) - COALESCE(A.anticipo, 0) AS total, 
+                D.chica_id, CONCAT(U.nombre, " ", U.apellido) AS chica FROM detalle_comisiones AS D 
+                INNER JOIN comisiones AS C ON C.id_comision = D.comision_id AND C.estado = 1 INNER JOIN usuarios AS U ON D.chica_id = U.id_usuario 
+                LEFT JOIN (SELECT usuario_id, SUM(monto) AS anticipo FROM anticipos WHERE estado = 0 GROUP BY usuario_id) AS A 
+                ON D.chica_id = A.usuario_id GROUP BY D.chica_id, D.estado, A.anticipo, U.nombre, U.apellido ORDER BY total DESC';
         try {
-            return $this->selectAll($sql);
+            $result = $this->selectAll($sql);
+            return [
+                'comisiones' => array_map(function ($row) {
+                    return [
+                        'anticipo'    => (int) $row['anticipo'],
+                        'chica'  => (string) $row['chica'],
+                        'chica_id'      => (int) $row['chica_id'],
+                        'estado'      => (int) $row['estado'],
+                        'total' => (int) $row['total'],
+                        'total_servicio' => (int) $row['total_servicio'],
+                        'total_venta' => (int) $row['total_venta']
+                    ];
+                }, $result)
+            ];
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -199,7 +211,6 @@ class comisionModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log('Error en createDetalleServicio: ' . $e->getMessage());
             return response::estado500('Error al crear el detalle del servicio. Por favor, intenta de nuevo.');
         }
     }
@@ -209,6 +220,64 @@ class comisionModel extends query
         $sql = 'SELECT MAX(id_comision) AS comision_id FROM comisiones';
         try {
             return $this->select($sql);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function updateComisiones(int $venta_id): string
+    {
+        $sql = "UPDATE comisiones SET estado = :estado, fecha_mod = now() WHERE venta_id = :venta_id";
+        $params = [
+            ':estado' => 2,
+            ':venta_id' => $venta_id
+        ];
+        try {
+            $result = $this->save($sql, $params);
+            return $result === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getComisionVenta(int $venta_id): array
+    {
+        $sql = 'SELECT id_comision FROM comisiones WHERE venta_id = :venta_id';
+        $params = [
+            ':venta_id' => $venta_id,
+        ];
+        try {
+            return $this->select($sql, $params);
+            [
+                'id_comision' => $result['id_comision']
+            ];
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getDetalleComision(int $comision_id): array
+    {
+        $sql = 'SELECT id_detalle_comision FROM detalle_comisiones WHERE comision_id = :comision_id';
+        $params = [
+            ':comision_id' => $comision_id,
+        ];
+        try {
+            return $this->selectAll($sql, $params);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function updateDetalleComisiones(array $id_detalle_comision): string
+    {
+        $sql = "UPDATE detalle_comisiones SET estado = :estado, fecha_mod = now() 
+                WHERE id_detalle_comision IN (" . implode(',', $id_detalle_comision) . ")";
+        $params = [':estado' => 2];
+
+        try {
+            $result = $this->save($sql, $params);
+            return $result === true ? 'ok' : 'error';
         } catch (Exception $e) {
             return response::estado500($e);
         }

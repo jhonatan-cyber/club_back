@@ -33,7 +33,7 @@ class devolucionModel extends query
         }
     }
 
-    public function createDevolucion(array $data)
+    public function createDevolucionServicio(array $data) 
     {
         $sql = 'INSERT INTO devoluciones (servicio_id,pieza_id,cliente_id,total) 
                VALUES(:servicio_id, :pieza_id, :cliente_id, :total )';
@@ -169,16 +169,27 @@ class devolucionModel extends query
         }
     }
 
+    public function anularVenta($id_venta)
+    {
+        $sql = 'UPDATE ventas SET estado = 0 WHERE id_venta = :id_venta';
+        $params = [
+            ':id_venta' => $id_venta
+        ];
+        try {
+            $resp = $this->save($sql, $params);
+            return $resp === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
     public function createDevolucionVenta(array $data)
     {
-        $sql = 'INSERT INTO devoluciones_ventas (chica_id, cliente_id, producto_id, cantidad, monto)
-                VALUES(:chica_id, :cliente_id, :producto_id, :cantidad, :monto)';
+        $sql = 'INSERT INTO devoluciones_ventas (cliente_id, venta_id, total)
+                VALUES(:cliente_id, :venta_id, :total)';
         $params = [
-            ':chica_id' => $data['chica_id'],
             ':cliente_id' => $data['cliente_id'],
-            ':producto_id' => $data['producto_id'],
-            ':cantidad' => $data['cantidad'],
-            ':monto' => $data['monto']
+            ':venta_id' => $data['venta_id'],
+            ':total' => $data['total']
         ];
         try {
             $result = $this->save($sql, $params);
@@ -188,35 +199,130 @@ class devolucionModel extends query
         }
     }
 
+    public function createDetalleDevolucionVenta(array $data): string
+    {
+
+        $sql = 'INSERT INTO detalle_devoluciones_ventas (devolucion_venta_id, producto_id, cantidad, precio, comision)
+                VALUES(:devolucion_venta_id, :producto_id, :cantidad, :precio, :comision)';
+        $params = [
+            ':devolucion_venta_id' => $data['devolucion_venta_id'],
+            ':producto_id' => $data['producto_id'],
+            ':cantidad' => $data['cantidad'],
+            ':precio' => $data['precio'],
+            ':comision' => $data['comision']
+        ];
+        try {
+            $result = $this->save($sql, $params);
+            return $result === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function createDevolucionVentaUsuario(array $data): string
+    {
+        $sql = 'INSERT INTO devoluciones_ventas_usuarios (detalle_devolucion_venta_id, usuario_id)
+                VALUES(:detalle_devolucion_venta_id, :usuario_id)';
+        $params = [
+            ':detalle_devolucion_venta_id' => $data['detalle_devolucion_venta_id'],
+            ':usuario_id' => $data['usuario_id']
+        ];
+        try {
+            $result = $this->save($sql, $params);
+            return $result === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
     public function getDevolucionesVenta()
     {
-        $sql = 'SELECT DV.id_devolucion_venta, DV.cantidad, DV.monto, 
-                CASE 
-                    WHEN DV.chica_id = 0 THEN "Sin Acompañante"
-                    ELSE U.nick 
-                END AS nick,
-                DV.fecha_crea, 
-                CONCAT(C.nombre, " ", C.apellido) as cliente,
-                CONCAT(
-                    CASE 
-                        WHEN RIGHT(CA.nombre, 1) = "s" THEN LEFT(CA.nombre, LENGTH(CA.nombre) - 1)
-                        ELSE CA.nombre
-                    END,
-                    " ", P.nombre
-                ) AS producto
-            FROM devoluciones_ventas AS DV
-            JOIN clientes AS C ON DV.cliente_id = C.id_cliente
-            JOIN productos AS P ON DV.producto_id = P.id_producto
-            LEFT JOIN usuarios AS U ON DV.chica_id = U.id_usuario
-            JOIN categorias AS CA ON P.categoria_id = CA.id_categoria
-            ORDER BY DV.id_devolucion_venta DESC';
+        $sql = "SELECT DV.venta_id, V.codigo, V.total, V.fecha_mod, V.estado, CONCAT(C.nombre, ' ', C.apellido) AS cliente 
+                FROM detalle_ventas AS DV 
+                JOIN ventas AS V ON DV.venta_id = V.id_venta 
+                JOIN clientes AS C ON V.cliente_id = C.id_cliente 
+                WHERE V.estado = 0 AND DV.estado = 0";
         try {
             $res = $this->selectAll($sql);
+            return array_map(function ($row) {
+                return [
+                    'venta_id' => (int) $row['venta_id'],
+                    'codigo' => (string) $row['codigo'],
+                    'total' => (int) $row['total'],
+                    'fecha_mod' => (string) $row['fecha_mod'],
+                    'cliente' => (string) $row['cliente'],
+                    'estado' => (int) $row['estado']
+                ];
+            }, $res);
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+    public function getLastDevolucionVenta()
+    {
+        $sql = 'SELECT id_devolucion_venta 
+            FROM devoluciones_ventas
+            ORDER BY id_devolucion_venta DESC
+            LIMIT 1';
+        try {
+            $res = $this->select($sql);
             return $res;
         } catch (Exception $e) {
             return response::estado500($e);
         }
     }
+    public function getLastDetalleDevolucionVenta()
+    {
+        $sql = 'SELECT id_detalle_devolucion 
+            FROM detalle_devoluciones_ventas
+            ORDER BY id_detalle_devolucion DESC
+            LIMIT 1';
+        try {
+            $res = $this->select($sql);
+            return $res;
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function getLastDetalleComisionChica(int $chica_id)
     {
@@ -251,6 +357,10 @@ class devolucionModel extends query
             return $e->getMessage();
         }
     }
+
+
+
+
 
     public function updateComisionMonto(array $data)
     {

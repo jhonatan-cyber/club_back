@@ -12,13 +12,27 @@ class ventaModel extends query
     {
         parent::__construct();
     }
-
     public function getVentas()
     {
-        $sql = 'SELECT V.id_venta,V.pieza_id,V.codigo,V.metodo_pago,V.total_comision,V.total, V.fecha_crea, C.nombre AS nombre_c,C.apellido AS apellido_c FROM ventas AS V 
-        JOIN clientes AS C ON V.cliente_id = C.id_cliente  WHERE V.estado=1 ORDER BY V.fecha_crea DESC';
+        $sql = "SELECT V.id_venta, V.pieza_id, V.codigo, V.metodo_pago, V.total_comision, V.total, V.fecha_crea, V.estado, 
+                CONCAT(C.nombre, ' ', C.apellido) AS cliente FROM ventas AS V JOIN clientes AS C ON V.cliente_id = C.id_cliente WHERE V.estado = 1
+                ORDER BY V.fecha_crea DESC";
         try {
-            return $this->selectAll($sql);
+            $result = $this->selectAll($sql);
+
+            return array_map(function ($row) {
+                return [
+                    'id_venta'       => (int)$row['id_venta'],
+                    'pieza_id'       => (int)$row['pieza_id'],
+                    'codigo'         => (string)$row['codigo'],
+                    'metodo_pago'    => (string)$row['metodo_pago'],
+                    'total_comision' => (int)$row['total_comision'],
+                    'total'          => (int)$row['total'],
+                    'fecha_crea'     => (string)$row['fecha_crea'],
+                    'cliente'        => (string)$row['cliente'],
+                    'estado'         => (int)$row['estado'],
+                ];
+            }, $result);
         } catch (Exception $e) {
             return response::estado500($e);
         }
@@ -87,18 +101,20 @@ class ventaModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log('VentaModel::createDetalleVenta() -> ' . $e);
             return response::estado500($e);
         }
     }
 
     public function getVenta(int $id_venta)
     {
-        $sql = 'SELECT D.id_detalle_venta, D.precio, D.comision, D.cantidad, D.sub_total,
+        $sql = "SELECT D.id_detalle_venta, D.precio, D.comision, D.cantidad, D.sub_total,
                 V.codigo, V.metodo_pago, V.total, V.total_comision, V.fecha_crea, 
                 P.nombre AS producto, C.nombre AS categoria, 
-                CL.nombre AS nombre_c, CL.apellido AS apellido_a, 
-                U.nombre AS nombre_u, U.apellido AS apellido_u 
+                P.id_producto,
+                CONCAT(CL.nombre, ' ', CL.apellido) AS cliente,
+                CONCAT(U.nombre, ' ', U.apellido) AS usuario,
+                U.id_usuario,
+                CL.id_cliente
                 FROM detalle_ventas AS D 
                 JOIN ventas AS V ON D.venta_id = V.id_venta 
                 JOIN productos AS P ON D.producto_id = P.id_producto 
@@ -106,14 +122,35 @@ class ventaModel extends query
                 JOIN clientes AS CL ON V.cliente_id = CL.id_cliente 
                 LEFT JOIN usuario_venta AS UV ON V.id_venta = UV.venta_id 
                 LEFT JOIN usuarios AS U ON UV.usuario_id = U.id_usuario 
-                WHERE V.id_venta = :id_venta';
+                WHERE V.id_venta = :id_venta";
         $params = [
             ':id_venta' => $id_venta
         ];
         try {
-            return $this->selectAll($sql, $params);
+            $result = $this->selectAll($sql, $params);
+            return array_map(function ($row) {
+                return [
+                    'id_detalle_venta' => (int)$row['id_detalle_venta'],
+                    'precio' => (int)$row['precio'],
+                    'comision' => (int)$row['comision'],
+                    'cantidad' => (int)$row['cantidad'],
+                    'sub_total' => (int)$row['sub_total'],
+                    'codigo' => (string)$row['codigo'],
+                    'metodo_pago' => (string)$row['metodo_pago'],
+                    'total' => (int)$row['total'],
+                    'total_comision' => (int)$row['total_comision'],
+                    'fecha_crea' => (string)$row['fecha_crea'],
+                    'producto' => (string)$row['producto'],
+                    'categoria' => (string)$row['categoria'],
+                    'cliente' => (string)$row['cliente'],
+                    'usuario' => (string)$row['usuario'],
+                    'id_usuario' => (int)$row['id_usuario'],
+                    'id_cliente' => (int)$row['id_cliente'],
+                    'id_producto' => (int)$row['id_producto'],
+
+                ];
+            }, $result);
         } catch (Exception $e) {
-            error_log('DetalleVentaModel::getVenta() -> ' . $e);
             return response::estado500($e);
         }
     }
@@ -129,7 +166,6 @@ class ventaModel extends query
             $resp = $this->save($sql, $params);
             return $resp === true ? 'ok' : 'error';
         } catch (Exception $e) {
-            error_log('UsuarioVentaModel::createUsuarioVenta() -> ' . $e);
             return response::estado500($e);
         }
     }
@@ -147,6 +183,24 @@ class ventaModel extends query
         }
     }
 
-  
-    
+    public function updateVenta(int $id_venta)
+    {
+        $venta = 'UPDATE ventas SET estado = 0, fecha_mod = now() WHERE id_venta = :id_venta';
+        $detalle_ventas = "UPDATE detalle_ventas SET estado = 0, fecha_mod = now() WHERE venta_id = :id_venta";
+        $params = [
+            ':id_venta' => $id_venta
+        ];
+
+        try {
+            $resp = $this->save($venta, $params);
+            if ($resp !== true) {
+                return 'error';
+            }
+
+            $result = $this->save($detalle_ventas, $params);
+            return $result === true ? 'ok' : 'error';
+        } catch (Exception $e) {
+            return response::estado500($e);
+        }
+    }
 }

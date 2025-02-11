@@ -252,6 +252,16 @@
                                 <span class="menu-title">Planillas</span>
                             </a>
                         </div>
+                        <div id="navDplanillas" class="menu-item mb-3">
+                            <a class="menu-link hover-elevate-up shadow-sm parent-hover btn btn-light-dark btn-sm"
+                                href="<?php echo BASE_URL ?>dplanillas" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                data-bs-dismiss="click" data-bs-placement="right">
+                                <span class="menu-icon">
+                                <i class="fa-solid fa-list-ol"></i>
+                                </span>
+                                <span class="menu-title">Detalle Planillas</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

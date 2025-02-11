@@ -60,6 +60,7 @@ class venta extends controller
 
     public function createVenta()
     {
+
         if ($this->method !== 'POST') {
             return $this->response(Response::estado405());
         }
@@ -70,21 +71,36 @@ class venta extends controller
 
         guard::validateToken($this->header, guard::secretKey());
 
-        $productos = $this->data['productos'] ?? [];
-        $chicas = $this->data['usuario_id'] ?? null;
-        $total_comision = $this->data['total_comision'] ?? 0;
-
-        $d_venta = [
-            'codigo' => (string) $this->data['codigo'],
-            'cliente_id' => (int) $this->data['cliente_id'],
-            'pieza_id' => (int) $this->data['pieza_id'],
-            'metodo_pago' => (string) $this->data['metodo_pago'],
-            'iva' => (int) $this->data['iva'],
-            'total' => (int) $this->data['total'],
-            'total_comision' => (int) $total_comision,
-        ];
-
         try {
+            $productos = $this->data['productos'] ?? [];
+            $chicasRaw = $this->data['usuario_id'] ?? [];
+            $chicas = [];
+
+            foreach ($chicasRaw as $item) {
+                if (is_array($item)) {
+                    foreach ($item as $subItem) {
+                        $chicas = array_merge($chicas, explode(',', $subItem));
+                    }
+                } elseif (is_string($item)) {
+                    $chicas = array_merge($chicas, explode(',', $item));
+                } elseif (is_numeric($item)) {
+                    $chicas[] = $item;
+                }
+            }
+
+            $chicas = array_map('trim', $chicas);
+            $chicas = array_map('intval', $chicas);
+
+            $d_venta = [
+                'codigo' => (string) $this->data['codigo'],
+                'cliente_id' => (int) $this->data['cliente_id'],
+                'pieza_id' => (int) $this->data['pieza_id'],
+                'metodo_pago' => (string) $this->data['metodo_pago'],
+                'iva' => (int) $this->data['iva'],
+                'total' => (int) $this->data['total'],
+                'total_comision' => (int) $this->data['total_comision'] ?? 0,
+            ];
+
             $venta = $this->venta->createVenta($d_venta);
             if ($venta !== 'ok') {
                 return $this->response(response::estado500('Error al crear la venta'));
@@ -106,123 +122,166 @@ class venta extends controller
                 if ($detalle_venta !== 'ok') {
                     return $this->response(response::estado500('Error al crear el detalle de la venta'));
                 }
+            }
 
-                if (!empty($chicas)) {
+            if ($this->data['propina'] > 0) {
+                $propina = $this->propina->createPropina($this->data['propina']);
+                if ($propina !== 'ok') {
+                    return $this->response(response::estado500('Error al crear la propina'));
+                }
 
-                    $numUsuarios = is_array($chicas) ? count($chicas) : 1;
-                    $comisionPorUsuario = $total_comision / $numUsuarios;
+                $personal = $this->venta->getMeserosCajera();
+                if (empty($personal)) {
+                    return $this->response(Response::estado204('No se encontraron meseros y cajeras disponibles'));
+                }
 
-                    $usuarios = !is_array($chicas) ? [$chicas] : $chicas;
-                    $data_comision = [
-                        'venta_id' => (int)$id_venta['id_venta'],
-                        'monto' => (int)$total_comision,
-                    ];
-                    $comision = $this->comision->createComision($data_comision);
-                    if ($comision !== 'ok') {
-                        return $this->response(response::estado500('Error al crear la comision'));
+                $id_propina = $this->propina->getLastPropina()['id_propina'];
+                if (empty($id_propina)) {
+                    return $this->response(Response::estado500('Error al obtener el ID de la propina'));
+                }
+                if (count($personal) > 0) {
+                    $propinaPorPersona = $this->data['propina'] / count($personal);
+                    foreach ($personal as $empleado) {
+                        $d_propina = [
+                            'monto' => (int)$propinaPorPersona,
+                            'propina_id' => (int)$id_propina,
+                            'usuario_id' => (int)$empleado['usuario_id']
+                        ];
+                        $propina_detalle = $this->propina->createDetallePropina($d_propina);
+                        if ($propina_detalle !== 'ok') {
+                            return $this->response(response::estado500('Error al crear el detalle de la propina'));
+                        }
                     }
-                    foreach ($usuarios as $usuario_id) {
-                        if ($usuario_id > 0) {
+                }
+            }
 
-                            $id_comision = $this->comision->getLastComision();
-                            $detalle_comision = [
-                                'comision_id' => (int)$id_comision['comision_id'],
-                                'chica_id' => (int)$usuario_id,
-                                'comision' => (int)$comisionPorUsuario,
-                            ];
-                            $detalle = $this->comision->cretaeDetalleComision($detalle_comision);
-                            if ($detalle !== 'ok') {
-                                return $this->response(response::estado500('Error al crear el detalle de la comision'));
+            if (!empty($chicas)) {
+                $comisiones = [];
+
+                foreach ($chicas as $chica) {
+                    if (!isset($comisiones[$chica])) {
+                        $comisiones[$chica] = 0;
+                    }
+                }
+
+
+                foreach ($productos as $index => $producto) {
+                    $id_producto_comision = $producto['comision'] ?? 0;
+
+                    if (isset($chicasRaw[$index])) {
+                        $usuario_producto = [];
+                        $item_raw = $chicasRaw[$index];
+
+
+                        if (is_array($item_raw)) {
+                            foreach ($item_raw as $subItem) {
+                                $usuario_producto = array_merge($usuario_producto, explode(',', $subItem));
                             }
+                        } else {
+                            $usuario_producto = explode(',', $item_raw);
+                        }
 
-                            $detalleUsuario = [
-                                'venta_id' => (int)$id_venta['id_venta'],
-                                'usuario_id' => (int)$usuario_id,
-                            ];
-                            $usuario_venta = $this->venta->createUsuarioVenta($detalleUsuario);
-                            if ($usuario_venta !== 'ok') {
-                                return $this->response(response::estado500('Error al crear el detalle de la venta'));
+                        $usuario_producto = array_map('trim', $usuario_producto);
+                        $usuario_producto = array_map('intval', $usuario_producto);
+
+                        $num_usuarios = count($usuario_producto);
+                        if ($num_usuarios > 0) {
+                            $comision_usuario = $id_producto_comision / $num_usuarios;
+                            foreach ($usuario_producto as $usuario) {
+                                if (!isset($comisiones[$usuario])) {
+                                    $comisiones[$usuario] = 0;
+                                }
+                                $comisiones[$usuario] += $comision_usuario;
                             }
+                        }
+                    }
+                }
 
-                            $anticipos = $this->anticipo->getAnticipoUsuario($usuario_id);
-                            if (!empty($anticipos) && is_array($anticipos)) {
-                                foreach ($anticipos as $anticipo) {
-                                    if (isset($anticipo['id_anticipo']) && $total_comision > $anticipo['monto']) {
-                                        $updateResult = $this->anticipo->updateAnticipo((int)$anticipo['id_anticipo']);
-                                        if ($updateResult !== 'ok') {
-                                            error_log('Error al actualizar el anticipo: ' . $updateResult);
-                                            return $this->response(response::estado500('Error al actualizar el anticipo'));
-                                        }
+                $d_comision = [
+                    'venta_id' => (int)$id_venta['id_venta'],
+                    'monto' => (int)$this->data['total_comision'],
+                ];
+
+                $comision = $this->comision->createComision($d_comision);
+                if ($comision !== 'ok') {
+                    return $this->response(response::estado500('Error al crear la comision'));
+                }
+                if (!empty($comisiones)) {
+                    $id_comision = $this->comision->getLastComision()['comision_id'];
+                    foreach ($comisiones as $usuario_id => $comisionPorUsuario) {
+                        $d_detalle_comision = [
+                            'comision_id' => (int)$id_comision,
+                            'chica_id' => (int)$usuario_id,
+                            'comision' => (int)$comisionPorUsuario,
+                        ];
+
+                        $detalle_comision = $this->comision->cretaeDetalleComision($d_detalle_comision);
+
+                        if ($detalle_comision !== 'ok') {
+                            return $this->response(response::estado500('Error al crear el detalle de la comisión'));
+                        }
+
+                        $d_usuario_venta = [
+                            'venta_id' => (int)$id_venta['id_venta'],
+                            'usuario_id' => (int)$usuario_id,
+                        ];
+                        $usuario_venta = $this->venta->createUsuarioVenta($d_usuario_venta);
+                        if ($usuario_venta !== 'ok') {
+                            return $this->response(response::estado500('Error al crear el detalle de usuario venta de la venta'));
+                        }
+
+                        $anticipos = $this->anticipo->getAnticipoUsuario($usuario_id);
+                        if (!empty($anticipos) && is_array($anticipos)) {
+                            foreach ($anticipos as $anticipo) {
+                                if (isset($anticipo['id_anticipo']) && $this->data['total_comision'] > $anticipo['monto']) {
+                                    $updateResult = $this->anticipo->updateAnticipo((int)$anticipo['id_anticipo']);
+                                    if ($updateResult !== 'ok') {
+                                        return $this->response(response::estado500('Error al actualizar el anticipo'));
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-
-                if ($this->data['propina'] > 0) {
-                    $propina = $this->propina->createPropina($this->data['propina']);
-                    if ($propina !== 'ok') {
-                        return $this->response(response::estado500('Error al crear la propina'));
-                    }
-
-                    $personal = $this->venta->getMeserosCajera();
-                    if (empty($personal)) {
-                        return $this->response(Response::estado204('No se encontraron meseros y cajeras disponibles'));
-                    }
-
-                    $id_propina = $this->propina->getLastPropina();
-                    if (!$id_propina) {
-                        return $this->response(Response::estado500('Error al obtener el ID de la propina'));
-                    }
-
-                    if (count($personal) > 0) {
-                        $propinaPorPersona = $this->data['propina'] / count($personal);
-                        foreach ($personal as $empleado) {
-                            $d_propina = [
-                                'monto' => (int)$propinaPorPersona,
-                                'propina_id' => (int)$id_propina['id_propina'],
-                                'usuario_id' => (int)$empleado['usuario_id']
-                            ];
-                            $propina_detalle = $this->propina->createDetallePropina($d_propina);
-                            if ($propina_detalle !== 'ok') {
-                                return $this->response(response::estado500('Error al crear el detalle de la propina'));
-                            }
-                        }
-                    }
-                }
-
-
-                if (!empty($this->data['id_pedido'])) {
-                    $pedido = $this->pedido->updatePedido($this->data['id_pedido']);
-                    if ($pedido !== 'ok') {
-                        return $this->response(response::estado500('Error al actualizar el pedido'));
-                    }
-                }
-
-                $monto_cierre = 0;
-                $monto_transferencia = 0;
-                if ($this->data['metodo_pago'] == 'Efectivo') {
-                    $monto_cierre = $this->data['total'];
-                } else if ($this->data['metodo_pago'] == 'Transferencia' || $this->data['metodo_pago'] == 'Tarjeta') {
-                    $monto_transferencia = $this->data['total'];
-                }
-
-                $detalle_caja = [
-                    'monto_cierre' => (int)$monto_cierre,
-                    'monto_trasferencia' => (int)$monto_transferencia,
-                ];
-
-                $caja = $this->caja->updateCaja($detalle_caja);
-                if ($caja !== 'ok') {
-                    return $this->response(response::estado500('Error al actualizar la caja'));
-                }
-
-                return $this->response(response::estado201('Venta realizada con éxito'));
             }
+
+            if (!empty($this->data['id_pedido'])) {
+                $pedido = $this->pedido->updatePedido($this->data['id_pedido']);
+                if ($pedido !== 'ok') {
+                    return $this->response(response::estado500('Error al actualizar el pedido'));
+                }
+            }
+
+            $monto_cierre = 0;
+            $monto_transferencia = 0;
+            if ($this->data['metodo_pago'] === 'Efectivo') {
+                $monto_cierre = $this->data['total'];
+            } else if ($this->data['metodo_pago'] == 'Transferencia' || $this->data['metodo_pago'] == 'Tarjeta') {
+                $monto_transferencia = $this->data['total'];
+            }
+
+            $d_caja = [
+                'monto_cierre' => (int)$monto_cierre,
+                'monto_trasferencia' => (int)$monto_transferencia,
+            ];
+            $caja = $this->caja->updateCaja($d_caja);
+            if ($caja !== 'ok') {
+                return $this->response(response::estado500('Error al actualizar la caja'));
+            }
+
+            if (!empty($this->data['id_cuenta'])) {
+                $d_cuenta = [
+                    'metodo_pago' => $this->data['metodo_pago'],
+                    'id_cuenta' => $this->data['id_cuenta']
+                ];
+                $cuenta = $this->cuenta->cobrarCuenta($d_cuenta);
+                if ($cuenta !== 'ok') {
+                    return $this->response(response::estado500('Error al cobrar la cuenta'));
+                }
+            }
+            return $this->response(response::estado201('Venta realizada con éxito'));
         } catch (Exception $e) {
-            return $this->response(response::estado500('Error al crear la venta'));
+            return $this->response(response::estado500($e));
         }
     }
 

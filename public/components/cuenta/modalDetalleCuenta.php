@@ -42,6 +42,21 @@
                                         <option value="Transferencia">Transferencia</option>
                                     </select>
                                 </div>
+                                <div id="select_iva" class="mb-3" hidden>
+                                    <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Iva</b></small>
+                                    <div class="d-flex input-group input-group-solid">
+                                        <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                                        <input type="number" min="0" class="form-control form-control-sm form-control-solid"
+                                            id="iva_cuenta" placeholder="Impuesto Iva" />
+                                    </div>
+                                </div>
+                                <small class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-1"><b>Propina</b></small>
+                                <div class="d-flex input-group input-group-solid mb-3">
+                                    <span class="input-group-text" id="basic-addon1"><i class="fa-solid fa-coins"></i></span>
+                                    <input type="number" min="0"
+                                        class="form-control form-control-sm form-control-solid" id="propina_cuenta" placeholder="Propina" />
+                                </div>
+
                                 <small id="comision"
                                     class="d-flex align-items-center text-gray-600 text-hover-primary me-5 mb-2"></small>
 
@@ -57,7 +72,7 @@
                                             <tr class="text-start text-gray-800 fw-bold fs-7 text-uppercase gs-0">
                                                 <th>Hora</th>
                                                 <th>Anfitriona</th>
-                                                <th>Producto</th>                        
+                                                <th>Producto</th>
                                                 <th>Cantidad</th>
                                                 <th>precio</th>
                                                 <th>comision</th>
@@ -71,7 +86,7 @@
                             <div class="separator mx-1 my-4"></div>
                             <div class="col-12">
                                 <div class="d-flex justify-content-end">
-                                    <h4 id="total" class="text-gray-600 text-uppercase text-hover-primary me-5 mb-3">
+                                    <h4 id="total_cuenta" class="text-gray-600 text-uppercase text-hover-primary me-5 mb-3">
                                     </h4>
                                 </div>
                             </div>

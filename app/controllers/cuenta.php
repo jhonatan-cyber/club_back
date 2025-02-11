@@ -267,19 +267,4 @@ class cuenta extends controller
         }
     }
 
-    public function clearCuentasCache()
-    {
-        if ($this->method !== 'POST') {
-            return $this->response(Response::estado405());
-        }
-
-        guard::validateToken($this->header, guard::secretKey());
-        try {
-            cache::delete('cuentas_list');
-            return $this->response(response::estado200('Cache limpiada correctamente'));
-        } catch (Exception $e) {
-            error_log("Error clearing cache: " . $e->getMessage());
-            return $this->response(response::estado500($e));
-        }
-    }
 }
